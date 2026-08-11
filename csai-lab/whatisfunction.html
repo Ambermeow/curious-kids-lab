@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>函数的魔法世界 / The Magical World of Functions</title>
+    <!-- 引入 Tailwind CSS 进行极速响应式美化 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(0px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(2px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(0deg); }
+        }
+        .animate-shake {
+            animation: shake 0.5s infinite;
+        }
+        /* 渐变背景 */
+        .bg-gradient-custom {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+        }
+
+        /* 彩色纸屑粒子样式 */
+        .confetti-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            pointer-events: none;
+            z-index: 100;
+            border-radius: 50%;
+            animation: confettiFall 2.5s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(150px) translateX(var(--translate-x, 20px)) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-custom min-h-screen font-sans text-slate-800 pb-12 relative overflow-x-hidden">
+
+    <header class="max-w-5xl mx-auto my-6 px-4">
+        <div class="bg-white/80 backdrop-blur shadow-sm rounded-2xl p-4 flex justify-between items-center border border-slate-100">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl">🔮</span>
+                <h1 class="text-xl md:text-2xl font-black text-indigo-600 tracking-wide" id="nav-title">函数的魔法世界</h1>
+            </div>
+            <span class="text-xs bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-full font-bold">小小程序员关卡挑战 🎒</span>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 space-y-8">
+
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 relative overflow-hidden" id="stage-1">
+            <div class="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-xs font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider shadow-sm" id="badge-s1">
+                第一关
+            </div>
+
+            <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                <span class="text-yellow-500">📥</span> 
+                <span id="s1-title">第一关：数学找规律与神奇黑箱</span>
+            </h2>
+            <p class="text-slate-600 mt-2 text-sm md:text-base leading-relaxed" id="s1-desc">
+                在探索计算机世界的函数之前，让我们先来测试一下你大脑自带的“超级规律雷达”！
+            </p>
+
+            <div class="mt-6 space-y-6" id="sequence-warmup">
+                <h3 class="text-lg font-black text-indigo-600 border-b pb-2" id="warmup-title">🏃‍♂️ 脑力暖身：数列找规律</h3>
+                
+                <!-- 暖身 1 -->
+                <div id="warmup-1" class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100 relative">
+                    <h4 class="font-bold text-slate-800 flex items-center gap-1.5" id="w1-subtitle">🎈 暖身 1：跳跃的数字 (等差数列)</h4>
+                    <p class="text-xs text-slate-500 mt-1" id="w1-desc">下面这串彩色的数字气泡，正在规律地变大。你能猜到问号 [ ? ] 处应该填什么数字吗？</p>
+                    
+                    <div class="flex flex-wrap items-center gap-3 my-4">
+                        <span class="w-12 h-12 rounded-full bg-pink-500 text-white font-extrabold flex items-center justify-center text-lg shadow">3</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-purple-500 text-white font-extrabold flex items-center justify-center text-lg shadow">6</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-blue-500 text-white font-extrabold flex items-center justify-center text-lg shadow">9</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow">12</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-yellow-500 text-white font-extrabold flex items-center justify-center text-lg shadow">15</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="seq-guess-1" class="w-20 p-2 border-2 border-indigo-300 rounded-xl text-center font-extrabold text-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-md transition-all" placeholder="?">
+                            <button id="btn-seq-1" onclick="checkSeq1()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition transform active:scale-95 shadow">验证</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 min-h-[32px] mt-2 flex-wrap">
+                        <p id="fb-seq-1" class="text-sm font-bold"></p>
+                        <button id="next-warmup-1" onclick="goToWarmup2()" class="hidden bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-full text-xs shadow-md animate-bounce">
+                            继续 ➔
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 暖身 2 (默认隐藏) -->
+                <div id="warmup-2" class="bg-purple-50/50 p-5 rounded-2xl border border-purple-100 relative hidden">
+                    <h4 class="font-bold text-slate-800 flex items-center gap-1.5" id="w2-subtitle">🧠 暖身 2：自然界的神秘密码 (超难挑战)</h4>
+                    <p class="text-xs text-slate-500 mt-1" id="w2-desc">这串数列非常著名，它隐藏在花瓣、松果和海螺的身上！仔细观察：前面两个数相加，是不是等于第三个数？</p>
+                    
+                    <div class="flex flex-wrap items-center gap-3 my-4">
+                        <span class="w-12 h-12 rounded-full bg-teal-500 text-white font-extrabold flex items-center justify-center text-lg shadow">1</span>
+                        <span class="text-slate-400 font-bold">+</span>
+                        <span class="w-12 h-12 rounded-full bg-teal-500 text-white font-extrabold flex items-center justify-center text-lg shadow">1</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-indigo-500 text-white font-extrabold flex items-center justify-center text-lg shadow">2</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-pink-500 text-white font-extrabold flex items-center justify-center text-lg shadow">3</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-purple-500 text-white font-extrabold flex items-center justify-center text-lg shadow">5</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-blue-500 text-white font-extrabold flex items-center justify-center text-lg shadow">8</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <span class="w-12 h-12 rounded-full bg-emerald-500 text-white font-extrabold flex items-center justify-center text-lg shadow">13</span>
+                        <span class="text-slate-400 font-bold">➔</span>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="seq-guess-2" class="w-20 p-2 border-2 border-purple-300 rounded-xl text-center font-extrabold text-xl focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-md transition-all" placeholder="?">
+                            <button id="btn-seq-2" onclick="checkSeq2()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-xl text-sm transition transform active:scale-95 shadow">挑战</button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 min-h-[32px] mt-2 flex-wrap">
+                        <p id="fb-seq-2" class="text-sm font-bold"></p>
+                        <button id="next-warmup-2" onclick="goToMetaCard()" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-black px-4 py-1.5 rounded-full text-xs shadow-md animate-bounce">
+                            继续 ➔
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="metaphysical-card" class="mt-8 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden hidden transform transition-all duration-700 scale-95 opacity-0">
+                <div class="absolute -right-16 -top-16 w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
+                <div class="absolute -left-16 -bottom-16 w-40 h-40 bg-white/10 rounded-full blur-xl"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                    <div class="text-6xl animate-pulse">💡</div>
+                    <div class="space-y-3 text-center md:text-left">
+                        <h3 class="text-xl md:text-2xl font-black tracking-wide" id="meta-title">哇！原来你大脑中隐藏着“天然的函数”！</h3>
+                        <p class="text-sm md:text-base text-indigo-100 leading-relaxed" id="meta-desc">
+                            你发现了吗？刚才玩游戏时，你没有写任何代码，但你只看了几秒钟数字，大脑就自动把规律总结出来了！这就是人类大脑最不可思议的**“形而上”**思考能力。我们的本能生来就能将“输入”与“输出”通过某种规则链接在一起，这就是**“函数”（Function）**的终极本质！
+                        </p>
+                        <div class="pt-2">
+                            <button onclick="unlockTableChallenge()" class="bg-white text-indigo-600 hover:bg-indigo-50 hover:scale-105 font-black px-6 py-3 rounded-full shadow-lg transition transform active:scale-95" id="btn-unlock-table">
+                                🚀 进入双列黑箱函数挑战！
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 bg-slate-50 rounded-2xl p-6 border border-slate-100 hidden" id="math-table-1">
+                <h3 class="text-lg font-bold text-indigo-600 mb-4" id="s1-g1-title">✨ 简单黑箱挑战</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <!-- 数据对应表 -->
+                    <div class="space-y-3 bg-white p-4 rounded-xl shadow-inner text-sm md:text-base">
+                        <div class="grid grid-cols-2 font-bold text-slate-500 border-b pb-2">
+                            <span id="tbl-input-1">输入 (x)</span>
+                            <span id="tbl-output-1">输出 (f(x))</span>
+                        </div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>1</span><span class="text-emerald-500 font-bold">3</span></div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>4</span><span class="text-emerald-500 font-bold">6</span></div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>7</span><span class="text-emerald-500 font-bold">9</span></div>
+                        <div class="grid grid-cols-2 text-slate-700 items-center">
+                            <span class="font-bold text-indigo-600">10</span>
+                            <div class="flex items-center gap-2">
+                                ➔ <input type="number" id="guess1" class="w-16 p-1.5 border-2 border-indigo-300 rounded-lg text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3D 黑箱模型展示 -->
+                    <div class="flex flex-col items-center justify-center relative">
+                        <div id="bbox1" class="w-40 h-40 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl border-4 border-slate-700 transition-all duration-500 transform hover:scale-105">
+                            <div class="text-4xl animate-bounce">❓</div>
+                            <span class="font-black text-sm tracking-wider mt-2" id="bbox1-label">数学黑箱</span>
+                        </div>
+                        <button id="btn-check-1" onclick="checkAnswer1()" class="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-2.5 rounded-full shadow-md transition transform active:scale-95">
+                            检查答案
+                        </button>
+                        <div class="flex items-center gap-4 mt-3 min-h-[32px] flex-wrap">
+                            <p id="feedback-1" class="text-sm font-semibold"></p>
+                            <button id="next-table-1" onclick="goToTable2()" class="hidden bg-emerald-500 hover:bg-emerald-600 text-white font-black px-4 py-1.5 rounded-full text-xs shadow-md animate-bounce">
+                                继续 ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="math-challenge-2" class="mt-8 pt-8 border-t border-slate-100 hidden">
+                <h3 class="text-lg font-bold text-purple-600 mb-4" id="s1-g2-title">🔥 进阶挑战（需要一点智慧！）</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="space-y-3 bg-white p-4 rounded-xl shadow-inner text-sm md:text-base">
+                        <div class="grid grid-cols-2 font-bold text-slate-500 border-b pb-2">
+                            <span id="tbl-input-2">输入 (x)</span>
+                            <span id="tbl-output-2">输出 (f(x))</span>
+                        </div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>2</span><span class="text-purple-500 font-bold">5</span></div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>3</span><span class="text-purple-500 font-bold">7</span></div>
+                        <div class="grid grid-cols-2 text-slate-700"><span>5</span><span class="text-purple-500 font-bold">11</span></div>
+                        <div class="grid grid-cols-2 text-slate-700 items-center">
+                            <span class="font-bold text-indigo-600">10</span>
+                            <div class="flex items-center gap-2">
+                                ➔ <input type="number" id="guess2" class="w-16 p-1.5 border-2 border-purple-300 rounded-lg text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all" placeholder="?">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center justify-center relative">
+                        <div id="bbox2" class="w-40 h-40 bg-slate-800 rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl border-4 border-slate-700 transition-all duration-500 transform hover:scale-105">
+                            <div class="text-4xl animate-bounce">❓❓</div>
+                            <span class="font-black text-sm tracking-wider mt-2" id="bbox2-label">终极黑箱</span>
+                        </div>
+                        <button id="btn-check-2" onclick="checkAnswer2()" class="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-extrabold px-6 py-2.5 rounded-full shadow-md transition transform active:scale-95">
+                            检查答案
+                        </button>
+                        <div class="flex items-center gap-4 mt-3 min-h-[32px] flex-wrap">
+                            <p id="feedback-2" class="text-sm font-semibold"></p>
+                            <button id="next-stage-2" onclick="goToStage2()" class="hidden bg-purple-500 hover:bg-purple-600 text-white font-black px-4 py-1.5 rounded-full text-xs shadow-md animate-bounce">
+                                开启第二关 ➔
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 relative overflow-hidden opacity-50 pointer-events-none transition-all duration-500" id="stage-2">
+            <div class="absolute top-0 right-0 bg-orange-400 text-orange-900 text-xs font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider shadow-sm" id="badge-s2">
+                第二关
+            </div>
+
+            <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                <span class="text-orange-500">🥤</span> 
+                <span id="s2-title">第二关：神奇果汁机（程序函数）</span>
+            </h2>
+            <p class="text-slate-600 mt-2 text-sm md:text-base leading-relaxed" id="s2-desc">
+                太棒了！在计算机编程里，函数就像一个封装好复杂流程的“神奇果汁机”。你只需提供原料（输入），它就会自动剥皮、搅拌、过滤，为你吐出香甜的果汁。
+            </p>
+
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                
+                <!-- 1. 水果输入选择 (SVG 矢量图) -->
+                <div class="space-y-4">
+                    <p class="text-center font-bold text-slate-500 text-xs tracking-wider uppercase mb-2" id="s2-select-title">第一步：选择输入的水果</p>
+                    
+                    <!-- 猕猴桃 (绿色) -->
+                    <button onclick="blendFruit('kiwi')" class="w-full flex items-center gap-4 bg-lime-50 hover:bg-lime-100 border-2 border-lime-200 p-3 rounded-2xl transition transform active:scale-95 text-left">
+                        <span class="p-2 bg-lime-100 rounded-xl">
+                            <svg width="40" height="40" viewBox="0 0 64 64">
+                                <circle cx="32" cy="34" r="22" fill="#8D6E63"/>
+                                <circle cx="32" cy="34" r="18" fill="#8BC34A"/>
+                                <circle cx="32" cy="34" r="6" fill="#FFFDE7"/>
+                                <circle cx="24" cy="30" r="1.5" fill="#2E2E2E"/>
+                                <circle cx="40" cy="30" r="1.5" fill="#2E2E2E"/>
+                                <circle cx="24" cy="38" r="1.5" fill="#2E2E2E"/>
+                                <circle cx="40" cy="38" r="1.5" fill="#2E2E2E"/>
+                                <circle cx="32" cy="26" r="1.5" fill="#2E2E2E"/>
+                                <circle cx="32" cy="42" r="1.5" fill="#2E2E2E"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="font-bold text-lime-800" id="fruit-kiwi-title">猕猴桃</div>
+                            <div class="text-xs text-lime-600 font-semibold" id="input-kiwi-tag">输入: "猕猴桃"</div>
+                        </div>
+                    </button>
+
+                    <!-- 橙子 (橙色) -->
+                    <button onclick="blendFruit('orange')" class="w-full flex items-center gap-4 bg-orange-50 hover:bg-orange-100 border-2 border-orange-200 p-3 rounded-2xl transition transform active:scale-95 text-left">
+                        <span class="p-2 bg-orange-100 rounded-xl">
+                            <svg width="40" height="40" viewBox="0 0 64 64">
+                                <circle cx="32" cy="34" r="22" fill="#E67E22"/>
+                                <circle cx="32" cy="34" r="18" fill="#F39C12"/>
+                                <circle cx="32" cy="34" r="2" fill="#D35400"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="font-bold text-orange-800" id="fruit-orange-title">甜橙子</div>
+                            <div class="text-xs text-orange-600 font-semibold" id="input-orange-tag">输入: "橙子"</div>
+                        </div>
+                    </button>
+
+                    <!-- 西瓜 (红色) -->
+                    <button onclick="blendFruit('watermelon')" class="w-full flex items-center gap-4 bg-red-50 hover:bg-red-100 border-2 border-red-200 p-3 rounded-2xl transition transform active:scale-95 text-left">
+                        <span class="p-2 bg-red-100 rounded-xl">
+                            <svg width="40" height="40" viewBox="0 0 64 64">
+                                <path d="M10 20 Q 32 55 54 20 Z" fill="#27AE60"/>
+                                <path d="M14 21 Q 32 48 50 21 Z" fill="#F1C40F"/>
+                                <path d="M16 21 Q 32 45 48 21 Z" fill="#E74C3C"/>
+                                <circle cx="26" cy="27" r="2" fill="#000"/><circle cx="38" cy="27" r="2" fill="#000"/><circle cx="32" cy="33" r="2" fill="#000"/>
+                            </svg>
+                        </span>
+                        <div>
+                            <div class="font-bold text-red-800" id="fruit-melon-title">大西瓜</div>
+                            <div class="text-xs text-red-600 font-semibold" id="input-melon-tag">输入: "西瓜"</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- 2. 果汁机 SVG 动力展示 -->
+                <div class="flex flex-col items-center justify-center">
+                    <p class="text-center font-bold text-slate-500 text-xs tracking-wider uppercase mb-4" id="s2-machine-title">第二步：果汁机加工</p>
+                    <div id="juicer-machine-wrapper" class="relative w-48 h-64 bg-slate-50 border border-slate-200 rounded-3xl p-4 flex flex-col justify-between items-center shadow-inner">
+                        
+                        <!-- 水果飞入落点区 -->
+                        <div id="flying-fruit" class="absolute top-4 opacity-0 transition-all duration-500 transform scale-50"></div>
+
+                        <svg class="w-32 h-44" viewBox="0 0 100 130">
+                            <!-- 杯盖 -->
+                            <path d="M30 15 L70 15 L65 25 L35 25 Z" fill="#7F8C8D" />
+                            <!-- 搅拌杯 -->
+                            <path d="M25 25 L75 25 L65 85 L35 85 Z" fill="#E0F7FA" opacity="0.6" stroke="#B2EBF2" stroke-width="2"/>
+                            <!-- 刀片 -->
+                            <path d="M42 80 L58 80 L50 72 Z" fill="#95A5A6"/>
+                            <!-- 榨汁液体 (动态) -->
+                            <path id="juice-liquid" d="M35 85 L65 85 L60 85 L40 85 Z" fill="transparent" style="transition: all 1s ease-in-out;"/>
+                            <!-- 底座 -->
+                            <rect x="25" y="86" width="50" height="30" rx="6" fill="#BDC3C7" />
+                            <!-- 状态指示灯 -->
+                            <circle cx="50" cy="101" r="5" fill="#E74C3C" id="juicer-light" />
+                        </svg>
+
+                        <!-- 输出果汁杯 -->
+                        <div class="flex items-center gap-2 mt-2">
+                            <span class="text-2xl" id="output-cup">🥛</span>
+                            <span class="text-xs font-extrabold text-indigo-600" id="juice-count-label">已榨汁: 0 / 3</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 函数内部代码 100% 汉化中文伪代码 -->
+                <div class="bg-slate-900 text-slate-300 p-5 rounded-2xl font-mono text-xs md:text-sm shadow-2xl relative border-2 border-slate-800">
+                    <p class="text-center font-bold text-slate-500 text-[10px] tracking-wider uppercase mb-3" id="s2-code-title">第三步：函数内的代码指令</p>
+                    <div class="space-y-2">
+                        <div class="text-sky-400">函数 <span class="text-yellow-400">制作果汁</span>(输入水果) {</div>
+                        <div id="code-line-1" class="pl-4 py-1 rounded transition-colors duration-200">1. <span class="text-purple-400">清洗并去皮</span>(输入水果);</div>
+                        <div id="code-line-2" class="pl-4 py-1 rounded transition-colors duration-200">2. <span class="text-purple-400">高速搅拌榨汁</span>();</div>
+                        <div id="code-line-3" class="pl-4 py-1 rounded transition-colors duration-200">3. <span class="text-purple-400">过滤美味果渣</span>();</div>
+                        <div id="code-line-4" class="pl-4 py-1 rounded transition-colors duration-200">4. <span class="text-emerald-400">返回</span> 鲜榨果汁;</div>
+                        <div class="text-sky-400">}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-col items-center justify-center mt-6 gap-3">
+                <p id="juice-feedback" class="text-center font-bold text-emerald-600 min-h-[24px] text-sm md:text-base"></p>
+                <button id="next-stage-3" onclick="goToStage3()" class="hidden bg-orange-500 hover:bg-orange-600 text-white font-extrabold px-8 py-3 rounded-full shadow-lg transition transform active:scale-95 animate-bounce">
+                    开启第三关 ➔
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-100 relative overflow-hidden opacity-50 pointer-events-none transition-all duration-500" id="stage-3">
+            <div class="absolute top-0 right-0 bg-purple-400 text-purple-900 text-xs font-bold px-4 py-1.5 rounded-bl-2xl uppercase tracking-wider shadow-sm" id="badge-s3">
+                第三关
+            </div>
+
+            <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                <span class="text-purple-500">🧱</span> 
+                <span id="s3-title">第三关：打包你的“整理房间”函数</span>
+            </h2>
+            <p class="text-slate-600 mt-2 text-sm md:text-base leading-relaxed" id="s3-desc">
+                在计算机的世界里，我们可以把许多条琐碎、零散的指令，统统打包进一个自定义函数里！这就好比是一个“懒人一键快捷键”。
+                请把右边属于<b>“整理房间”</b>的正确指令，拖动（或点击）到左侧函数 `整理房间()` 内部吧！
+            </p>
+
+            <!-- 房间状态显示区 -->
+            <div class="my-6 bg-slate-50 rounded-2xl p-4 border border-slate-200 text-center">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1" id="s3-room-status-title">当前房间状态</div>
+                <div id="room-state-visual" class="text-5xl my-2">🧸🧦🍕🛌💨</div>
+                <div id="room-state-text" class="text-xs font-semibold text-slate-500">目前房间一团糟，需要你组装函数来一键净化！</div>
+            </div>
+
+            <!-- 拖拽 & 点击积木交互区 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch mt-6">
+                <!-- 函数放置区 -->
+                <div class="bg-indigo-50/50 rounded-2xl p-5 border-2 border-dashed border-indigo-300 flex flex-col">
+                    <div class="font-mono text-sm text-indigo-800 font-bold mb-3 flex items-center gap-1.5" id="s3-func-header">
+                        <span class="text-indigo-500">⚙️</span> 函数 <span class="text-pink-600 font-black">整理房间</span>() {
+                    </div>
+                    
+                    <!-- 接收槽 -->
+                    <div id="function-container" ondragover="allowDrop(event)" ondrop="drop(event)" class="flex-grow min-h-[160px] bg-white rounded-xl p-3 border border-indigo-100 flex flex-col gap-2 shadow-inner animate-pulse">
+                        <!-- 拖入的积木将在这里显示 -->
+                    </div>
+                    
+                    <div class="font-mono text-sm text-indigo-800 font-bold mt-3">
+                        }
+                    </div>
+                </div>
+
+                <!-- 备选积木块池 -->
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                    <p class="text-center font-bold text-slate-500 text-xs tracking-wider uppercase mb-3" id="s3-blocks-title">动作备用池 (点击或拖拽)</p>
+                    <div id="blocks-pool" ondragover="allowDrop(event)" ondrop="drop(event)" class="flex flex-col gap-2 min-h-[160px]">
+                        
+                        <!-- 任务块1 (正确) -->
+                        <div id="block-trash" draggable="true" ondragstart="drag(event)" data-correct="true" onclick="clickMove(this)" class="bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-xl font-bold cursor-pointer shadow-md select-none flex items-center justify-between text-xs md:text-sm active:scale-95 transform transition-transform">
+                            <span class="flex items-center gap-2">🧹 <span class="b-text" data-zh="捡起地上的垃圾">捡起地上的垃圾</span></span>
+                            <span class="text-[10px] bg-sky-700/50 px-2 py-0.5 rounded-full font-mono">整理</span>
+                        </div>
+
+                        <!-- 任务块2 (正确) -->
+                        <div id="block-bed" draggable="true" ondragstart="drag(event)" data-correct="true" onclick="clickMove(this)" class="bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-xl font-bold cursor-pointer shadow-md select-none flex items-center justify-between text-xs md:text-sm active:scale-95 transform transition-transform">
+                            <span class="flex items-center gap-2">🛏️ <span class="b-text" data-zh="把被子叠整齐">把被子叠整齐</span></span>
+                            <span class="text-[10px] bg-sky-700/50 px-2 py-0.5 rounded-full font-mono">整理</span>
+                        </div>
+
+                        <!-- 任务块3 (错误) -->
+                        <div id="block-switch" draggable="true" ondragstart="drag(event)" data-correct="false" onclick="clickMove(this)" class="bg-slate-400 hover:bg-slate-500 text-white p-3 rounded-xl font-bold cursor-pointer shadow-md select-none flex items-center justify-between text-xs md:text-sm active:scale-95 transform transition-transform">
+                            <span class="flex items-center gap-2">🎮 <span class="b-text" data-zh="打开Switch玩游戏">打开Switch玩游戏</span></span>
+                            <span class="text-[10px] bg-slate-600/50 px-2 py-0.5 rounded-full font-mono">分心</span>
+                        </div>
+
+                        <!-- 任务块4 (正确) -->
+                        <div id="block-toys" draggable="true" ondragstart="drag(event)" data-correct="true" onclick="clickMove(this)" class="bg-sky-500 hover:bg-sky-600 text-white p-3 rounded-xl font-bold cursor-pointer shadow-md select-none flex items-center justify-between text-xs md:text-sm active:scale-95 transform transition-transform">
+                            <span class="flex items-center gap-2">🤖 <span class="b-text" data-zh="玩具放回箱子里">玩具放回箱子里</span></span>
+                            <span class="text-[10px] bg-sky-700/50 px-2 py-0.5 rounded-full font-mono">整理</span>
+                        </div>
+
+                        <!-- 任务块5 (错误) -->
+                        <div id="block-comics" draggable="true" ondragstart="drag(event)" data-correct="false" onclick="clickMove(this)" class="bg-slate-400 hover:bg-slate-500 text-white p-3 rounded-xl font-bold cursor-pointer shadow-md select-none flex items-center justify-between text-xs md:text-sm active:scale-95 transform transition-transform">
+                            <span class="flex items-center gap-2">📚 <span class="b-text" data-zh="躺床上看连环画">躺床上看连环画</span></span>
+                            <span class="text-[10px] bg-slate-600/50 px-2 py-0.5 rounded-full font-mono">分心</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col items-center gap-3">
+                <button id="btn-run-tidy" onclick="runTidyUp()" class="bg-pink-500 hover:bg-pink-600 text-white font-extrabold text-lg px-8 py-3 rounded-full shadow-lg transition transform active:scale-95">
+                    ▶ 运行函数 整理房间()
+                </button>
+                <p id="tidy-feedback" class="mt-4 font-bold min-h-[24px] text-sm md:text-base text-center"></p>
+                <button id="next-stage-summary" onclick="goToSummary()" class="hidden bg-purple-600 hover:bg-purple-700 text-white font-black px-8 py-3 rounded-full shadow-lg transition transform active:scale-95 animate-bounce">
+                    大功告成，查看总结！ ➔
+                </button>
+            </div>
+        </section>
+
+        <section class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden opacity-50 pointer-events-none transition-all duration-500" id="stage-summary">
+            <div class="absolute -right-10 -bottom-10 opacity-10 transform rotate-12">
+                <span class="text-[12rem]">👑</span>
+            </div>
+            
+            <h2 class="text-3xl font-black text-center tracking-wider flex items-center justify-center gap-2">
+                🎉 <span id="sum-congrat">你完成了所有的函数修行！</span> 🎉
+            </h2>
+            
+            <div class="mt-6 space-y-4 max-w-2xl mx-auto">
+                <p class="text-indigo-100 font-semibold text-center text-sm md:text-base" id="sum-intro">
+                    你已经学会了编程世界中最核心的秘密：什么是函数(Function)！让我们来复习一下：
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                    <div class="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h4 class="font-bold text-base text-white" id="sum-card-1-title">有规律的机器</h4>
+                        <p class="text-xs text-indigo-100 mt-1 leading-relaxed" id="sum-card-1-desc">像数学函数一样。给出特定输入，根据一成不变的加工规则，吐出确定的、可预测的结果。</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                        <div class="text-3xl mb-2">📦</div>
+                        <h4 class="font-bold text-base text-white" id="sum-card-2-title">省心的打包黑盒</h4>
+                        <p class="text-xs text-indigo-100 mt-1 leading-relaxed" id="sum-card-2-desc">像榨汁机函数。把复杂麻烦的流程藏在里边，对使用者来说省时省力，超级简单。</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/10">
+                        <div class="text-3xl mb-2">🚀</div>
+                        <h4 class="font-bold text-base text-white" id="sum-card-3-title">懒人的一键打包</h4>
+                        <p class="text-xs text-indigo-100 mt-1 leading-relaxed" id="sum-card-3-desc">像一键整理房间。写好一次，就能无限复用，让复杂的动作一秒钟搞定！</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // 核心反馈文本常量
+        const feedbackTexts = {
+            fbSeq1Correct: "🎉 太好啦！猜对了！每次都增加 3，这是典型的“等差数列”！",
+            fbSeq1Wrong: "❌ 不太对哦，再数数看，每个数跟前面的数差多少？",
+            fbSeq2Correct: "👑 太棒了！这就是斐波那契数列（1+1=2, 1+2=3, 2+3=5...）。大自然的松果花瓣就是按照它长的哦！",
+            fbSeq2Wrong: "❌ 好难对不对？提示：看看前两个数加起来是不是第三个数？试试 8 + 13 等于多少？",
+            fb1Correct: "🎉 太棒了！猜对了！这个数学规律（数学函数）就是“把塞进来的数 + 2”，写成公式是 f(x) = x + 2。快看，黑箱子打开了！",
+            fb1Wrong: "❌ 不太对哦，再观察一下前面的数字变化！",
+            fb2Correct: "👑 太厉害了！这都难不倒你！这个终极规律是“先乘2再加1”，写成公式是 f(x) = 2x + 1。第一关大满贯！下一部分已就绪！",
+            fb2Wrong: "❌ 算得不对。提示：先乘以2，然后再...",
+            fb3Blending: "⚡ 果汁机正在高速搅拌榨汁中...",
+            fb3Done: "🥤 制作好啦！你往函数 制作果汁 里输入了 '${fruit}', 它通过去皮、搅拌、过滤，一键做好了美味果汁！",
+            fb3AllDone: "🌟 太赞了！你已经连续运行了 3 次果汁机函数。第三关已解锁！",
+            fb4Empty: "⚠️ 你的 整理房间() 函数还是空空如也，房间完全没整理呀！快装入动作积木吧！",
+            fb4Wrong: "⚠️ 糟了！函数里掺进了奇奇怪怪的动作（比如玩游戏或看漫画），导致电脑程序晕头转向，房间更乱了！快清理掉它们！",
+            fb4Correct: "🎉 哔哔！运行成功！`整理房间()` 函数完美执行了你编排的动作，房间瞬间一尘不染！"
+        };
+
+        let juiceMadeCount = 0;
+
+        // ================== 微型纸屑效果函数 ==================
+        function spawnConfetti(targetElement) {
+            const colors = ['#f43f5e', '#ec4899', '#d946ef', '#a855f7', '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b'];
+            const container = targetElement;
+
+            for (let i = 0; i < 40; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'confetti-particle';
+                
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 40}%`;
+                particle.style.setProperty('--translate-x', `${(Math.random() - 0.5) * 80}px`);
+                
+                const size = Math.random() * 6 + 6;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.animationDelay = `${Math.random() * 0.2}s`;
+
+                container.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 2500);
+            }
+        }
+
+        // ================== 数列暖身逻辑 ==================
+        function checkSeq1() {
+            const input = document.getElementById('seq-guess-1');
+            const guess = parseInt(input.value);
+            const feedback = document.getElementById('fb-seq-1');
+            const nextBtn = document.getElementById('next-warmup-1');
+            const btn = document.getElementById('btn-seq-1');
+
+            if (guess === 18) {
+                feedback.className = "text-sm font-bold text-emerald-600 mt-2";
+                feedback.innerText = feedbackTexts.fbSeq1Correct;
+                
+                input.disabled = true;
+                input.classList.remove('border-indigo-300');
+                input.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                btn.classList.add('hidden');
+
+                nextBtn.classList.remove('hidden');
+                spawnConfetti(document.getElementById('warmup-1'));
+            } else {
+                feedback.className = "text-sm font-bold text-red-500 mt-2";
+                feedback.innerText = feedbackTexts.fbSeq1Wrong;
+                
+                input.classList.add('border-red-400');
+                setTimeout(() => input.classList.remove('border-red-400'), 800);
+            }
+        }
+
+        function goToWarmup2() {
+            const w2 = document.getElementById('warmup-2');
+            w2.classList.remove('hidden');
+            w2.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function checkSeq2() {
+            const input = document.getElementById('seq-guess-2');
+            const guess = parseInt(input.value);
+            const feedback = document.getElementById('fb-seq-2');
+            const nextBtn = document.getElementById('next-warmup-2');
+            const btn = document.getElementById('btn-seq-2');
+
+            if (guess === 21) {
+                feedback.className = "text-sm font-bold text-emerald-600 mt-2";
+                feedback.innerText = feedbackTexts.fbSeq2Correct;
+                
+                input.disabled = true;
+                input.classList.remove('border-purple-300');
+                input.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                btn.classList.add('hidden');
+
+                nextBtn.classList.remove('hidden');
+                spawnConfetti(document.getElementById('warmup-2'));
+            } else {
+                feedback.className = "text-sm font-bold text-red-500 mt-2";
+                feedback.innerText = feedbackTexts.fbSeq2Wrong;
+                
+                input.classList.add('border-red-400');
+                setTimeout(() => input.classList.remove('border-red-400'), 800);
+            }
+        }
+
+        function goToMetaCard() {
+            const metaCard = document.getElementById('metaphysical-card');
+            metaCard.classList.remove('hidden');
+            setTimeout(() => {
+                metaCard.classList.remove('scale-95', 'opacity-0');
+                metaCard.classList.add('scale-100', 'opacity-100');
+                metaCard.scrollIntoView({ behavior: 'smooth' });
+            }, 50);
+        }
+
+        function unlockTableChallenge() {
+            const t1 = document.getElementById('math-table-1');
+            t1.classList.remove('hidden');
+            t1.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ================== 第一关逻辑 ==================
+        function checkAnswer1() {
+            const input = document.getElementById('guess1');
+            const guess = parseInt(input.value);
+            const feedback = document.getElementById('feedback-1');
+            const box = document.getElementById('bbox1');
+            const nextBtn = document.getElementById('next-table-1');
+            const checkBtn = document.getElementById('btn-check-1');
+
+            if (guess === 12) {
+                feedback.className = "text-sm font-semibold text-emerald-600 mt-2";
+                feedback.innerText = feedbackTexts.fb1Correct;
+                
+                input.disabled = true;
+                input.classList.remove('border-indigo-300');
+                input.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                checkBtn.classList.add('hidden');
+
+                box.className = "w-40 h-40 bg-emerald-500 rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl border-4 border-emerald-400 transform rotate-12 transition-all duration-500 scale-105";
+                box.innerHTML = `<div class='text-4xl'>🔓</div><span class='font-black text-lg tracking-wider mt-2'>f(x) = x + 2</span>`;
+                
+                spawnConfetti(box.parentElement);
+                nextBtn.classList.remove('hidden');
+            } else {
+                feedback.className = "text-sm font-semibold text-red-500 mt-2";
+                feedback.innerText = feedbackTexts.fb1Wrong;
+                
+                input.classList.add('border-red-400');
+                setTimeout(() => input.classList.remove('border-red-400'), 800);
+            }
+        }
+
+        function goToTable2() {
+            const t2 = document.getElementById('math-challenge-2');
+            t2.classList.remove('hidden');
+            t2.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function checkAnswer2() {
+            const input = document.getElementById('guess2');
+            const guess = parseInt(input.value);
+            const feedback = document.getElementById('feedback-2');
+            const box = document.getElementById('bbox2');
+            const nextBtn = document.getElementById('next-stage-2');
+            const checkBtn = document.getElementById('btn-check-2');
+
+            if (guess === 21) {
+                feedback.className = "text-sm font-semibold text-purple-600 mt-2";
+                feedback.innerText = feedbackTexts.fb2Correct;
+
+                input.disabled = true;
+                input.classList.remove('border-purple-300');
+                input.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700');
+                checkBtn.classList.add('hidden');
+
+                box.className = "w-40 h-40 bg-purple-500 rounded-2xl flex flex-col items-center justify-center text-white shadow-2xl border-4 border-purple-400 transform rotate-12 transition-all duration-500 scale-105";
+                box.innerHTML = `<div class='text-4xl'>🔓</div><span class='font-black text-lg tracking-wider mt-2'>f(x) = 2x + 1</span>`;
+
+                spawnConfetti(box.parentElement);
+                nextBtn.classList.remove('hidden');
+            } else {
+                feedback.className = "text-sm font-semibold text-red-500 mt-2";
+                feedback.innerText = feedbackTexts.fb2Wrong;
+                
+                input.classList.add('border-red-400');
+                setTimeout(() => input.classList.remove('border-red-400'), 800);
+            }
+        }
+
+        function goToStage2() {
+            const stage2 = document.getElementById('stage-2');
+            stage2.classList.remove('opacity-50', 'pointer-events-none');
+            stage2.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ================== 第二关果汁机逻辑 ==================
+        const juiceColors = {
+            kiwi: { fill: "#2ECC71", name: "奇异猕猴桃肉" },
+            orange: { fill: "#F39C12", name: "甜橙子果肉" },
+            watermelon: { fill: "#E74C3C", name: "大西瓜果肉" }
+        };
+
+        function blendFruit(fruitType) {
+            const machine = document.getElementById('juicer-machine-wrapper');
+            const light = document.getElementById('juicer-light');
+            const liquid = document.getElementById('juice-liquid');
+            const feedback = document.getElementById('juice-feedback');
+
+            // 🌟 核心修复：第二次及以后点击时，瞬间将液体归零复原
+            liquid.style.transition = 'none';
+            liquid.setAttribute('fill', 'transparent');
+            liquid.setAttribute('d', 'M35 85 L65 85 L60 85 L40 85 Z');
+            
+            // 触发浏览器强制重绘以确保归零瞬间完成
+            void liquid.offsetWidth; 
+            
+            // 恢复顺畅升起的动画
+            liquid.style.transition = 'all 1s ease-in-out';
+
+            feedback.className = "text-center mt-6 font-bold text-amber-500 min-h-[24px] text-sm md:text-base animate-pulse";
+            feedback.innerText = feedbackTexts.fb3Blending;
+
+            // 逐行模拟中文指令高亮
+            setTimeout(() => {
+                document.getElementById('code-line-1').classList.add('bg-indigo-500/30', 'text-white');
+            }, 100);
+
+            setTimeout(() => {
+                machine.classList.add('animate-shake');
+                light.setAttribute('fill', '#2ECC71');
+                document.getElementById('code-line-2').classList.add('bg-indigo-500/30', 'text-white');
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('code-line-3').classList.add('bg-indigo-500/30', 'text-white');
+            }, 1100);
+
+            setTimeout(() => {
+                machine.classList.remove('animate-shake');
+                light.setAttribute('fill', '#E74C3C');
+                document.getElementById('code-line-4').classList.add('bg-emerald-500/30', 'text-white');
+                
+                // 倾注亮丽颜色
+                liquid.setAttribute('fill', juiceColors[fruitType].fill);
+                liquid.setAttribute('d', 'M35 55 L65 55 L63 85 L37 85 Z');
+
+                juiceMadeCount++;
+                document.getElementById('juice-count-label').innerText = `已榨汁: ${juiceMadeCount} / 3`;
+
+                const fName = juiceColors[fruitType].name;
+                feedback.className = "text-center mt-6 font-bold text-emerald-600 min-h-[24px] text-sm md:text-base";
+                feedback.innerText = feedbackTexts.fb3Done.replace('${fruit}', fName);
+
+                spawnConfetti(machine);
+
+                if (juiceMadeCount >= 3) {
+                    feedback.innerText += " " + feedbackTexts.fb3AllDone;
+                    document.getElementById('next-stage-3').classList.remove('hidden');
+                }
+
+                // 复原高亮代码
+                setTimeout(() => {
+                    document.getElementById('code-line-1').classList.remove('bg-indigo-500/30', 'text-white');
+                    document.getElementById('code-line-2').classList.remove('bg-indigo-500/30', 'text-white');
+                    document.getElementById('code-line-3').classList.remove('bg-indigo-500/30', 'text-white');
+                    document.getElementById('code-line-4').classList.remove('bg-emerald-500/30', 'text-white');
+                }, 1500);
+
+            }, 2000);
+        }
+
+        function goToStage3() {
+            const stage3 = document.getElementById('stage-3');
+            stage3.classList.remove('opacity-50', 'pointer-events-none');
+            stage3.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ================== 第三关 Scratch 拖拽逻辑 ==================
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const element = document.getElementById(data);
+            const container = ev.target.closest('#function-container') || ev.target.closest('#blocks-pool');
+            if (container) {
+                if (container.id === 'function-container') {
+                    container.appendChild(element);
+                } else {
+                    document.getElementById('blocks-pool').appendChild(element);
+                }
+            }
+        }
+
+        // 触屏兼容：点击即可往返移动
+        function clickMove(el) {
+            const funcBox = document.getElementById('function-container');
+            const poolBox = document.getElementById('blocks-pool');
+            
+            if (el.parentNode.id === 'blocks-pool') {
+                funcBox.appendChild(el);
+            } else {
+                poolBox.appendChild(el);
+            }
+        }
+
+        function runTidyUp() {
+            const funcBox = document.getElementById('function-container');
+            const items = funcBox.querySelectorAll('[data-correct]');
+            const feedback = document.getElementById('tidy-feedback');
+            const visual = document.getElementById('room-state-visual');
+            const desc = document.getElementById('room-state-text');
+            const nextBtn = document.getElementById('next-stage-summary');
+            const runBtn = document.getElementById('btn-run-tidy');
+
+            if (items.length === 0) {
+                feedback.className = "mt-4 font-bold min-h-[24px] text-sm md:text-base text-center text-red-500";
+                feedback.innerText = feedbackTexts.fb4Empty;
+                visual.innerText = "🧸🧦🍕🛌💨";
+                return;
+            }
+
+            let hasWrong = false;
+            let correctCount = 0;
+            items.forEach(item => {
+                if (item.getAttribute('data-correct') === 'false') {
+                    hasWrong = true;
+                } else {
+                    correctCount++;
+                }
+            });
+
+            if (hasWrong) {
+                feedback.className = "mt-4 font-bold min-h-[24px] text-sm md:text-base text-center text-red-500";
+                feedback.innerText = feedbackTexts.fb4Wrong;
+                visual.innerText = "💥🤬📦🔥👾";
+                desc.innerText = "程序里混入了干扰项！电脑拒绝工作！";
+            } else if (correctCount > 0) {
+                feedback.className = "mt-4 font-bold min-h-[24px] text-sm md:text-base text-center text-emerald-600";
+                feedback.innerText = feedbackTexts.fb4Correct;
+                visual.innerText = "✨🛋️🏡🛌✨";
+                desc.innerText = "太棒了！房间变得整洁舒适！";
+
+                funcBox.classList.remove('animate-pulse');
+                
+                spawnConfetti(funcBox.parentElement);
+
+                // 显示总结并隐藏运行按钮
+                nextBtn.classList.remove('hidden');
+                runBtn.classList.add('hidden');
+            }
+        }
+
+        function goToSummary() {
+            const summary = document.getElementById('stage-summary');
+            summary.classList.remove('opacity-50', 'pointer-events-none');
+            summary.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

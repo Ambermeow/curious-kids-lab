@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微观磁学实验室：一维演示版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 禁用页面滚动，确保拖拽体验顺滑 */
+        body { margin: 0; overflow: hidden; background-color: #f3f4f6; font-family: 'Inter', sans-serif; }
+        #canvas-container { position: relative; width: 100%; height: 50vh; background-color: #fff; cursor: grab; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); }
+        #canvas-container:active { cursor: grabbing; }
+        canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+        
+        .progress-bar-transition { transition: width 0.1s ease-out, background-color 0.2s; }
+        .tab-btn { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="flex flex-col h-screen text-slate-800">
+
+    <header class="bg-indigo-600 text-white p-4 shadow-md z-10">
+        <h1 class="text-2xl font-bold text-center">🧲 微观磁学实验室</h1>
+        <p class="text-center text-indigo-200 text-sm mt-1">拖动右侧的物体靠近左侧，观察内部“小士兵（磁畴）”的排列情况！</p>
+    </header>
+
+    <div class="flex justify-center bg-white border-b border-slate-200 shadow-sm z-10">
+        <button id="tab-magnet-iron" onclick="switchMode('magnet-iron')" class="tab-btn flex-1 py-3 text-center font-bold text-indigo-600 border-b-4 border-indigo-600 bg-indigo-50">
+            🧲 磁铁 + 铁块
+        </button>
+        <button id="tab-magnet-magnet" onclick="switchMode('magnet-magnet')" class="tab-btn flex-1 py-3 text-center font-bold text-slate-500 border-b-4 border-transparent hover:bg-slate-50 hover:text-slate-700">
+            🧲 磁铁 + 磁铁
+        </button>
+        <button id="tab-iron-iron" onclick="switchMode('iron-iron')" class="tab-btn flex-1 py-3 text-center font-bold text-slate-500 border-b-4 border-transparent hover:bg-slate-50 hover:text-slate-700">
+            🧊 铁块 + 铁块
+        </button>
+    </div>
+
+    <main class="flex-grow flex flex-col relative">
+        <!-- 核心画布容器 -->
+        <div id="canvas-container">
+            <canvas id="simCanvas"></canvas>
+            
+            <div id="status-overlay" class="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white/90 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-slate-600 border border-slate-200 transition-colors duration-300 pointer-events-none">
+                等待交互...
+            </div>
+        </div>
+
+        <!-- 底部控制与解释面板 -->
+        <div class="flex-grow bg-slate-50 p-4 md:p-6 flex flex-col items-center shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 overflow-y-auto">
+            <div class="w-full max-w-2xl bg-white rounded-2xl shadow-sm p-5 border border-slate-200">
+                <div class="flex justify-between items-end mb-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-700" id="panel-title">右侧物体磁化程度</h2>
+                        <p class="text-xs text-slate-500" id="panel-subtitle">反映内部原子磁矩排列的整齐度</p>
+                    </div>
+                    <span id="mag-percentage" class="text-3xl font-black text-indigo-600">0%</span>
+                </div>
+                
+                <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden mb-4">
+                    <div id="mag-bar" class="h-full bg-slate-400 progress-bar-transition" style="width: 0%;"></div>
+                </div>
+
+                <div id="magnet-controls" class="hidden flex justify-center mb-4 transition-all">
+                    <button onclick="flipRightMagnet()" class="px-5 py-2 bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200 rounded-lg font-bold text-sm shadow-sm active:scale-95 transition-all">
+                        🔄 翻转右侧磁极 (测试斥力/吸力)
+                    </button>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-xl border border-blue-100" id="explanation-box">
+                    <!-- 动态解释内容 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasContainer = document.getElementById('canvas-container');
+        
+        const magPercentageTxt = document.getElementById('mag-percentage');
+        const magBar = document.getElementById('mag-bar');
+        const statusOverlay = document.getElementById('status-overlay');
+        const explanationBox = document.getElementById('explanation-box');
+
+        const SIM_CONFIG = {
+            maxInfluenceDist: 350, 
+            domainRows: 5,         
+            domainCols: 6,         
+            domainSize: 12         
+        };
+
+        let width, height;
+        let leftBlock, rightBlock;
+        let currentMode = 'magnet-iron'; 
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragTargetX = 0; // 新增：用于弹簧拖拽的鼠标目标位置
+
+        function resizeCanvas() {
+            width = canvasContainer.clientWidth;
+            height = canvasContainer.clientHeight;
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+            ctx.scale(dpr, dpr);
+            initPositions();
+        }
+
+        class Domain {
+            constructor(x, y, isFixed, polarity = 'N-S') {
+                this.x = x;
+                this.y = y;
+                this.isFixed = isFixed;
+                // 如果是固定磁铁，角度固定（0 表示N极向右，Math.PI 表示N极向左）
+                // 否则随机初始化角度
+                if (isFixed) {
+                    this.baseAngle = (polarity === 'S-N') ? Math.PI : 0;
+                } else {
+                    this.baseAngle = Math.random() * Math.PI * 2;
+                }
+                this.currentAngle = this.baseAngle;
+            }
+
+            update(influence) {
+                if (this.isFixed) return;
+                // 用插值公式让其从随机角度平滑过渡到 Math.PI (向左对齐外部磁铁的 N 极，即自身S极(蓝)朝左)
+                // 当 influence 为 1 时，角度应该趋近于 Math.PI
+                
+                // 为了让旋转更平滑，我们找出从 baseAngle 到目标角度 (Math.PI) 的最短路径
+                let targetAngle = Math.PI;
+                let diff = targetAngle - this.baseAngle;
+                
+                // 规范化差值到 -PI 到 PI 之间
+                while (diff > Math.PI) diff -= Math.PI * 2;
+                while (diff < -Math.PI) diff += Math.PI * 2;
+                
+                this.currentAngle = this.baseAngle + diff * influence;
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.currentAngle);
+                
+                const s = SIM_CONFIG.domainSize;
+                const halfS = s / 2;
+
+                // 蓝色部分 (S极)
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(-s, -halfS, s, s);
+                // 红色部分 (N极)
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(0, -halfS, s, s);
+
+                // 白色小箭头指示方向
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.moveTo(0, -2);
+                ctx.lineTo(s-2, 0);
+                ctx.lineTo(0, 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+        }
+
+        class Block {
+            constructor(type, w, h, xLabel) {
+                this.type = type; 
+                this.w = w;
+                this.h = h;
+                this.x = 0;
+                this.y = 0;
+                this.xLabel = xLabel; // 'left' 或 'right'
+                this.domains = [];
+                this.magnetization = (type === 'magnet') ? 1 : 0;
+                
+                // 设定磁铁的极性排列
+                // 默认左边是 S-N (红在右)，右边如果是磁铁就是 S-N (蓝在左，红在右，互相吸引)
+                this.polarity = (this.xLabel === 'left') ? 'S-N' : 'S-N';
+                this.generateDomains();
+            }
+
+            generateDomains() {
+                const paddingX = this.w / (SIM_CONFIG.domainCols + 1);
+                const paddingY = this.h / (SIM_CONFIG.domainRows + 1);
+                const isFixed = this.type === 'magnet';
+
+                for (let row = 1; row <= SIM_CONFIG.domainRows; row++) {
+                    for (let col = 1; col <= SIM_CONFIG.domainCols; col++) {
+                        let localX = col * paddingX - this.w / 2;
+                        let localY = row * paddingY - this.h / 2;
+                        this.domains.push(new Domain(localX, localY, isFixed, this.polarity));
+                    }
+                }
+            }
+
+            togglePolarity() {
+                if (this.type !== 'magnet') return;
+                this.polarity = this.polarity === 'S-N' ? 'N-S' : 'S-N';
+                this.domains.forEach(d => {
+                    d.baseAngle += Math.PI;
+                    d.currentAngle = d.baseAngle;
+                });
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                if (this.type === 'magnet') {
+                    // 永磁体外壳：根据极性动态绘制颜色
+                    const isSN = this.polarity === 'S-N';
+                    ctx.fillStyle = isSN ? '#1e3a8a' : '#991b1b'; // S极蓝，N极红
+                    ctx.fillRect(-this.w/2, -this.h/2, this.w/2, this.h);
+                    ctx.fillStyle = isSN ? '#991b1b' : '#1e3a8a';
+                    ctx.fillRect(0, -this.h/2, this.w/2, this.h);
+                    
+                    ctx.fillStyle = 'white'; ctx.font = 'bold 30px Arial';
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(isSN ? 'S' : 'N', -this.w/4, -this.h/2 - 20);
+                    ctx.fillText(isSN ? 'N' : 'S', this.w/4, -this.h/2 - 20);
+                } else {
+                    // 铁块外壳：金属灰色
+                    ctx.fillStyle = '#cbd5e1'; 
+                    // 只有磁化时才发紫光
+                    if (this.magnetization > 0.05) {
+                        ctx.shadowColor = `rgba(99, 102, 241, ${this.magnetization})`; 
+                        ctx.shadowBlur = 20 * this.magnetization;
+                    }
+                    ctx.beginPath();
+                    ctx.roundRect(-this.w/2, -this.h/2, this.w, this.h, 8);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                    
+                    ctx.strokeStyle = '#94a3b8'; ctx.lineWidth = 3; ctx.stroke();
+
+                    if (this.magnetization > 0.8) {
+                        ctx.fillStyle = '#3b82f6'; ctx.font = 'bold 20px Arial';
+                        ctx.fillText('s', -this.w/2 + 15, -this.h/2 - 15);
+                        ctx.fillStyle = '#ef4444'; 
+                        ctx.fillText('n', this.w/2 - 15, -this.h/2 - 15);
+                    }
+                }
+
+                // 绘制内部磁畴
+                this.domains.forEach(d => d.draw(ctx));
+                ctx.restore();
+            }
+        }
+
+        function switchMode(mode) {
+            currentMode = mode;
+            // 更新 Tab UI 样式
+            ['magnet-iron', 'magnet-magnet', 'iron-iron'].forEach(m => {
+                const btn = document.getElementById(`tab-${m}`);
+                if (m === mode) {
+                    btn.className = "tab-btn flex-1 py-3 text-center font-bold text-indigo-600 border-b-4 border-indigo-600 bg-indigo-50";
+                } else {
+                    btn.className = "tab-btn flex-1 py-3 text-center font-bold text-slate-500 border-b-4 border-transparent hover:bg-slate-50 hover:text-slate-700";
+                }
+            });
+
+            // 重新生成物体
+            if (mode === 'magnet-iron') {
+                leftBlock = new Block('magnet', 160, 180, 'left');
+                rightBlock = new Block('iron', 160, 180, 'right');
+                document.getElementById('magnet-controls').classList.add('hidden');
+            } else if (mode === 'magnet-magnet') {
+                leftBlock = new Block('magnet', 160, 180, 'left');
+                rightBlock = new Block('magnet', 160, 180, 'right');
+                document.getElementById('magnet-controls').classList.remove('hidden');
+            } else if (mode === 'iron-iron') {
+                leftBlock = new Block('iron', 160, 180, 'left');
+                rightBlock = new Block('iron', 160, 180, 'right');
+                document.getElementById('magnet-controls').classList.add('hidden');
+            }
+
+            // 初始化物理属性
+            rightBlock.vx = 0;
+
+            updateExplanations();
+            initPositions();
+        }
+
+        function flipRightMagnet() {
+            if (rightBlock && currentMode === 'magnet-magnet') {
+                rightBlock.togglePolarity();
+                // 给予一点微小的扰动速度，让斥力瞬间显现
+                rightBlock.vx += (Math.random() > 0.5 ? 2 : -2);
+            }
+        }
+
+        function updateExplanations() {
+            if (currentMode === 'magnet-iron') {
+                explanationBox.innerHTML = `
+                    <h3 class="font-bold text-blue-800 mb-2">🧑‍🔬 磁铁 + 铁块 原理解析：</h3>
+                    <ul class="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                        <li>左侧的永磁体自带强大外磁场。</li>
+                        <li>当右侧普通铁块靠近时，在强大外磁场的指挥下，内部散乱的“小磁铁”瞬间立正排队。</li>
+                        <li>排列越整齐，铁块被<b>磁化</b>的程度越高，临时磁性越强！</li>
+                    </ul>`;
+            } else if (currentMode === 'magnet-magnet') {
+                explanationBox.innerHTML = `
+                    <h3 class="font-bold text-purple-800 mb-2">🧑‍🔬 两块磁铁相互靠近：</h3>
+                    <ul class="text-sm text-purple-700 space-y-1 list-disc list-inside">
+                        <li>永磁体内部的“小磁铁”排列结构已经固定死，100%磁化，不发生偏转。</li>
+                        <li><b>物理作用力：</b>你可以点击上方按钮翻转磁极，亲自感受<b>“同极相斥”</b>与<b>“异极相吸”</b>的宏观现象！</li>
+                    </ul>`;
+                explanationBox.className = "p-4 bg-purple-50 rounded-xl border border-purple-100";
+            } else if (currentMode === 'iron-iron') {
+                explanationBox.innerHTML = `
+                    <h3 class="font-bold text-slate-800 mb-2">🧑‍🔬 铁块 + 铁块 实验结果：</h3>
+                    <ul class="text-sm text-slate-700 space-y-1 list-disc list-inside">
+                        <li>两块普通铁都没有初始的外部磁场。</li>
+                        <li>不管靠得有多近，因为缺乏带头大哥（外磁场）的指挥，大家内部的小磁铁继续保持“散漫无纪律”。</li>
+                        <li>因此，两块纯铁靠近时，既不会互相吸引，内部磁畴也不会发生偏转变化。</li>
+                    </ul>`;
+                explanationBox.className = "p-4 bg-slate-100 rounded-xl border border-slate-200";
+            } else {
+                explanationBox.className = "p-4 bg-blue-50 rounded-xl border border-blue-100";
+            }
+        }
+
+        function initPositions() {
+            if (!leftBlock || !rightBlock) return;
+            leftBlock.x = width * 0.25;
+            leftBlock.y = height / 2 + 20;
+            
+            if (!isDragging) {
+                rightBlock.x = width * 0.75;
+                rightBlock.y = height / 2 + 20;
+            }
+        }
+
+        function handleStart(clientX) {
+            const distToRightX = Math.abs(clientX - rightBlock.x);
+            if (distToRightX < rightBlock.w / 2) {
+                isDragging = true;
+                dragOffsetX = rightBlock.x - clientX;
+                dragTargetX = rightBlock.x;
+                rightBlock.vx = 0; // 抓住时速度清零
+                canvas.style.cursor = 'grabbing';
+            }
+        }
+
+        function handleMove(clientX) {
+            if (!isDragging) return;
+            // 这里不再死板赋值，而是更新物理拖拽的目标点
+            dragTargetX = clientX + dragOffsetX;
+        }
+
+        function handleEnd() {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+        }
+
+        canvas.addEventListener('mousedown', (e) => handleStart(e.clientX));
+        window.addEventListener('mousemove', (e) => handleMove(e.clientX));
+        window.addEventListener('mouseup', handleEnd);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleStart(e.touches[0].clientX); }, {passive: false});
+        window.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e.touches[0].clientX); }, {passive: false});
+        window.addEventListener('touchend', handleEnd);
+
+        function drawMagneticFieldLines(ctx, magLevel) {
+            if (magLevel < 0.05 || currentMode === 'iron-iron') return;
+            
+            ctx.save();
+            ctx.strokeStyle = `rgba(99, 102, 241, ${magLevel * 0.5})`; 
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+
+            const startX = leftBlock.x + leftBlock.w/2;
+            const endX = rightBlock.x - rightBlock.w/2;
+            const y = leftBlock.y;
+
+            for (let offset = -40; offset <= 40; offset += 40) {
+                ctx.beginPath();
+                ctx.moveTo(startX, y + offset);
+                ctx.bezierCurveTo(startX + 50, y + offset, endX - 50, y + offset, endX, y + offset);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        function updatePhysicsAndUI() {
+            const minX = leftBlock.x + leftBlock.w/2 + rightBlock.w/2;
+            const maxX = width - rightBlock.w/2;
+            const dist = (rightBlock.x - rightBlock.w/2) - (leftBlock.x + leftBlock.w/2);
+            
+            let influence = 0;
+            if (currentMode === 'magnet-iron') {
+                if (dist < SIM_CONFIG.maxInfluenceDist) {
+                    influence = 1 - (dist / SIM_CONFIG.maxInfluenceDist);
+                    influence = Math.pow(influence, 1.5); 
+                }
+                rightBlock.magnetization = influence;
+                rightBlock.domains.forEach(d => d.update(influence));
+            }
+
+            let magForce = 0;
+            if (dist < 180 && dist > 0.1) {
+                if (currentMode === 'magnet-magnet') {
+                    const leftPole = leftBlock.polarity === 'S-N' ? 'N' : 'S'; 
+                    const rightPole = rightBlock.polarity === 'S-N' ? 'S' : 'N';
+                    const isRepelling = (leftPole === rightPole);
+                    let strength = 3500 / (dist * dist + 10); 
+                    magForce = isRepelling ? strength : -strength;
+                } else if (currentMode === 'magnet-iron') {
+                    // 铁块被磁化后产生吸力（异性相吸，方向向左）
+                    let strength = 3500 / (dist * dist + 10);
+                    // 磁力大小和磁化程度成正比
+                    magForce = -strength * influence; 
+                }
+            }
+
+            if (currentMode === 'iron-iron') {
+                // 纯铁块没有磁力，保持精准拖动
+                if (isDragging) {
+                    rightBlock.x = dragTargetX;
+                    if (rightBlock.x < minX) rightBlock.x = minX;
+                    if (rightBlock.x > maxX) rightBlock.x = maxX;
+                }
+            } else {
+                // 含有磁力的模式（磁铁+磁铁，磁铁+铁块），加入弹性物理系统和阻尼
+                let springForce = 0;
+                if (isDragging) {
+                    let constrainedTarget = Math.max(minX - 20, Math.min(maxX, dragTargetX));
+                    springForce = (constrainedTarget - rightBlock.x) * 0.15;
+                }
+
+                rightBlock.vx = (rightBlock.vx + magForce + springForce) * 0.75;
+                rightBlock.x += rightBlock.vx;
+
+                if (rightBlock.x <= minX) {
+                    rightBlock.x = minX;
+                    if (rightBlock.vx < 0) rightBlock.vx = 0;
+                } else if (rightBlock.x > maxX) {
+                    rightBlock.x = maxX;
+                    if (rightBlock.vx > 0) rightBlock.vx = 0;
+                }
+            }
+
+            if (currentMode === 'magnet-iron') {
+                const percentage = Math.round(influence * 100);
+                magPercentageTxt.innerText = `${percentage}%`;
+                magBar.style.width = `${percentage}%`;
+
+                if (percentage < 10) {
+                    magBar.className = "h-full bg-slate-400 progress-bar-transition";
+                    statusOverlay.innerText = "向左拖动右侧铁块...";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-100 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-slate-500 border border-slate-200 transition-colors duration-300";
+                } else if (percentage < 80) {
+                    magBar.className = "h-full bg-indigo-400 progress-bar-transition";
+                    statusOverlay.innerText = "受到磁场感应，小磁铁开始偏转！";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-indigo-100 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-indigo-600 border border-indigo-200 transition-colors duration-300";
+                } else {
+                    magBar.className = "h-full bg-red-500 progress-bar-transition shadow-[0_0_10px_rgba(239,68,68,0.8)]";
+                    statusOverlay.innerText = "🔥 完美磁化！产生明显吸力！";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-100 px-4 py-2 rounded-full shadow-sm text-sm font-bold text-red-600 border border-red-300 transition-colors duration-300";
+                }
+            } 
+            else if (currentMode === 'magnet-magnet') {
+                magPercentageTxt.innerText = `100% (固定)`;
+                magBar.style.width = `100%`;
+                magBar.className = "h-full bg-purple-500 progress-bar-transition";
+                
+                const leftPole = leftBlock.polarity === 'S-N' ? 'N' : 'S';
+                const rightPole = rightBlock.polarity === 'S-N' ? 'S' : 'N';
+                const isRepelling = (leftPole === rightPole);
+
+                if (dist < 180) {
+                    if (isRepelling) {
+                        statusOverlay.innerText = "🛑 同极相斥！感到明显的阻力！";
+                        statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-100 px-4 py-2 rounded-full shadow-sm text-sm font-bold text-red-700 border border-red-300 transition-colors duration-300";
+                    } else {
+                        statusOverlay.innerText = "⚡ 异极相吸！咔哒吸合！";
+                        statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-purple-100 px-4 py-2 rounded-full shadow-sm text-sm font-bold text-purple-700 border border-purple-300 transition-colors duration-300";
+                    }
+                } else {
+                    statusOverlay.innerText = "向左拖动物体，或点击下方按钮翻转极性...";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-100 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-slate-500 border border-slate-200 transition-colors duration-300";
+                }
+            }
+            else if (currentMode === 'iron-iron') {
+                // 铁对铁：没有外磁场，磁化率为0
+                magPercentageTxt.innerText = `0% (无磁场)`;
+                magBar.style.width = `0%`;
+                magBar.className = "h-full bg-slate-300 progress-bar-transition";
+                
+                if (dist < 50) {
+                    statusOverlay.innerText = "缺少外部磁场引导，大家继续躺平散漫~";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-200 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-slate-600 border border-slate-300 transition-colors duration-300";
+                } else {
+                    statusOverlay.innerText = "向左拖动右侧铁块...";
+                    statusOverlay.className = "absolute top-4 left-1/2 transform -translate-x-1/2 bg-slate-100 px-4 py-2 rounded-full shadow-sm text-sm font-semibold text-slate-500 border border-slate-200 transition-colors duration-300";
+                }
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // 绘制背景网格
+            ctx.strokeStyle = '#f8fafc'; ctx.lineWidth = 2;
+            const gridSize = 40;
+            for(let i=0; i<width; i+=gridSize) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke(); }
+            for(let i=0; i<height; i+=gridSize) { ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke(); }
+
+            updatePhysicsAndUI();
+
+            // 针对有磁场的模式画磁感线
+            let visualMagLevel = (currentMode === 'magnet-magnet') ? (1 - Math.min((rightBlock.x - rightBlock.w/2 - leftBlock.x - leftBlock.w/2)/SIM_CONFIG.maxInfluenceDist, 1)) : rightBlock.magnetization;
+            drawMagneticFieldLines(ctx, visualMagLevel);
+
+            leftBlock.draw(ctx);
+            rightBlock.draw(ctx);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        // 初始化启动
+        switchMode('magnet-iron');
+        resizeCanvas(); 
+        gameLoop();
+
+    </script>
+</body>
+</html>

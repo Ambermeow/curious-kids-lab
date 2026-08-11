@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN" data-lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17355d" />
+    <title>声音侦探实验室 · Voice Detective Lab</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="声音侦探实验室首页">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span><b>声音侦探实验室</b><small>VOICE DETECTIVE LAB</small></span>
+      </a>
+      <button id="language-toggle" class="language-toggle" type="button" aria-label="Switch language">EN</button>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-orb orb-one" aria-hidden="true"></div><div class="hero-orb orb-two" aria-hidden="true"></div>
+        <div class="content hero-content">
+          <p class="eyebrow"><span class="lang-zh">声音 · 数学 · 小小的 AI</span><span class="lang-en">SOUND · MATH · TINY AI</span></p>
+          <h1><span class="lang-zh">一句“开灯”，<br />小板子<strong>怎样听懂？</strong></span><span class="lang-en">How can a tiny board<br /><strong>understand “turn on the light”?</strong></span></h1>
+          <p class="hero-lede"><span class="lang-zh">跟着一段声音做一次“变形记”：波浪线 → 频率 → 40 个听觉能量 → 13 个数字 → 一个指令。</span><span class="lang-en">Follow one sound as it changes: wave → frequencies → 40 hearing-style energies → 13 numbers → one command.</span></p>
+          <div class="hero-tags"><span>01 <b class="lang-zh">观察</b><b class="lang-en">OBSERVE</b></span><span>02 <b class="lang-zh">压缩</b><b class="lang-en">COMPRESS</b></span><span>03 <b class="lang-zh">判断</b><b class="lang-en">DECIDE</b></span></div>
+        </div>
+      </section>
+
+      <section class="content section route-section" aria-labelledby="route-title">
+        <div class="section-intro">
+          <p class="eyebrow coral"><span class="lang-zh">先把路线说清楚</span><span class="lang-en">THE WHOLE ROUTE, FIRST</span></p>
+          <h2 id="route-title"><span class="lang-zh">这不是“声音魔法”，而是一条连续的输入—处理—输出路线。</span><span class="lang-en">No sound magic: just one continuous input → process → output route.</span></h2>
+        </div>
+
+        <div class="process-rail" aria-label="声音特征提取流程">
+          <article class="process-card sky"><span class="process-no">01</span><div class="process-icon sound-icon" aria-hidden="true">⌁</div><h3><span class="lang-zh">声音切片</span><span class="lang-en">Slice sound</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">约 32 ms 的波形</dd><dd class="lang-en">A ~32 ms wave</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">取 1024 个采样点</dd><dd class="lang-en">Take 1,024 samples</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">一小帧声音</dd><dd class="lang-en">One sound frame</dd></div></dl></article>
+          <article class="process-card yellow"><span class="process-no">02</span><div class="process-icon" aria-hidden="true">↗</div><h3><span class="lang-zh">FFT 找频率</span><span class="lang-en">FFT finds frequencies</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">1024 个时间点</dd><dd class="lang-en">1,024 time points</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">把波浪拆成频率桶</dd><dd class="lang-en">Split the wave into bins</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">约 512 个能量桶</dd><dd class="lang-en">~512 energy bins</dd></div></dl></article>
+          <article class="process-card mint"><span class="process-no">03</span><div class="process-icon" aria-hidden="true">△</div><h3><span class="lang-zh">Mel 重分桶</span><span class="lang-en">Mel re-bins hearing</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">512 条细频率线</dd><dd class="lang-en">512 fine frequency lines</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">重叠三角形加权相加</dd><dd class="lang-en">Overlapping triangular sums</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">40 个 Mel 能量</dd><dd class="lang-en">40 Mel energies</dd></div></dl></article>
+          <article class="process-card peach"><span class="process-no">04</span><div class="process-icon" aria-hidden="true">log</div><h3><span class="lang-zh">压缩响度</span><span class="lang-en">Compress loudness</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">40 个正能量</dd><dd class="lang-en">40 positive energies</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">取 log，缩小大声差距</dd><dd class="lang-en">Take log, shrink loudness gaps</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">40 个 log-Mel 值</dd><dd class="lang-en">40 log-Mel values</dd></div></dl></article>
+          <article class="process-card lilac"><span class="process-no">05</span><div class="process-icon" aria-hidden="true">Σ</div><h3><span class="lang-zh">DCT 重新描述</span><span class="lang-en">DCT re-describes it</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">40 个 log-Mel 值</dd><dd class="lang-en">40 log-Mel values</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">DCT 把 40 个值按不同"权重配方"混合成 13 个 MFCC，保留谱包络、舍去细碎锯齿</dd><dd class="lang-en">DCT mixes all 40 values by different weight recipes into 13 MFCCs — keeps spectral envelope, drops fine detail</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">13 个 MFCC 数字</dd><dd class="lang-en">13 MFCC numbers</dd></div></dl></article>
+        </div>
+
+        <div class="industry-grid four-col">
+          <article><span>!</span><h3><span class="lang-zh">教学配置，非唯一</span><span class="lang-en">Teaching setup, not the only</span></h3><p><span class="lang-zh">本页用 40 个 Mel 能量算出 13 个 MFCC，是常见的教学配置，不是所有离线板的唯一答案。</span><span class="lang-en">This page turns 40 Mel energies into 13 MFCCs — a common teaching setup, not the only one on real boards.</span></p></article>
+          <article><span>13</span><h3><span class="lang-zh">不是固定数</span><span class="lang-en">Not a fixed number</span></h3><p><span class="lang-zh">13 维很常见，但板子可以配置不同数量的 Mel 滤波器与 DCT 输出；10、13、20、26 或更多都有可能。</span><span class="lang-en">13 dimensions are common, but a board can configure Mel filters and DCT outputs separately; 10, 13, 20, 26, or more are all possible.</span></p></article>
+          <article><span>≠</span><h3><span class="lang-zh">有些板不用 MFCC</span><span class="lang-en">Some boards skip MFCC</span></h3><p><span class="lang-zh">不少现代关键词模型直接吃 log-Mel / filterbank 地图；是否做 DCT 必须与训练模型时完全一致。</span><span class="lang-en">Many modern keyword models take a log-Mel / filterbank map directly; the deployed front end must exactly match training.</span></p></article>
+          <article><span>✓</span><h3><span class="lang-zh">模型看"连续轨迹"</span><span class="lang-en">The model sees a trail</span></h3><p><span class="lang-zh">一帧 13 个数还不够。模型比较的是几十帧连起来的变化顺序，像一小段移动的指纹动画。</span><span class="lang-en">One 13-number frame is not enough. The model compares the changing order across many frames: a tiny moving fingerprint animation.</span></p></article>
+        </div>
+
+      </section>
+
+      <!-- ====== 路线B：神经网络捷径 ====== -->
+      <section class="content section nn-route-section" aria-labelledby="nn-title">
+        <div class="chapter-kicker"><span>B</span><b class="lang-zh">路线B · 神经网络捷径</b><b class="lang-en">ROUTE B · NEURAL NETWORK SHORTCUT</b></div>
+        <div class="section-intro split">
+          <div>
+            <p class="eyebrow coral"><span class="lang-zh">一条更短的路线</span><span class="lang-en">A SHORTER ROUTE</span></p>
+            <h2 id="nn-title"><span class="lang-zh">如果芯片自带一个微型神经网络，后三步可以省掉。</span><span class="lang-en">If the chip has a tiny neural network, the last three steps can be skipped.</span></h2>
+          </div>
+          <p><span class="lang-zh">不经过 DCT。log-Mel 能量直接送入训练好的微型网络，权重已量化固化在芯片里。一帧数据进去，矩阵乘法跑完，答案就出来了。</span><span class="lang-en">No DCT. Log-Mel goes straight to a trained tiny network — weights already quantised and burned in. Frame in, matrix ops done, answer out.</span></p>
+        </div>
+
+        <div class="route-compare" aria-label="两条路线对比">
+          <div class="route-lane mfcc-lane">
+            <p class="lane-label"><span class="lang-zh">路线A · 经典 MFCC</span><span class="lang-en">ROUTE A · Classic MFCC</span></p>
+            <div class="lane-steps">
+              <span class="lane-step sky">① 切片</span><span class="lane-step yellow">② FFT</span><span class="lane-step mint">③ Mel</span><span class="lane-step peach">④ log</span><span class="lane-step lilac">⑤ DCT</span>
+            </div>
+            <p class="lane-note"><span class="lang-zh">5 步 → 13 维 MFCC → 传统分类器（GMM / 模板匹配）</span><span class="lang-en">5 steps → 13-dim MFCC → classic classifier (GMM / template)</span></p>
+          </div>
+          <div class="route-lane nn-lane">
+            <p class="lane-label"><span class="lang-zh">路线B · 神经网络</span><span class="lang-en">ROUTE B · Neural Network</span></p>
+            <div class="lane-steps">
+              <span class="lane-step sky">① 切片</span><span class="lane-step yellow">② FFT</span><span class="lane-step nn-accent">③ Mel + log → 微型网络</span>
+            </div>
+            <p class="lane-note"><span class="lang-zh">3 步 → log-Mel 特征图 → 芯片内网络推理 → 分类结果</span><span class="lang-en">3 steps → log-Mel feature map → on-chip NN inference → result</span></p>
+          </div>
+        </div>
+
+        <div class="process-rail nn-rail" aria-label="神经网络处理流程">
+          <article class="process-card sky"><span class="process-no">01</span><div class="process-icon sound-icon" aria-hidden="true">⌁</div><h3><span class="lang-zh">声音切片 + FFT</span><span class="lang-en">Slice + FFT</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">约 32 ms 波形</dd><dd class="lang-en">A ~32 ms wave</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">1024 采样 → FFT → 512 能量桶</dd><dd class="lang-en">1,024 samples → FFT → 512 bins</dd></div><div><dt class="lang-zh">与路线A一致</dt><dt class="lang-en">Same as Route A</dt><dd class="lang-zh">前两步完全相同</dd><dd class="lang-en">First 2 steps identical</dd></div></dl></article>
+          <article class="process-card mint"><span class="process-no">02</span><div class="process-icon" aria-hidden="true">△</div><h3><span class="lang-zh">Mel + log 特征</span><span class="lang-en">Mel + log features</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">512 条频率能量</dd><dd class="lang-en">512 frequency energies</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">40 个 Mel 三角滤波 → log</dd><dd class="lang-en">40 Mel triangles → log</dd></div><div><dt class="lang-zh">这里停住</dt><dt class="lang-en">Stop right here</dt><dd class="lang-zh">不继续做 DCT</dd><dd class="lang-en">No DCT step</dd></div></dl></article>
+          <article class="process-card nn-net-card"><span class="process-no">03</span><div class="process-icon" aria-hidden="true">◆</div><h3><span class="lang-zh">微型网络推理</span><span class="lang-en">Tiny network inference</span></h3><dl><div><dt class="lang-zh">输入</dt><dt class="lang-en">INPUT</dt><dd class="lang-zh">40 个 log-Mel 值 + 上下文帧</dd><dd class="lang-en">40 log-Mel values + context frames</dd></div><div><dt class="lang-zh">处理</dt><dt class="lang-en">PROCESS</dt><dd class="lang-zh">固化权重的矩阵乘 + 激活</dd><dd class="lang-en">Fixed-weight matrix ops + activation</dd></div><div><dt class="lang-zh">输出</dt><dt class="lang-en">OUTPUT</dt><dd class="lang-zh">"开灯" / "关灯"</dd><dd class="lang-en">"Turn on" / "Turn off"</dd></div></dl></article>
+        </div>
+
+        <div class="chip-deploy" aria-labelledby="chip-title">
+          <div class="chip-deploy-head">
+            <span class="chip-icon" aria-hidden="true">⬡</span>
+            <div>
+              <p class="eyebrow"><span class="lang-zh">从训练到芯片</span><span class="lang-en">FROM TRAINING TO CHIP</span></p>
+              <h3 id="chip-title"><span class="lang-zh">训练好的权重被"烧"进芯片，推理不需要云端。</span><span class="lang-en">Trained weights are burned into the chip. No cloud needed for inference.</span></h3>
+            </div>
+          </div>
+          <div class="chip-steps">
+            <div class="chip-step"><span>01</span><div><b class="lang-zh">训练</b><b class="lang-en">TRAIN</b><p class="lang-zh">在 PC/服务器上，用成千上万条"开灯""关灯"语音训练一个微型神经网络（CNN、DS-CNN 或芯片厂商的专用架构）。</p><p class="lang-en">On a PC or server, train a tiny neural network (CNN, DS-CNN, or custom chip architecture) with thousands of voice samples.</p></div></div>
+            <div class="chip-step"><span>02</span><div><b class="lang-zh">量化压缩</b><b class="lang-en">QUANTISE</b><p class="lang-zh">把 32-bit 浮点权重压缩成 8-bit 整数。模型从几百 KB 缩小到几十 KB，精度几乎不损失。</p><p class="lang-en">Compress 32-bit float weights to 8-bit integers. Model shrinks from hundreds of KB to tens of KB, with almost no accuracy loss.</p></div></div>
+            <div class="chip-step"><span>03</span><div><b class="lang-zh">烧录固件</b><b class="lang-en">BURN FIRMWARE</b><p class="lang-zh">量化后的网络权重写入芯片 Flash。上电后：麦克风 → 特征提取 → 网络推理 → 控制灯——全在本地，一眨眼完成。</p><p class="lang-en">Quantised weights written to chip Flash. After power-on: mic → feature extraction → NN inference → control light — all local, over in a blink.</p></div></div>
+          </div>
+          <p class="chip-note"><span class="lang-zh">💡 市面上像启英泰伦 CI130X、NRK3303 等芯片内置专用神经网络处理器（BNPU / NPU），走的正是这条路线。85dB 强噪声下仍有 85% 识别率，响应 0.2–0.8 秒，功耗仅毫瓦级。</span><span class="lang-en">💡 Real chips like CI130X and NRK3303 have a dedicated neural network processor (BNPU/NPU) inside — exactly this route. 85% recognition at 85dB noise, 0.2–0.8s response, milliwatt-class power.</span></p>
+        </div>
+
+        <div class="industry-grid">
+          <article><span>?</span><h3><span class="lang-zh">两条路线谁更好？</span><span class="lang-en">Which route is better?</span></h3><p><span class="lang-zh">没有绝对的"更好"。MFCC 路线成熟、可解释性强，仍在很多系统中使用。NN 路线在抗噪和泛化能力上往往更强，但需要训练数据和芯片支持。</span><span class="lang-en">No absolute winner. MFCC is mature and interpretable, still widely used. NN often handles noise better and generalises more, but needs training data and chip support.</span></p></article>
+          <article><span>⚡</span><h3><span class="lang-zh">芯片上跑网络，耗电吗？</span><span class="lang-en">Does NN on chip drain power?</span></h3><p><span class="lang-zh">关键词检测模型的推理功耗极低（毫瓦级）。一颗纽扣电池可以工作数月。硬件 NPU 专门优化了低精度的矩阵乘加运算。</span><span class="lang-en">Keyword spotting inference uses milliwatts. A coin cell can last months. Hardware NPUs are specifically optimised for low-precision multiply-add.</span></p></article>
+          <article><span>🔒</span><h3><span class="lang-zh">为什么坚持离线？</span><span class="lang-en">Why insist on offline?</span></h3><p><span class="lang-zh">离线意味着隐私、零延迟、不依赖 WiFi。台灯不需要听懂所有话——它只需要认出"开灯""关灯"这几个词。简单任务不需要云端大模型。</span><span class="lang-en">Offline means privacy, zero latency, no WiFi dependence. A lamp doesn't need to understand everything — just recognise a few words. Simple tasks don't need cloud-scale models.</span></p></article>
+        </div>
+      </section>
+
+      <section class="demo-section" aria-labelledby="demo-title">
+        <div class="content section">
+          <div class="chapter-kicker"><span>01</span><b class="lang-zh">观察一段指令</b><b class="lang-en">WATCH ONE COMMAND</b></div>
+          <div class="section-intro split"><div><p class="eyebrow"><span class="lang-zh">点击、播放、跟踪</span><span class="lang-en">CLICK, PLAY, FOLLOW</span></p><h2 id="demo-title"><span class="lang-zh">这段声音正在穿过同一条路线。</span><span class="lang-en">This sound is moving through that exact route.</span></h2></div><p><span class="lang-zh">内置的演示音频会同时驱动所有画布。黄色竖线表示现在正在分析的那一小帧。</span><span class="lang-en">The built-in demo audio drives every canvas. The yellow line marks the tiny frame being analysed now.</span></p></div>
+
+          <div class="command-row" role="group" aria-label="选择示范语音指令">
+            <button class="command-button is-active" data-command="turn-on" type="button"><b><span class="lang-zh">打开台灯</span><span class="lang-en">Turn on light</span></b><small>01</small></button>
+            <button class="command-button" data-command="turn-off" type="button"><b><span class="lang-zh">关闭台灯</span><span class="lang-en">Turn off light</span></b><small>02</small></button>
+            <button class="command-button" data-command="play" type="button"><b><span class="lang-zh">播放音乐</span><span class="lang-en">Play music</span></b><small>03</small></button>
+            <button class="command-button" data-command="stop" type="button"><b><span class="lang-zh">停止播放</span><span class="lang-en">Stop playing</span></b><small>04</small></button>
+            <button class="play-button" id="play-demo" type="button"><span aria-hidden="true">▶</span><span class="lang-zh">播放这一段</span><span class="lang-en">Play this sound</span></button>
+          </div>
+
+          <div class="canvas-grid top-canvases">
+            <figure class="canvas-card"><figcaption><span class="label-pill blue">INPUT</span><div><b><span class="lang-zh">原始波形</span><span class="lang-en">Raw waveform</span></b><small><span class="lang-zh">压强怎样上下摆动</span><span class="lang-en">How air pressure moves</span></small></div><output id="demo-time">0.00 s</output></figcaption><canvas id="waveform" aria-label="当前指令的原始音频波形"></canvas><p class="axis-note"><span>0 s</span><span><span class="lang-zh">时间 →</span><span class="lang-en">TIME →</span></span><span id="audio-duration">—</span></p></figure>
+            <figure class="canvas-card"><figcaption><span class="label-pill mint">PROCESS</span><div><b><span class="lang-zh">10 条重点 Mel 观察线</span><span class="lang-en">10 spotlight Mel filters</span></b><small><span class="lang-zh">在 40 条实际滤波器中选 10 条讲解</span><span class="lang-en">10 shown from the real set of 40</span></small></div><output>10 / 40</output></figcaption><canvas id="filterbank" aria-label="十个重点梅尔滤波器覆盖在当前频谱上"></canvas><p class="axis-note"><span>0 Hz</span><span><span class="lang-zh">频率 →</span><span class="lang-en">FREQUENCY →</span></span><span id="nyquist-label">8 kHz</span></p></figure>
+          </div>
+
+          <div class="filter-lesson" aria-labelledby="filter-title">
+            <div class="filter-lesson-heading"><div><p class="eyebrow"><span class="lang-zh">十束观察光</span><span class="lang-en">TEN SPOTLIGHTS</span></p><h3 id="filter-title"><span class="lang-zh">悬停任意一束：它不是“切掉”声音，而是把一段频率的能量加权收集。</span><span class="lang-en">Hover a spotlight: it does not cut sound out. It collects a weighted energy total from one frequency neighbourhood.</span></h3></div><p><span class="lang-zh">为了讲清原理，这里只画 10 条代表线。真正的本页计算仍使用 40 条重叠滤波器；工业产品可按模型使用更多或更少。</span><span class="lang-en">To make the idea visible, we draw 10 representatives. This page still calculates with 40 overlapping filters; industrial products may use more or fewer.</span></p></div>
+            <div class="filter-chip-grid" id="filter-chip-grid">
+              <button class="filter-chip is-active" data-filter-band="0" type="button"><b>M1</b><span class="lang-zh">低频地基</span><span class="lang-en">Low foundation</span></button><button class="filter-chip" data-filter-band="2" type="button"><b>M2</b><span class="lang-zh">低频共鸣</span><span class="lang-en">Low resonance</span></button><button class="filter-chip" data-filter-band="4" type="button"><b>M3</b><span class="lang-zh">低音区轮廓</span><span class="lang-en">Low-band contour</span></button><button class="filter-chip" data-filter-band="7" type="button"><b>M4</b><span class="lang-zh">元音线索</span><span class="lang-en">Vowel clue</span></button><button class="filter-chip" data-filter-band="11" type="button"><b>M5</b><span class="lang-zh">口腔共鸣</span><span class="lang-en">Mouth resonance</span></button><button class="filter-chip" data-filter-band="16" type="button"><b>M6</b><span class="lang-zh">清晰度线索</span><span class="lang-en">Clarity cue</span></button><button class="filter-chip" data-filter-band="21" type="button"><b>M7</b><span class="lang-zh">中高频变化</span><span class="lang-en">Mid-high change</span></button><button class="filter-chip" data-filter-band="27" type="button"><b>M8</b><span class="lang-zh">辅音边缘</span><span class="lang-en">Consonant edge</span></button><button class="filter-chip" data-filter-band="33" type="button"><b>M9</b><span class="lang-zh">摩擦细节</span><span class="lang-en">Friction detail</span></button><button class="filter-chip" data-filter-band="39" type="button"><b>M10</b><span class="lang-zh">最高频提示</span><span class="lang-en">Highest hint</span></button>
+            </div>
+            <div class="filter-readout" id="mel-readout" aria-live="polite"></div>
+          </div>
+
+          <div class="canvas-grid lower-canvases">
+            <figure class="canvas-card wide"><figcaption><span class="label-pill yellow">40</span><div><b><span class="lang-zh">log-Mel 能量地图</span><span class="lang-en">Log-Mel energy map</span></b><small><span class="lang-zh">每列：一帧；每行：一个听觉频带</span><span class="lang-en">Columns: frames; rows: hearing-style bands</span></small></div><output>40 × frames</output></figcaption><canvas id="mel-spectrogram" aria-label="当前指令的梅尔能量时频图"></canvas><p class="axis-note"><span class="lang-zh">低频</span><span class="lang-en">LOW</span><span><span class="lang-zh">时间 →</span><span class="lang-en">TIME →</span></span><span class="lang-zh">高频</span><span class="lang-en">HIGH</span></p></figure>
+            <figure class="canvas-card wide"><figcaption><span class="label-pill coral">13</span><div><b><span class="lang-zh">MFCC 地图</span><span class="lang-en">MFCC map</span></b><small><span class="lang-zh">一列是 13 个“混合后的描述”；悬停一行查看含义</span><span class="lang-en">One column is 13 mixed descriptions; hover a row to explore</span></small></div><output>13 × frames</output></figcaption><canvas id="mfcc-map" aria-label="当前指令的十三维梅尔倒谱系数地图"></canvas><p class="axis-note"><span>C0</span><span><span class="lang-zh">时间 → · 悬停查看</span><span class="lang-en">TIME → · HOVER TO EXPLORE</span></span><span>C12</span></p></figure>
+          </div>
+
+          <div class="mfcc-detail" id="mfcc-detail" aria-live="polite"></div>
+
+          <div class="keep-drop">
+            <div class="keep"><span aria-hidden="true">◎</span><div><h3><span class="lang-zh">MFCC 更容易保留什么？</span><span class="lang-en">What does MFCC tend to keep?</span></h3><p><span class="lang-zh">平滑的<strong>频谱包络</strong>：能量大致在哪些频段隆起、又怎样随音节移动。它间接带有口腔 / 声道形状和发音动作的线索。</span><span class="lang-en">The smooth <strong>spectral envelope</strong>: where energy rises across bands and how that shape moves across syllables. It carries indirect clues about vocal-tract shape and articulation.</span></p></div></div>
+            <div class="drop"><span aria-hidden="true">⌇</span><div><h3><span class="lang-zh">它会弱化什么？</span><span class="lang-en">What does it soften?</span></h3><p><span class="lang-zh">很细的谐波纹路、极端响度差和一些瞬时细节。Mel 合并邻近频率、log 压缩音量、DCT 只留低阶平滑形状——但绝不是全部删光。</span><span class="lang-en">Very fine harmonic stripes, extreme loudness differences, and some tiny transients. Mel merges nearby frequencies, log compresses volume, and DCT keeps low-order smooth shape—but nothing is perfectly erased.</span></p></div></div>
+            <div class="learn"><span aria-hidden="true">↻</span><div><h3><span class="lang-zh">口音与音色谁来“忽略”？</span><span class="lang-en">Who learns to ignore accent and timbre?</span></h3><p><span class="lang-zh"><strong>不是 MFCC 单独做到的。</strong>板子还会做音量 / 均值归一化、降噪；最重要的是，模型要用不同说话人、口音和噪声训练，学会把无关差异当作背景。</span><span class="lang-en"><strong>MFCC cannot do it alone.</strong> Boards may normalise loudness / average colour and reduce noise; most importantly, the model trains on many speakers, accents, and noisy rooms so it learns what is background.</span></p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="live-section" aria-labelledby="live-title">
+        <div class="content section">
+          <div class="chapter-kicker"><span>02</span><b class="lang-zh">你的声音上场</b><b class="lang-en">YOUR VOICE, NOW</b></div>
+          <div class="section-intro split"><div><p class="eyebrow coral"><span class="lang-zh">浏览器里的小实验</span><span class="lang-en">A BROWSER MINI-EXPERIMENT</span></p><h2 id="live-title"><span class="lang-zh">说一句话，让你的 13 条轨迹动起来。</span><span class="lang-en">Say a phrase and watch your 13 tracks move.</span></h2></div><p><span class="lang-zh">录音不会上传。浏览器在设备上取得麦克风流、FFT、Mel 能量和 MFCC；你可保存一段示范，体验最简单的本地模板匹配。</span><span class="lang-en">Nothing is uploaded. Your browser gets the microphone stream, FFT, Mel energies, and MFCC on-device. Save a sample to try the simplest local template match.</span></p></div>
+          <div class="live-controls">
+            <button id="start-mic" class="primary-action" type="button"><span aria-hidden="true">●</span><span class="lang-zh">开始麦克风</span><span class="lang-en">Start microphone</span></button><button id="stop-mic" class="subtle-action" type="button" disabled><span class="lang-zh">停止</span><span class="lang-en">Stop</span></button>
+            <label class="command-select"><span class="lang-zh">这句话叫做</span><span class="lang-en">Name this phrase</span><select id="template-command"><option value="turn-on" data-zh="打开台灯" data-en="Turn on light">打开台灯</option><option value="turn-off" data-zh="关闭台灯" data-en="Turn off light">关闭台灯</option><option value="play" data-zh="播放音乐" data-en="Play music">播放音乐</option><option value="stop" data-zh="停止播放" data-en="Stop playing">停止播放</option></select></label>
+            <button id="save-template" class="subtle-action" type="button" disabled><span class="lang-zh">保存本地示范</span><span class="lang-en">Save local sample</span></button><button id="clear-templates" class="text-action" type="button"><span class="lang-zh">清除示范</span><span class="lang-en">Clear samples</span></button><span class="local-badge">● <span class="lang-zh">只在这台设备</span><span class="lang-en">ON THIS DEVICE</span></span>
+          </div>
+          <div class="live-layout"><figure class="live-canvas-wrap"><figcaption><div><b><span class="lang-zh">你的 MFCC 时间地图</span><span class="lang-en">Your MFCC time map</span></b><small id="live-state"><span class="lang-zh">等待麦克风授权</span><span class="lang-en">Waiting for microphone permission</span></small></div><span class="live-chip">13 × time</span></figcaption><canvas id="live-mfcc" aria-label="来自麦克风的实时 MFCC 地图"></canvas><div class="live-axis"><span>C0</span><span><span class="lang-zh">旧的声音 ←　→ 新的声音</span><span class="lang-en">OLDER ←　→ NEWER</span></span><span>C12</span></div></figure><aside class="recognition-card"><p class="eyebrow coral"><span class="lang-zh">本地小词表</span><span class="lang-en">LOCAL MINI VOCABULARY</span></p><p class="recognition-result" id="recognition-result">—</p><p id="recognition-desc"></p><div class="meter"><i id="confidence-meter"></i></div><small id="template-count"></small></aside></div>
+          <p class="privacy-note"><span class="lang-zh">提示：这是“特征与模板”实验，不是万能听写。真正的产品会用更多训练样本、拒识阈值和安全测试。</span><span class="lang-en">Note: this is a feature-and-template experiment, not open-ended dictation. Real products use more training data, reject thresholds, and safety testing.</span></p>
+        </div>
+      </section>
+    </main>
+    <footer><div class="content footer-inner"><span>VOICE DETECTIVE LAB · WEB AUDIO API</span><span><span class="lang-zh">事实核对：</span><span class="lang-en">FACT CHECK:</span> <a href="https://arm-software.github.io/CMSIS-DSP/latest/group__MFCCF32.html" target="_blank" rel="noreferrer">Arm CMSIS-DSP MFCC</a> · <a href="https://android.googlesource.com/platform/external/tensorflow/+/HEAD/tensorflow/lite/experimental/microfrontend/lib/" target="_blank" rel="noreferrer">TFLM audio frontend</a></span></div></footer>
+    <script src="app.js?v=2"></script>
+  </body>
+</html>

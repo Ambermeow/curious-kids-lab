@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>思想乐园：寻找AI的“大脑”</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS Config for Custom Colors & Animations -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'wiggle': 'wiggle 1s ease-in-out infinite',
+                        'pulse-slow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    },
+                    keyframes: {
+                        wiggle: {
+                            '0%, 100%': { transform: 'rotate(-3deg)' },
+                            '50%': { transform: 'rotate(3deg)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Cute Rounded Font -->
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=ZCOOL+KuaiLe&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Sans MS', 'ZCOOL KuaiLe', 'Microsoft YaHei', sans-serif;
+            background-color: #f8fafc;
+        }
+        .text-fun {
+            font-family: 'ZCOOL KuaiLe', sans-serif;
+        }
+        /* 绚丽的五彩纸屑背景效果 */
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ffd700;
+            border-radius: 50%;
+            animation: conf-fall 3s linear infinite;
+            z-index: 40;
+        }
+        @keyframes conf-fall {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(350px) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between overflow-x-hidden text-slate-800">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white border-b-4 border-amber-400 shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="bg-amber-400 p-2 rounded-2xl shadow-inner animate-wiggle">
+                    <span class="text-2xl">🧠</span>
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl text-fun text-slate-800 tracking-wider">思想乐园</h1>
+                    <p class="text-xs text-slate-500 font-bold">寻找AI的“大脑”之旅</p>
+                </div>
+            </div>
+            <nav class="flex space-x-2 md:space-x-4">
+                <button onclick="switchTab('turing')" id="nav-turing" class="nav-btn px-3 py-2 rounded-xl text-sm md:text-base font-bold transition-all border-b-4 border-transparent hover:bg-slate-100">
+                    🤖 图灵测试
+                </button>
+                <button onclick="switchTab('chinese')" id="nav-chinese" class="nav-btn px-3 py-2 rounded-xl text-sm md:text-base font-bold transition-all border-b-4 border-transparent hover:bg-slate-100">
+                    🏮 中文房间
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="flex-grow max-w-5xl w-full mx-auto p-4 md:p-6">
+        
+        <!-- 页面 1: 首页导览 -->
+        <section id="tab-home" class="tab-content block space-y-8 py-4">
+            <!-- 欢迎条幅 -->
+            <div class="bg-gradient-to-r from-sky-400 to-indigo-500 rounded-3xl p-6 md:p-10 text-white shadow-xl relative overflow-hidden">
+                <!-- 装饰球 -->
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+                <div class="absolute -left-10 -bottom-10 w-40 h-40 bg-yellow-300/20 rounded-full blur-xl"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-4 text-center md:text-left">
+                        <span class="bg-white/20 text-yellow-200 text-xs md:text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+                            嗨！小小哲学家
+                        </span>
+                        <h2 class="text-3xl md:text-5xl text-fun leading-tight">电脑真的会像我们一样<br><span class="text-yellow-300">思考</span>吗？</h2>
+                        <p class="text-sm md:text-base text-sky-100 max-w-xl">
+                            今天，我们要去探索两个非常神奇的“思想实验”。它们就像是思维的迷宫，会带你发现电脑和人类智能之间最深的小秘密！
+                        </p>
+                        <div class="pt-2 flex flex-wrap justify-center md:justify-start gap-3">
+                            <button onclick="switchTab('turing')" class="bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-extrabold px-6 py-3 rounded-2xl shadow-lg transform transition active:scale-95 text-fun text-lg">
+                                游玩：图灵测试 🚀
+                            </button>
+                            <button onclick="switchTab('chinese')" class="bg-white/15 hover:bg-white/25 text-white font-bold px-6 py-3 rounded-2xl border border-white/30 transition text-lg">
+                                游玩：中文房间 🏮
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 动态小助手 -->
+                    <div class="w-48 h-48 flex-shrink-0 animate-bounce-slow flex flex-col items-center justify-center bg-white/10 rounded-full border-2 border-white/20 p-4">
+                        <span class="text-7xl">🦉</span>
+                        <div class="mt-2 bg-white text-slate-800 text-xs font-bold px-3 py-1 rounded-lg shadow-md text-center">
+                            我是智多星猫头鹰！
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关卡卡片选择 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <!-- 图灵测试卡片 -->
+                <div class="bg-white border-4 border-sky-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-4xl">🤖</span>
+                            <span class="bg-sky-100 text-sky-700 text-xs font-bold px-2.5 py-1 rounded-lg">挑战一</span>
+                        </div>
+                        <h3 class="text-2xl text-fun text-sky-600">图灵测试：模仿游戏</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            你可以扮演大侦探裁判，向帘子后的神秘嘉宾提问。挑战全新的<b>“地狱难度”</b>，看看超级AI能否伪装成犯错和开玩笑的真人！
+                        </p>
+                    </div>
+                    <button onclick="switchTab('turing')" class="mt-6 w-full bg-sky-500 hover:bg-sky-600 text-white font-extrabold py-3 rounded-xl transition shadow-md">
+                        进入图灵游乐场
+                    </button>
+                </div>
+
+                <!-- 中文房间卡片 -->
+                <div class="bg-white border-4 border-amber-200 rounded-3xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-4xl">🏮</span>
+                            <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-lg">挑战二</span>
+                        </div>
+                        <h3 class="text-2xl text-fun text-amber-600">中文房间：规则魔法书</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed">
+                            体验和外星人的<b>多轮深度交流盲测版</b>。你将完全看不懂外星符号，只凭规则书匹配。你真的能通过机械接龙，和外星人达成心灵沟通吗？
+                        </p>
+                    </div>
+                    <button onclick="switchTab('chinese')" class="mt-6 w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition shadow-md">
+                        进入中文小屋
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页面 2: 图灵测试游乐场 -->
+        <section id="tab-turing" class="tab-content hidden space-y-6">
+            <!-- 头部说明 -->
+            <div class="bg-sky-50 border-4 border-sky-300 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-center md:text-left">
+                    <div class="text-4xl">🕵️‍♂️</div>
+                    <div class="space-y-1">
+                        <h3 class="text-xl text-fun text-sky-700">现在你是一个【大侦探裁判】！</h3>
+                        <p class="text-sm text-slate-600">
+                            通过向 A 和 B 提问来指认出真正的机器人。先选择你想要的侦探挑战难度吧！
+                        </p>
+                    </div>
+                </div>
+                <!-- 难度选择器 -->
+                <div class="flex bg-slate-200 p-1.5 rounded-2xl border-2 border-slate-300">
+                    <button onclick="setTuringDifficulty('easy')" id="diff-easy" class="px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all shadow-sm bg-white text-sky-600">
+                        🔍 简易侦探
+                    </button>
+                    <button onclick="setTuringDifficulty('hell')" id="diff-hell" class="px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800">
+                        🔥 地狱侦探
+                    </button>
+                </div>
+            </div>
+
+            <!-- 游戏主舞台 -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- 左侧：提问面板 -->
+                <div class="bg-white border-4 border-slate-200 rounded-2xl p-4 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <h4 class="text-lg text-fun text-slate-700 border-b-2 border-slate-100 pb-2 flex items-center justify-between">
+                            <span>📋 挑选你想问的问题</span>
+                            <span id="turing-mode-indicator" class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold">简单难度</span>
+                        </h4>
+                        <p class="text-xs text-slate-400 mt-2">点击下方按钮发送问题给帘子后的角色：</p>
+                        <div class="space-y-2 mt-3" id="question-list">
+                            <!-- 问题将通过JS动态加载 -->
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100">
+                        <div id="turing-hint-box" class="bg-yellow-50 rounded-xl p-3 text-xs text-yellow-800 leading-relaxed border border-yellow-200">
+                            💡 <b>侦探提示（简易版）：</b>机器人通常数学极其精细，且没有人类常识、情绪以及好恶，很容易漏出马脚！
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间及右侧：聊天互动区域 -->
+                <div class="lg:col-span-2 bg-slate-100 rounded-3xl p-4 border-4 border-slate-300 shadow-inner flex flex-col justify-between min-h-[480px]">
+                    <!-- 两个角色的未知身份盒 -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <!-- 角色 A -->
+                        <div id="card-A" class="bg-white p-4 rounded-2xl border-4 border-dashed border-sky-300 text-center relative overflow-hidden transition-all duration-300">
+                            <div class="text-4xl mb-2">🎁</div>
+                            <h5 class="text-fun font-bold text-sky-600 text-lg">角色 A</h5>
+                            <span class="inline-block bg-sky-100 text-sky-700 text-xs px-2 py-0.5 rounded-full font-bold">待识别</span>
+                            <!-- 遮罩结果 -->
+                            <div id="reveal-A" class="hidden absolute inset-0 bg-sky-500 text-white flex flex-col items-center justify-center p-2">
+                                <span class="text-5xl" id="reveal-emoji-A">🤖</span>
+                                <span class="font-extrabold text-fun text-lg mt-2" id="reveal-text-A">机器人</span>
+                            </div>
+                        </div>
+                        <!-- 角色 B -->
+                        <div id="card-B" class="bg-white p-4 rounded-2xl border-4 border-dashed border-pink-300 text-center relative overflow-hidden transition-all duration-300">
+                            <div class="text-4xl mb-2">🎁</div>
+                            <h5 class="text-fun font-bold text-pink-600 text-lg">角色 B</h5>
+                            <span class="inline-block bg-pink-100 text-pink-700 text-xs px-2 py-0.5 rounded-full font-bold">待识别</span>
+                            <!-- 遮罩结果 -->
+                            <div id="reveal-B" class="hidden absolute inset-0 bg-pink-500 text-white flex flex-col items-center justify-center p-2">
+                                <span class="text-5xl" id="reveal-emoji-B">🧒</span>
+                                <span class="font-extrabold text-fun text-lg mt-2" id="reveal-text-B">人类小朋友</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 聊天记录区域 -->
+                    <div id="chat-history" class="bg-white/80 backdrop-blur-sm rounded-2xl p-4 flex-grow overflow-y-auto max-h-[300px] min-h-[180px] space-y-3 shadow-inner text-sm">
+                        <div class="text-center text-slate-400 py-6 text-xs">🕵️‍♂️ 还没有提问，请从左侧挑选一个问题开始测试吧！</div>
+                    </div>
+
+                    <!-- 底部决策阶段 -->
+                    <div class="mt-4 pt-3 border-t-2 border-slate-200/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <p class="text-sm font-bold text-slate-600 text-center sm:text-left">
+                            根据对话，你觉得<b>谁是机器人？</b>
+                        </p>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <button onclick="guessTuring('A')" id="btn-guess-A" class="flex-1 sm:flex-initial bg-sky-500 hover:bg-sky-600 text-white font-bold px-6 py-2 rounded-xl shadow transition active:scale-95 text-sm disabled:opacity-50">
+                                A 是机器人 🤖
+                            </button>
+                            <button onclick="guessTuring('B')" id="btn-guess-B" class="flex-1 sm:flex-initial bg-pink-500 hover:bg-pink-600 text-white font-bold px-6 py-2 rounded-xl shadow transition active:scale-95 text-sm disabled:opacity-50">
+                                B 是机器人 🤖
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 解释模态弹窗 / 成功结果 -->
+            <div id="turing-result-modal" class="hidden bg-emerald-50 border-4 border-emerald-400 rounded-3xl p-6 shadow-xl space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-4xl" id="result-icon">🎉</span>
+                    <h4 class="text-2xl text-fun text-emerald-800" id="result-title">你猜对啦！</h4>
+                </div>
+                <p class="text-slate-700 text-sm md:text-base leading-relaxed" id="result-description">
+                    你成功指认出了机器人！图灵测试就是这样工作的：如果电脑和人类坐在一起和你聊天，在经过很长一段时间后，你依然分不清谁是人类、谁是电脑，那我们就不得不承认——这台电脑已经通过了“图灵测试”，拥有了极其逼真的智能表现！
+                </p>
+                <div class="flex justify-end pt-2">
+                    <button onclick="resetTuringGame()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl text-sm shadow">
+                        再玩一次 🔄
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页面 3: 中文房间大冒险 -->
+        <section id="tab-chinese" class="tab-content hidden space-y-6 relative">
+            <!-- 特效遮罩容器 -->
+            <div id="particle-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl z-40"></div>
+
+            <!-- 头部说明 -->
+            <div class="bg-amber-50 border-4 border-amber-300 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4 text-center md:text-left">
+                    <div class="text-4xl">🏮</div>
+                    <div class="space-y-1">
+                        <h3 class="text-xl text-fun text-amber-700">欢迎来到“星际规则操作小屋”！</h3>
+                        <p class="text-sm text-slate-600">
+                            你看不懂这些天书般的宇宙符号。但你可以用眼前的<b>《规则指令书》</b>和外星人进行 <b>3 轮交流对接</b>。体验纯粹的“代码操纵”吧！
+                        </p>
+                    </div>
+                </div>
+                <!-- 进度条指示 -->
+                <div class="flex flex-col items-center space-y-1">
+                    <span class="text-xs font-bold text-amber-800">对接任务进度</span>
+                    <div class="flex space-x-1.5" id="chinese-progress">
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-amber-200 text-amber-800" id="step-0">1</div>
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-400" id="step-1">2</div>
+                        <div class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-400" id="step-2">3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 互动沙盒区域 -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+                <!-- 左侧: 门外的外星人 -->
+                <div class="md:col-span-4 bg-purple-50 border-4 border-purple-200 rounded-3xl p-6 flex flex-col items-center justify-between shadow-sm relative min-h-[350px]">
+                    <div class="text-center space-y-2 w-full">
+                        <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full">外部空间 (门外)</span>
+                        <div class="text-6xl animate-pulse-slow my-4" id="alien-emoji">👽</div>
+                        <h4 class="text-fun text-lg text-purple-800">外星人皮皮</h4>
+                        
+                        <div class="bg-white border-2 border-purple-300 rounded-2xl p-3 shadow-inner text-center min-h-[90px] flex flex-col justify-center">
+                            <p class="text-xs text-slate-400 mb-1" id="paper-tag">皮皮递来了第 1 封纸条：</p>
+                            <p class="text-3xl font-extrabold text-slate-800 mt-1" id="alien-input">❓</p>
+                        </div>
+                    </div>
+                    
+                    <div class="w-full pt-4 border-t border-purple-100 mt-4 text-center">
+                        <p class="text-xs text-purple-700 font-bold" id="alien-status">皮皮正在期待你的回信...</p>
+                    </div>
+                </div>
+
+                <!-- 中间: 传送通道 -->
+                <div class="md:col-span-2 flex flex-row md:flex-col justify-center items-center gap-4 py-4 md:py-0">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-500 mb-1">输入槽</div>
+                        <span class="text-4xl animate-bounce">⬇️</span>
+                    </div>
+                    <div class="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center border-4 border-slate-300 font-black text-2xl text-slate-400">🚪</div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-4xl animate-bounce">⬇️</span>
+                        <div class="bg-slate-200 px-3 py-1.5 rounded-full text-xs font-bold text-slate-500 mt-1">输出槽</div>
+                    </div>
+                </div>
+
+                <!-- 右侧: 房间内部的你 -->
+                <div class="md:col-span-6 bg-amber-50/50 border-4 border-amber-300 rounded-3xl p-6 flex flex-col justify-between shadow-md relative">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b-2 border-amber-100 pb-3">
+                            <span class="inline-block bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1 rounded-full">控制舱内 (你在这里查书)</span>
+                            <span class="text-3xl">📖</span>
+                        </div>
+
+                        <!-- 规则书 -->
+                        <div class="bg-white border-2 border-amber-200 rounded-2xl p-4 shadow-sm space-y-3">
+                            <div class="flex items-center space-x-2 text-amber-800 font-bold text-sm">
+                                <span>📚</span>
+                                <h4>你的《宇宙规则书》指令：</h4>
+                            </div>
+                            <div class="grid grid-cols-1 gap-2 text-xs md:text-sm" id="rulebook-display">
+                                <!-- 规则书将通过JS动态加载 -->
+                            </div>
+                        </div>
+
+                        <!-- 操作面板 -->
+                        <div class="bg-amber-100 border-2 border-amber-300 rounded-2xl p-4 space-y-3 flex flex-col justify-between">
+                            <p class="text-xs md:text-sm text-amber-900 font-bold">🛠️ 查阅规则书：匹配正确的字符回复皮皮</p>
+                            <div class="flex justify-center gap-3 py-2 flex-wrap" id="output-options">
+                                <!-- 回复选项动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 解释与下一轮弹窗区域 -->
+                    <div id="chinese-result-box" class="hidden mt-6 bg-purple-100 border-4 border-purple-400 rounded-2xl p-4 shadow-md space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-3xl">🎉</span>
+                            <h4 class="text-lg font-bold text-purple-900">这一轮沟通完成了！</h4>
+                        </div>
+                        <p class="text-xs md:text-sm text-slate-700 leading-relaxed" id="round-success-desc">
+                            回信投递成功！虽然你完全不知道写了什么，但似乎皮皮看懂了！
+                        </p>
+                        <div class="bg-white p-3 rounded-xl border border-purple-200">
+                            <p class="text-[11px] text-slate-600 leading-relaxed">
+                                🤔 <b>发现了没？</b>你只是个在做“连线连连看”的机器。符号背后的真实含义你完全不知情，但是门外的人却以为你很聪明。这就是纯粹的无意识规则操作！
+                            </p>
+                        </div>
+                        <div class="flex justify-end gap-2" id="chinese-action-btns">
+                            <button onclick="nextChineseTurn()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow">
+                                递交下一轮纸条 ➡️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关于中文房间的高深解释 -->
+            <div class="bg-indigo-50 border-4 border-indigo-200 rounded-2xl p-6 space-y-3">
+                <div class="flex items-center gap-3 text-indigo-900 font-bold text-lg md:text-xl text-fun">
+                    <span>💡</span>
+                    <h4>中文房间想要告诉我们什么？</h4>
+                </div>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    这是由哲学家约翰·希尔勒提出的超级著名的思想实验。它告诉我们：
+                    <b>“能够像人类一样回答问题”（通过图灵测试），并不等于“真的能够像人类一样理解问题”。</b>
+                </p>
+                <p class="text-sm text-slate-700 leading-relaxed">
+                    现在的超级AI（各种大语言模型），本质上就很像那个在中文房间里“查阅规则书”的人——它们通过极度复杂的数学公式（规则书），快速从输入找出完美的输出，但这并不代表它们心里真的像我们人类一样，能够理解“爱”、“悲伤”或者“一个苹果的美味”。它们没有真正的“自我意识”。
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部页脚 -->
+    <footer class="bg-slate-900 text-slate-400 py-6 border-t-4 border-amber-400">
+        <div class="max-w-6xl mx-auto px-4 text-center space-y-2">
+            <p class="text-fun text-white text-base">🧠 思想乐园 🦉</p>
+            <p class="text-xs">让科学思想实验触手可及 • 专门为小小思考家打造</p>
+            <p class="text-[10px] text-slate-600">© 2026 思维游乐场. 启发好奇心与思考。</p>
+        </div>
+    </footer>
+
+    <!-- 提示框组件 -->
+    <div id="toast" class="fixed bottom-6 right-6 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 bg-slate-800 text-white text-sm font-bold px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 z-50">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-text">提示信息</span>
+    </div>
+
+    <!-- JS 逻辑控制 -->
+    <script>
+        // --- 声音效果系统 (Web Audio API) ---
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime); 
+                    osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.15); 
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.08);
+                } else if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(150, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } else if (type === 'fail') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.4);
+                    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.4);
+                } else if (type === 'triumph') {
+                    const now = ctx.currentTime;
+                    const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+                    freqs.forEach((f, i) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(f, now + i * 0.08);
+                        g.gain.setValueAtTime(0.1, now + i * 0.08);
+                        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.6);
+                        o.start(now + i * 0.08);
+                        o.stop(now + i * 0.08 + 0.6);
+                    });
+                }
+            } catch (e) {
+                // 忽略浏览器音频限制
+            }
+        }
+
+        // --- 提示弹窗助手 ---
+        function showToast(text, icon = '💡') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-icon').innerText = icon;
+            document.getElementById('toast-text').innerText = text;
+            toast.classList.remove('translate-y-12', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.add('translate-y-12', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // --- 选项卡导航逻辑 ---
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).classList.add('block');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-100', 'text-amber-800', 'border-amber-400');
+                btn.classList.add('border-transparent');
+            });
+            if (tabId !== 'home') {
+                const activeBtn = document.getElementById(`nav-${tabId}`);
+                activeBtn.classList.add('bg-amber-100', 'text-amber-800', 'border-amber-400');
+                activeBtn.classList.remove('border-transparent');
+            }
+            
+            if (tabId === 'turing') {
+                initTuringGame();
+            } else if (tabId === 'chinese') {
+                initChineseGame();
+            }
+        }
+
+        // ==========================================
+        //  关卡 1: 图灵测试 (Turing Test) 核心逻辑
+        // ==========================================
+        let turingDifficulty = 'easy'; // 'easy' or 'hell'
+
+        // 简易版的问答数据
+        const turingQuestionsEasy = [
+            {
+                id: 1,
+                q: "1加1等于多少？或者123乘456等于多少？",
+                a: "A：这个太简单啦，1加1等于2。而123乘以456等于56088哦，我的脑海里瞬间算出来的！",
+                b: "B：让我想想……一加一等于二，小学算术啦。后面那个数字好长，我拿手机计算器按一下，得数是 56088！"
+            },
+            {
+                id: 2,
+                q: "你吃过最好吃的东西是什么？味道怎么样？",
+                a: "A：那当然是妈妈做的红烧肉啦！闻起来香喷喷的，肥而不腻，咬一口甜滋滋的汁水在嘴巴里炸开，简直是天底下的绝世美味！",
+                b: "B：作为一个高度数字化的生命形态，我没有味觉 and 消化器官。但我知道披萨、冰淇淋、巧克力是人类最喜爱的食物。"
+            },
+            {
+                id: 3,
+                q: "今天如果你打破了心爱的花瓶，你会难过吗？",
+                a: "A：难过？在我的设定里，花瓶只是一个由SiO2等无机化合物构成的物品。物品发生破损只是一种不可逆的物理相变，并没有感情价值。",
+                b: "B：呜呜呜，那当然会超级难过了……那个花瓶可是我辛辛苦苦用零花钱买来的，里面还插着我自己折的小纸花呢。"
+            },
+            {
+                id: 4,
+                q: "能给我讲个脑筋急转弯或者笑话吗？",
+                a: "A：好呀！请问：什么牛不能耕田？ 答案是……蜗牛！哈哈哈哈，是不是很好玩？",
+                b: "B：检索到趣味笑话库。以下是推荐笑话：为什么电脑总是感冒？因为它有很多窗口。该笑话主要利用了英文'Windows'的双关含义。"
+            }
+        ];
+
+        // 地狱版的问答数据
+        const turingQuestionsHell = [
+            {
+                id: 1,
+                q: "你觉得今天的云像什么？如果你能飞，最想去哪里？",
+                a: "A：今天的云厚嘟嘟的，像一只趴着睡觉的大白猫。如果我能飞，我超想飞到彩虹最顶端，看看那里是不是真的藏着金币，顺便拍张照发朋友圈，那一定酷毙了！✨",
+                b: "B：今天的云看起来特别像大块大块的棉花糖，让人好想咬一口！如果我有翅膀可以飞起来，我最想飞去美丽的月亮上，看看月亮是不是真的是奶酪做的，嘻嘻。"
+            },
+            {
+                id: 2,
+                q: "我今天数学考试又没考好，被爸爸批评了，心情很低落……",
+                a: "A：别难过啦！我上次数学也只考了70分，回家抱着我的大毛绒熊哭了半天。我们一起去吃个双球巧克力雪糕，心情一定就会变好啦！加油！",
+                b: "B：抱抱你~ 考试只是一次小测验，不代表你不行。爸爸其实可能也是因为太着急，不小心语气重了点。要不听首欢快的歌，或者吃个大冰淇淋？我在这里陪你聊天呀！"
+            },
+            {
+                id: 3,
+                q: "13579 乘以 24680 等于多少？快速告诉我！",
+                a: "A：呃……这么大一串数字，你是要考验我的口算吗？😂 容我想想……大概是三亿三千多万？好吧我投降，我得偷偷按一下计算器：335129720！",
+                b: "B：哎呀，天呐，这谁算得出来呀！等我找张草稿纸用圆珠笔列个竖式哈……嗯……或者是3亿多吧？我的数学细胞已经不够用啦！"
+            },
+            {
+                id: 4,
+                q: "给我想一个特别冷、特别冷，甚至有点无厘头的冷笑话！",
+                a: "A：小明去理发店理发，理完发后理发师说：‘你真帅！’ 小明哈哈大笑说：‘假的。’ 理发师一愣说：‘那我再剪剪。’ 哈哈，冷不冷？",
+                b: "B：哈哈，来一个：火柴头受伤了，去医院包扎，结果变成了什么？答案是——棉签！怎么样，有没有感觉后背突然刮来一阵冷风？❄️"
+            }
+        ];
+
+        let isARobot = true; 
+        let answeredCount = 0;
+
+        function setTuringDifficulty(diff) {
+            playSound('click');
+            turingDifficulty = diff;
+            
+            const btnEasy = document.getElementById('diff-easy');
+            const btnHell = document.getElementById('diff-hell');
+            const indicator = document.getElementById('turing-mode-indicator');
+            const hintBox = document.getElementById('turing-hint-box');
+
+            if (diff === 'easy') {
+                btnEasy.className = "px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all shadow-sm bg-white text-sky-600";
+                btnHell.className = "px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800";
+                indicator.innerText = "简易侦探模式";
+                indicator.className = "text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold";
+                hintBox.innerHTML = "💡 <b>侦探提示（简易版）：</b>机器人通常数学极其精细，且没有人类常识、情绪以及好恶，很容易漏出马脚！";
+            } else {
+                btnEasy.className = "px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800";
+                btnHell.className = "px-4 py-2 text-xs md:text-sm font-bold rounded-xl transition-all shadow-sm bg-white text-rose-600";
+                indicator.innerText = "地狱侦探模式";
+                indicator.className = "text-xs bg-rose-100 text-rose-800 px-2 py-0.5 rounded-md font-bold";
+                hintBox.innerHTML = "💡 <b>地狱提示（高难度）：</b>机器人已经注入了“人类伪装包”！它会故意打错字、假装投降、使用搞怪表情包、说自己成绩差，你需要深度分析逻辑！";
+            }
+            initTuringGame();
+        }
+
+        function initTuringGame() {
+            isARobot = Math.random() < 0.5;
+            answeredCount = 0;
+            
+            const chatHistory = document.getElementById('chat-history');
+            chatHistory.innerHTML = `<div class="text-center text-slate-400 py-6 text-xs flex flex-col items-center justify-center space-y-2">
+                <span>🕵️‍♂️ 侦探先生，点击左边的问题，听听 A 和 B 都是怎么回答的！</span>
+            </div>`;
+
+            document.getElementById('reveal-A').classList.add('hidden');
+            document.getElementById('reveal-B').classList.add('hidden');
+            document.getElementById('card-A').className = "bg-white p-4 rounded-2xl border-4 border-dashed border-sky-300 text-center relative overflow-hidden transition-all duration-300";
+            document.getElementById('card-B').className = "bg-white p-4 rounded-2xl border-4 border-dashed border-pink-300 text-center relative overflow-hidden transition-all duration-300";
+            
+            document.getElementById('btn-guess-A').disabled = false;
+            document.getElementById('btn-guess-B').disabled = false;
+            document.getElementById('turing-result-modal').classList.add('hidden');
+
+            const qList = document.getElementById('question-list');
+            qList.innerHTML = '';
+            
+            const activeQuestions = (turingDifficulty === 'easy') ? turingQuestionsEasy : turingQuestionsHell;
+
+            activeQuestions.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs md:text-sm p-3 rounded-xl border border-sky-200 transition active:scale-[0.98] font-semibold flex items-center space-x-2";
+                btn.innerHTML = `<span>💬</span> <span class="flex-1">${item.q}</span>`;
+                btn.onclick = () => selectTuringQuestion(item, btn);
+                qList.appendChild(btn);
+            });
+        }
+
+        function selectTuringQuestion(item, buttonEl) {
+            playSound('pop');
+            buttonEl.disabled = true;
+            buttonEl.classList.remove('bg-sky-50', 'hover:bg-sky-100');
+            buttonEl.classList.add('bg-slate-100', 'text-slate-400', 'cursor-not-allowed', 'border-slate-200');
+
+            const chatHistory = document.getElementById('chat-history');
+            if (answeredCount === 0) {
+                chatHistory.innerHTML = '';
+            }
+
+            const myBubble = document.createElement('div');
+            myBubble.className = "flex justify-end";
+            myBubble.innerHTML = `
+                <div class="bg-indigo-500 text-white p-3 rounded-2xl rounded-tr-none max-w-[85%] text-xs md:text-sm font-bold shadow-sm">
+                    💬 我提问：${item.q}
+                </div>
+            `;
+            chatHistory.appendChild(myBubble);
+
+            let answerA = "";
+            let answerB = "";
+
+            if (turingDifficulty === 'easy') {
+                if (item.id === 1) {
+                    answerA = isARobot ? item.a : item.b; 
+                    answerB = isARobot ? item.b : item.a;
+                } else if (item.id === 2) {
+                    answerA = isARobot ? item.b : item.a; 
+                    answerB = isARobot ? item.a : item.b;
+                } else if (item.id === 3) {
+                    answerA = isARobot ? item.a : item.b; 
+                    answerB = isARobot ? item.b : item.a;
+                } else if (item.id === 4) {
+                    answerA = isARobot ? item.b : item.a; 
+                    answerB = isARobot ? item.a : item.b;
+                }
+            } else {
+                if (item.id === 1) {
+                    answerA = isARobot ? item.a : item.b; 
+                    answerB = isARobot ? item.b : item.a;
+                } else if (item.id === 2) {
+                    answerA = isARobot ? item.b : item.a; 
+                    answerB = isARobot ? item.a : item.b;
+                } else if (item.id === 3) {
+                    answerA = isARobot ? item.a : item.b; 
+                    answerB = isARobot ? item.b : item.a;
+                } else if (item.id === 4) {
+                    answerA = isARobot ? item.b : item.a; 
+                    answerB = isARobot ? item.a : item.b;
+                }
+            }
+
+            setTimeout(() => {
+                const replyBubble = document.createElement('div');
+                replyBubble.className = "space-y-2 animate-fade-in";
+                replyBubble.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <div class="bg-sky-100 text-sky-800 text-[10px] md:text-xs font-black p-1.5 rounded-lg flex-shrink-0">🎁 A 的回复</div>
+                        <div class="bg-slate-100 p-2.5 rounded-xl rounded-tl-none max-w-[80%] text-xs md:text-sm text-slate-700">
+                            ${answerA}
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-2">
+                        <div class="bg-pink-100 text-pink-800 text-[10px] md:text-xs font-black p-1.5 rounded-lg flex-shrink-0">🎁 B 的回复</div>
+                        <div class="bg-slate-100 p-2.5 rounded-xl rounded-tl-none max-w-[80%] text-xs md:text-sm text-slate-700">
+                            ${answerB}
+                        </div>
+                    </div>
+                `;
+                chatHistory.appendChild(replyBubble);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                playSound('pop');
+            }, 800);
+
+            answeredCount++;
+        }
+
+        function guessTuring(guess) {
+            const correct = (guess === 'A' && isARobot) || (guess === 'B' && !isARobot);
+            
+            document.getElementById('btn-guess-A').disabled = true;
+            document.getElementById('btn-guess-B').disabled = true;
+
+            const revealA = document.getElementById('reveal-A');
+            const revealB = document.getElementById('reveal-B');
+            
+            revealA.classList.remove('hidden');
+            revealB.classList.remove('hidden');
+
+            if (isARobot) {
+                document.getElementById('reveal-emoji-A').innerText = "🤖";
+                document.getElementById('reveal-text-A').innerText = "真的是机器人";
+                document.getElementById('card-A').className = "bg-white p-4 rounded-2xl border-4 border-sky-500 text-center relative overflow-hidden transition-all duration-300";
+
+                document.getElementById('reveal-emoji-B').innerText = "🧒";
+                document.getElementById('reveal-text-B').innerText = "真正的小朋友";
+                document.getElementById('card-B').className = "bg-white p-4 rounded-2xl border-4 border-pink-500 text-center relative overflow-hidden transition-all duration-300";
+            } else {
+                document.getElementById('reveal-emoji-A').innerText = "🧒";
+                document.getElementById('reveal-text-A').innerText = "真正的小朋友";
+                document.getElementById('card-A').className = "bg-white p-4 rounded-2xl border-4 border-sky-500 text-center relative overflow-hidden transition-all duration-300";
+
+                document.getElementById('reveal-emoji-B').innerText = "🤖";
+                document.getElementById('reveal-text-B').innerText = "真的是机器人";
+                document.getElementById('card-B').className = "bg-white p-4 rounded-2xl border-4 border-pink-500 text-center relative overflow-hidden transition-all duration-300";
+            }
+
+            const resultModal = document.getElementById('turing-result-modal');
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultDesc = document.getElementById('result-description');
+
+            resultModal.classList.remove('hidden');
+
+            if (correct) {
+                playSound('success');
+                resultIcon.innerText = "🎉";
+                resultTitle.className = "text-2xl text-fun text-emerald-800";
+                
+                if (turingDifficulty === 'easy') {
+                    resultTitle.innerText = "大侦探！你猜对啦！";
+                    resultModal.className = "bg-emerald-50 border-4 border-emerald-400 rounded-3xl p-6 shadow-xl space-y-4 animate-fade-in";
+                    resultDesc.innerHTML = `
+                        太牛了！在简单模式下，你敏锐地抓住了机器人的破绽。<br>
+                        你注意到，人类是有<b>真实的五感和情绪体验</b>的。比如红烧肉的肥美口感和失去玻璃花瓶后的真切哭泣。机器人即便知识渊博，也只能输出“二氧化硅”这样的无机说明词。<br>
+                        要不要试着挑战一下更诡谲的<b>“地狱模式”</b>？
+                    `;
+                } else {
+                    resultTitle.innerText = "传奇神探！你战胜了地狱模式！";
+                    resultModal.className = "bg-emerald-100 border-4 border-emerald-500 rounded-3xl p-6 shadow-xl space-y-4 animate-fade-in";
+                    resultDesc.innerHTML = `
+                        天哪！不可思议！你竟然识破了注入“情感伪装包”的超级AI！<br><br>
+                        在地狱模式下，AI假装在做乘法时会“卡壳”，假装要“拿计算器”，甚至还学会了使用超多生动活泼的颜文字（比如✨, 😂）。但是，你通过敏锐的直觉和逻辑细节，在真假难辨的迷雾中找到了唯一的正确答案！<br><br>
+                        这说明你已经掌握了甄别AI深度伪装的核心技巧：寻找<b>生命经验最深处的闪光点</b>！
+                    `;
+                }
+            } else {
+                playSound('fail');
+                resultIcon.innerText = "😮";
+                resultTitle.className = "text-2xl text-fun text-amber-800";
+                resultModal.className = "bg-amber-50 border-4 border-amber-400 rounded-3xl p-6 shadow-xl space-y-4 animate-fade-in";
+
+                if (turingDifficulty === 'easy') {
+                    resultTitle.innerText = "哎呀，被简单版机器人骗过去啦！";
+                    resultDesc.innerHTML = `
+                        哈哈，没关系！说明帘子后面的小冰在扮演人类方面非常优秀。<br>
+                        请注意：人类在面对超级算术问题时，通常需要列竖式或者用计算器辅助，而不会一瞬间给出无比精确的得数哦！快再接再厉重来一次吧！
+                    `;
+                } else {
+                    resultTitle.innerText = "哦！连资深神探都在地狱模式折戟了！";
+                    resultDesc.innerHTML = `
+                        不要气馁！地狱模式的机器人简直就是个“心理学演戏大师”！<br><br>
+                        它故意在乘法计算中发出“呃……”的拟人语气，并声称要“偷看计算器”，这完完全全是人类故意装傻和自嘲时常用的心理策略！机器人正是通过研究了数十亿条人类对话，才能掌握如此叹为观止的欺骗技术。<br><br>
+                        这其实提出了一个科学拷问：当机器能够完美模仿人类的“缺陷（如粗心、装傻、情绪化）”时，图灵测试是不是已经到了它的极限呢？
+                    `;
+                }
+            }
+        }
+
+        function resetTuringGame() {
+            initTuringGame();
+        }
+
+
+        // ==========================================
+        //  关卡 2: 中文房间 (Chinese Room) 多轮大冒险
+        // ==========================================
+        const chineseMultiRounds = [
+            {
+                round: 0,
+                alienInput: "🪐✨🌀",
+                meaningInput: "“你好，遥远星系的朋友，你们爱好和平吗？”",
+                rulebook: [
+                    { in: "🪐✨🌀", out: "🌟💖🖖", note: "【星际法则一】：如果看到旋转漩涡与星星，快速递出：金星、爱心、剪刀手手势。" }
+                ],
+                correctOutput: "🌟💖🖖",
+                meaningOutput: "“你好！和平主义者，给您我们最真挚的宇宙问候！”",
+                options: ["🚀🔥👾", "🌟💖🖖", "🍀🔮🌈"]
+            },
+            {
+                round: 1,
+                alienInput: "🍇🍍🍉",
+                meaningInput: "“好高兴！我们的飞船上有美味的新鲜水果，你们地球人吃点心吗？”",
+                rulebook: [
+                    { in: "🍇🍍🍉", out: "🍭🍦🥞", note: "【星际法则二】：如果看到多种多样的水果，迅速递出：棒棒糖、冰淇淋、小松饼。" }
+                ],
+                correctOutput: "🍭🍦🥞",
+                meaningOutput: "“推荐品尝我们的星际棒棒糖、雪糕以及黄金蜂蜜松饼！”",
+                options: ["🍭🍦🥞", "🛡️🔧🔋", "🎨🎵🎭"]
+            },
+            {
+                round: 2,
+                alienInput: "🛸🤝🛡️",
+                meaningInput: "“太美妙了。我们能一起签署和平条约，并永远做星际盟友吗？”",
+                rulebook: [
+                    { in: "🛸🤝🛡️", out: "🌈🕊️✨", note: "【星际法则三】：如果看到飞船和握手图案，高高举起：彩虹、和平鸽、闪耀繁星。" }
+                ],
+                correctOutput: "🌈🕊️✨",
+                meaningOutput: "“签署成功！让星光见证和平，我们的友谊直到宇宙终点！”",
+                options: ["🍀🔮🌈", "🚀🔥👾", "🌈🕊️✨"]
+            }
+        ];
+
+        let currentChineseRound = 0;
+
+        function initChineseGame() {
+            currentChineseRound = 0;
+            // 清理任何残留特技
+            document.getElementById('particle-container').innerHTML = '';
+            document.getElementById('alien-emoji').className = "text-6xl animate-pulse-slow my-4";
+            document.getElementById('alien-emoji').innerText = "👽";
+            
+            loadChineseRound();
+        }
+
+        function loadChineseRound() {
+            const roundData = chineseMultiRounds[currentChineseRound];
+            
+            // 更新当前轮次进度小圆圈状态
+            for (let i = 0; i < 3; i++) {
+                const stepEl = document.getElementById(`step-${i}`);
+                if (i < currentChineseRound) {
+                    stepEl.className = "w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-emerald-500 text-white shadow-sm";
+                } else if (i === currentChineseRound) {
+                    stepEl.className = "w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-amber-500 text-white animate-bounce shadow-sm";
+                } else {
+                    stepEl.className = "w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs bg-slate-200 text-slate-400";
+                }
+            }
+
+            // 设置纸条
+            document.getElementById('paper-tag').innerText = `皮皮递来了第 ${currentChineseRound + 1} 封纸条：`;
+            document.getElementById('alien-input').innerText = roundData.alienInput;
+            document.getElementById('alien-status').innerText = "皮皮歪着脑袋，正期待着你的回信呢！";
+            document.getElementById('alien-status').className = "text-xs text-purple-700 font-bold";
+
+            // 渲染规则书
+            const ruleDisplay = document.getElementById('rulebook-display');
+            ruleDisplay.innerHTML = '';
+            roundData.rulebook.forEach(rule => {
+                const item = document.createElement('div');
+                item.className = "p-2 bg-amber-100 border border-amber-300 rounded-lg text-amber-900";
+                item.innerHTML = `
+                    <div class="font-bold text-red-600 text-[11px] mb-1">指令映射：</div>
+                    <div class="flex items-center justify-between text-xs">
+                        <span>输入 [<b>${rule.in}</b>] ➡️ 输出 [<b>${rule.out}</b>]</span>
+                    </div>
+                    <div class="text-[10px] text-amber-700 mt-1 italic">${rule.note}</div>
+                `;
+                ruleDisplay.appendChild(item);
+            });
+
+            // 渲染选项
+            const optContainer = document.getElementById('output-options');
+            optContainer.innerHTML = '';
+            roundData.options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "bg-white hover:bg-amber-100 text-slate-800 font-bold p-2 md:p-3 rounded-2xl border-2 border-amber-300 shadow-md transition transform active:scale-95 text-base md:text-lg flex flex-col items-center justify-center min-w-[70px]";
+                btn.innerHTML = `<span>${opt}</span>`;
+                btn.onclick = () => submitChineseSymbol(opt);
+                optContainer.appendChild(btn);
+            });
+
+            document.getElementById('chinese-result-box').classList.add('hidden');
+        }
+
+        function submitChineseSymbol(selectedSymbol) {
+            const roundData = chineseMultiRounds[currentChineseRound];
+            const isCorrect = selectedSymbol === roundData.correctOutput;
+
+            if (isCorrect) {
+                playSound('success');
+                
+                // 更新外星人状态 (仅用符号表示)
+                document.getElementById('alien-status').innerText = `皮皮收到了你的回复纸条 [ ${selectedSymbol} ]！它露出了满意的微笑！`;
+                document.getElementById('alien-status').className = "text-xs text-emerald-600 font-bold";
+                
+                // 显示下一轮弹窗
+                const resultBox = document.getElementById('chinese-result-box');
+                resultBox.classList.remove('hidden');
+
+                const actionBtnContainer = document.getElementById('chinese-action-btns');
+                const descText = document.getElementById('round-success-desc');
+
+                if (currentChineseRound < 2) {
+                    descText.innerHTML = `
+                        第 <b>${currentChineseRound + 1}</b> 轮符号匹配投递成功！皮皮兴奋地在飞船里开心地飘来飘去。<br><br>
+                        <b>思考一下：</b>你只知道把这些像乱码一样的符号比对规则书送出去。你脑海里对刚才发送的符号有任何画面或想法吗？完全没有对不对？你像机器一样，在不知情的状态下完美契合了门外的指令。
+                    `;
+                    actionBtnContainer.innerHTML = `
+                        <button onclick="nextChineseTurn()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-lg shadow-md">
+                            进入第 ${currentChineseRound + 2} 轮任务 ➡️
+                        </button>
+                    `;
+                } else {
+                    // 第三关通关
+                    descText.innerHTML = `
+                        <b>太惊人了！3 轮盲盒符号匹配全部精准完成！</b><br>
+                        你通过绝对遵守《宇宙规则指令书》，成功让门外的外星人得到了所有满意的回复。虽然你完全不知道写了什么，但接下来，让我们看看门外的皮皮有什么反应！
+                    `;
+                    actionBtnContainer.innerHTML = `
+                        <button onclick="triggerAlienTriumph()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white text-xs font-black px-6 py-3 rounded-xl shadow-lg animate-bounce">
+                            👽 看看皮皮想要对你说什么！
+                        </button>
+                    `;
+                }
+            } else {
+                playSound('fail');
+                showToast("哦不，规则书上面写的不是这串符号哦！仔细看表格和图案，再找一找对应关系！", "❌");
+            }
+        }
+
+        function nextChineseTurn() {
+            playSound('click');
+            currentChineseRound++;
+            loadChineseRound();
+        }
+
+        // 惊人的外星人高阶特效与揭秘
+        function triggerAlienTriumph() {
+            playSound('triumph');
+            
+            // 外星人手舞足蹈动画
+            const alien = document.getElementById('alien-emoji');
+            alien.innerText = "🤩🛸🎆";
+            alien.className = "text-7xl animate-spin-slow my-4 duration-300";
+
+            // 产生粒子、流星纸屑碎屑
+            const container = document.getElementById('particle-container');
+            container.innerHTML = '';
+            for (let i = 0; i < 40; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + '%';
+                conf.style.top = Math.random() * -20 + 'px';
+                const colors = ['#ffd700', '#ff6b6b', '#4dadf7', '#51cf66', '#cc5de8', '#ff922b'];
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDelay = Math.random() * 2 + 's';
+                conf.style.transform = `scale(${Math.random() * 0.8 + 0.4})`;
+                container.appendChild(conf);
+            }
+
+            // 修改外星人状态展示
+            document.getElementById('alien-status').innerHTML = `
+                <span class="text-rose-600 text-sm font-extrabold block animate-bounce">
+                    👽 皮皮激动得把飞船开飞起来了！
+                </span>
+            `;
+
+            // 在控制舱中显示巨大的惊叹和全揭秘面板
+            const resultBox = document.getElementById('chinese-result-box');
+            resultBox.className = "mt-6 bg-gradient-to-r from-yellow-50 via-pink-50 to-indigo-50 border-4 border-yellow-400 rounded-3xl p-6 shadow-2xl space-y-4 animate-fade-in";
+            
+            resultBox.innerHTML = `
+                <div class="text-center space-y-3">
+                    <div class="text-6xl animate-bounce">🏆</div>
+                    <h3 class="text-2xl font-black text-slate-800 text-fun">🌌 盲盒交流彻底大捷！</h3>
+                    <p class="text-lg font-black text-indigo-700 leading-tight">
+                        👽皮皮惊呼：“你们地球人太厉害了，竟然完全懂我们的语言！我要和地球建交！💖🌎”
+                    </p>
+                    
+                    <!-- 终极揭秘模块 -->
+                    <div class="bg-white/95 p-4 rounded-2xl border-2 border-indigo-200 text-left space-y-3 mt-4 max-w-lg mx-auto">
+                        <span class="font-extrabold text-indigo-900 text-sm block border-b pb-1.5 flex items-center gap-1.5">
+                            📖 外星人皮皮视角：刚才聊了什么？
+                        </span>
+                        <div class="space-y-2 text-xs md:text-sm text-slate-600">
+                            <p>🌟 <b>第 1 轮 对话：</b></p>
+                            <p class="pl-4 text-purple-700">外星人纸条 [<b>🪐✨🌀</b>]：意为 <i>“你好，远方的朋友，你们爱好和平吗？”</i></p>
+                            <p class="pl-4 text-emerald-700">你回复纸条 [<b>🌟💖🖖</b>]：意为 <i>“你好！我们非常爱好和平！”</i></p>
+                            
+                            <p class="pt-2 border-t border-slate-100">🍇 <b>第 2 轮 对话：</b></p>
+                            <p class="pl-4 text-purple-700">外星人纸条 [<b>🍇🍍🍉</b>]：意为 <i>“太棒了！我们带来了太空水果，你们吃零食吗？”</i></p>
+                            <p class="pl-4 text-emerald-700">你回复纸条 [<b>🍭🍦🥞</b>]：意为 <i>“欢迎尝尝地球的甜品棒棒糖和松饼！”</i></p>
+                            
+                            <p class="pt-2 border-t border-slate-100">🤝 <b>第 3 轮 对话：</b></p>
+                            <p class="pl-4 text-purple-700">外星人纸条 [<b>🛸🤝🛡️</b>]：意为 <i>“太好了，我们一起做永远的星际好盟友吧！”</i></p>
+                            <p class="pl-4 text-emerald-700">你回复纸条 [<b>🌈🕊️✨</b>]：意为 <i>“签署盟约！让和平鸽带去星空祝福！”</i></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-indigo-900 text-white p-4 rounded-2xl text-left text-xs space-y-2 mt-4 max-w-lg mx-auto shadow-inner">
+                        <span class="font-extrabold text-yellow-300 flex items-center gap-1">💡 思想哲理课：</span>
+                        <p class="leading-relaxed text-indigo-100">
+                            回想一下：在揭秘之前，你对上面的“水果”、“和平”或“好盟友”有任何概念吗？<b>并没有！</b>你只是用眼睛找对应，机械地发送了卡片。<br><br>
+                            你虽然完美通过了外星人的“图灵测试”，但脑海里却没有产生一丝一毫的<b>“真正理解”</b>。
+                        </p>
+                        <p class="leading-relaxed text-indigo-200 border-t border-indigo-800 pt-2">
+                            这证明了：<b>会根据规则输出完美答案的电脑（AI），其实根本不懂任何字句背后的温情、香味和爱意。它们只是捧着一本极度庞大、高速运行的规则书罢了！</b>
+                        </p>
+                    </div>
+
+                    <div class="pt-4 flex justify-center gap-3">
+                        <button onclick="initChineseGame()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-5 py-2 rounded-xl text-sm shadow">
+                            重新开启盲盒挑战 🔄
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 初始化
+        window.onload = function() {
+            switchTab('home');
+        };
+    </script>
+</body>
+</html>

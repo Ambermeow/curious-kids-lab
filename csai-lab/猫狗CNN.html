@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI小侦探：猫狗分类大决战！</title>
+    <!-- 引入 Tailwind CSS 构建现代、活泼的 UI 界面 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=ZCOOL+KuaiLe&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f7fafc;
+        }
+        
+        .kids-title {
+            font-family: 'ZCOOL KuaiLe', 'Comic Sans MS', sans-serif;
+        }
+
+        /* 旋转与跃动动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: float 2.5s infinite ease-in-out;
+        }
+
+        /* 传送带运动动画 */
+        @keyframes conveyor {
+            0% { background-position: 0 0; }
+            100% { background-position: 40px 0; }
+        }
+        .conveyor-belt {
+            background-image: linear-gradient(45deg, #475569 25%, #334155 25%, #334155 50%, #475569 50%, #475569 75%, #334155 75%, #334155 100%);
+            background-size: 40px 40px;
+            animation: conveyor 1s linear infinite;
+        }
+
+        /* 旋转拼接动画 */
+        @keyframes mergeLeft {
+            0% { transform: translate(-30px, -20px) rotate(-45deg); opacity: 0.5; }
+            100% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+        }
+        @keyframes mergeRight {
+            0% { transform: translate(30px, -20px) rotate(45deg); opacity: 0.5; }
+            100% { transform: translate(0px, 0px) rotate(0deg); opacity: 1; }
+        }
+        .animate-merge-left {
+            animation: mergeLeft 0.8s forwards ease-out;
+        }
+        .animate-merge-right {
+            animation: mergeRight 0.8s forwards ease-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-6 px-4 md:px-8 flex flex-col items-center justify-start bg-gradient-to-br from-amber-50 via-sky-50 to-emerald-50">
+
+    <!-- 主游戏卡片容器 -->
+    <div class="max-w-4xl w-full bg-white rounded-3xl shadow-2xl border-4 border-yellow-400 overflow-hidden flex flex-col p-4 md:p-8">
+        
+        <!-- 顶部标题 -->
+        <div class="text-center mb-6">
+            <h1 class="text-3xl md:text-5xl font-black text-amber-500 kids-title tracking-wider mb-2 drop-shadow-md">
+                🐱 AI侦探队：猫狗分类大决战！ 🐶
+            </h1>
+            <p class="text-slate-600 text-xs md:text-base font-bold">
+                给3-5年级小朋友的卷积神经网络（CNN）超生动互动探索之旅！
+            </p>
+        </div>
+
+        <!-- 关卡进度条 -->
+        <div class="w-full bg-slate-100 rounded-full h-4 mb-6 relative overflow-hidden flex">
+            <div id="progress-bar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-full transition-all duration-500" style="width: 14.28%;"></div>
+        </div>
+
+        <!-- 核心交互舞台（机器内部世界） -->
+        <div class="relative w-full bg-slate-900 rounded-2xl p-6 mb-6 min-h-[350px] flex flex-col items-center justify-center text-white overflow-hidden border-4 border-slate-800">
+            <div class="absolute top-2 left-2 text-xs text-slate-500 font-mono tracking-wider">🔬 AI大眼萌的视界 // INSIDE THE MACHINE</div>
+            
+            <div id="stage-content" class="w-full flex flex-col items-center justify-center min-h-[280px]">
+                <!-- 动态渲染内容 -->
+            </div>
+        </div>
+
+        <!-- 侦探小卡片（解释说明区） -->
+        <div class="bg-amber-50 rounded-2xl p-5 border-2 border-amber-200 shadow-inner mb-6 min-h-[140px]">
+            <div class="flex items-center space-x-3 mb-2">
+                <span id="step-badge" class="px-3 py-1 bg-amber-500 text-white rounded-full text-sm font-extrabold shadow">第 0 步</span>
+                <h3 id="step-title" class="text-lg md:text-xl font-black text-slate-800">明确大目标</h3>
+            </div>
+            <p id="step-description" class="text-slate-700 text-sm md:text-base leading-relaxed font-medium">
+                正在加载侦探任务书...
+            </p>
+        </div>
+
+        <!-- 底部控制面板 -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 border-t pt-4 border-slate-100">
+            <!-- 导航按钮 -->
+            <div class="flex space-x-3">
+                <button id="prev-btn" onclick="goToStep(-1)" class="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-2xl transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none transform active:scale-95">
+                    ⬅️ 上一步
+                </button>
+                <button id="next-btn" onclick="goToStep(1)" class="px-8 py-3 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white font-black rounded-2xl shadow-lg transition-all duration-200 transform active:scale-95">
+                    下一步 ➡️
+                </button>
+            </div>
+
+            <!-- 控制区 -->
+            <div class="flex items-center space-x-2">
+                <button onclick="resetStory()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-500 text-sm font-bold rounded-xl transition-all">
+                    🔄 重新开始
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成功通关弹窗 -->
+    <div id="win-modal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center border-8 border-emerald-400 shadow-2xl">
+            <span class="text-7xl block mb-2 animate-bounce">🏆</span>
+            <h3 class="text-3xl font-black text-slate-800 kids-title">恭喜你，小侦探！</h3>
+            <p class="text-slate-600 mt-3 font-medium leading-relaxed">
+                你成功地帮助 AI 建立了一条<b>王牌流水线</b>！现在，你不仅知道了AI“先看线条、再看拼图、最后投票”的步骤，还能调整选票，太厉害了！
+            </p>
+            <button onclick="closeModal()" class="mt-6 px-8 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-black rounded-2xl shadow-lg transform active:scale-95 transition-all">
+                开启下一轮大作战！
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let activeStep = 0;
+        
+        // 游戏交互状态变量
+        let chosenInput = "cat"; // step 0 统一入口的选择
+        let convX = 0;           // step 2 卷积移动进度
+        let convY = 0;
+        let selectedPoolingNum = null; // step 3 池化点击标志
+        let assemblyTriggered = false; // step 5 拼接标志
+        
+        // 步骤2大格子的随机数值数组（预先生成，避免滑动时数值乱跳，重置或重新开始时刷新）
+        let gridValues = Array.from({length: 49}, () => Math.floor(Math.random() * 10));
+
+        // step 6 的多特征投票数
+        let featureWeights = {
+            ear: 90,     // 猫耳
+            tongue: 85,  // 狗舌
+            hair: 40,    // 毛发
+            color: 15,   // 颜色
+            tail: 70     // 尾巴
+        };
+
+        const steps = [
+            {
+                badge: "第 0 步",
+                title: "各回各家，各找各妈！ (唯一的照片传送带入口)",
+                desc: "在开始前，我们要设立唯一的<b>【统一照片输入传送带】</b>！无论是小猫还是小狗，都要从这一个入口送进去。我们的目标就是通过观察，把猫猫的照片运到左侧<b>【猫咪箱子】</b>，狗狗的照片运到右侧<b>【狗狗箱子】</b>。送错会受到批评，送对则有奖励！",
+                render: () => {
+                    return `
+                        <div class="flex flex-col items-center w-full max-w-xl gap-4">
+                            <!-- 统一入口控制台 -->
+                            <div class="bg-slate-800 p-4 rounded-2xl border-4 border-yellow-400 w-full text-center relative overflow-hidden">
+                                <span class="text-xs text-yellow-300 block mb-2 font-mono">📦 统一照片入口 (UNIFIED CONVEYOR INPUT)</span>
+                                <div class="flex justify-center items-center gap-6">
+                                    <button onclick="chooseInput('cat')" class="px-5 py-3 rounded-xl font-bold transition-all ${chosenInput === 'cat' ? 'bg-red-500 text-white scale-110 ring-4 ring-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}">
+                                        <span class="text-3xl block">🐱</span> 送入猫猫照片
+                                    </button>
+                                    <div class="text-xl font-black text-slate-400">或</div>
+                                    <button onclick="chooseInput('dog')" class="px-5 py-3 rounded-xl font-bold transition-all ${chosenInput === 'dog' ? 'bg-sky-500 text-white scale-115 ring-4 ring-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}">
+                                        <span class="text-3xl block">🐶</span> 送入狗狗照片
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 传送轨轨道 -->
+                            <div class="w-full h-12 conveyor-belt rounded-xl flex items-center justify-center relative shadow-inner overflow-hidden">
+                                <div id="conveyor-payload" class="absolute text-4xl animate-bounce" style="left: 45%;">
+                                    ${chosenInput === 'cat' ? '🐈' : '🐕'}
+                                </div>
+                            </div>
+
+                            <!-- 运动目的地示意 -->
+                            <div class="flex items-center justify-between w-full mt-2 gap-4">
+                                <div class="border-2 border-dashed border-red-500 p-3 rounded-xl text-center bg-red-950/40 flex-1">
+                                    <span class="text-3xl block">🐱</span>
+                                    <span class="text-xs text-red-300 font-bold">最终：猫咪箱</span>
+                                </div>
+                                <div class="text-slate-500 text-xs font-bold animate-pulse">➡️ 统一流向分类箱 ➡️</div>
+                                <div class="border-2 border-dashed border-sky-500 p-3 rounded-xl text-center bg-sky-950/40 flex-1">
+                                    <span class="text-3xl block">🐶</span>
+                                    <span class="text-xs text-sky-300 font-bold">最终：狗狗箱</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 1 步",
+                title: "机器眼中的秘密：大眼萌的“数字魔方” (30×30 大格子)",
+                desc: "电脑其实没有像我们一样能看清毛发、眼睛的视网膜。在机器的视野里，你送进来的照片其实是一堆<b>由格子组成的巨大数字矩阵（数字魔方）</b>。颜色深的地方数字代表0，颜色亮的地方代表9。AI要做的，就是从这堆看似乱码的数字阵里找出宝藏！",
+                render: () => {
+                    const animalSymbol = chosenInput === 'cat' ? '🐈' : '🐕';
+                    return `
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-8 w-full max-w-lg">
+                            <div class="flex flex-col items-center">
+                                <span class="text-7xl mb-2 animate-float inline-block">${animalSymbol}</span>
+                                <span class="text-xs text-slate-400 font-bold block">30×30照片 (人类看到的)</span>
+                            </div>
+                            <div class="text-3xl text-amber-400 animate-pulse font-black">➡️</div>
+                            <div class="flex flex-col items-center">
+                                <div class="grid grid-cols-7 gap-1 bg-slate-800 p-3 rounded-2xl border-2 border-slate-700 relative">
+                                    <div class="absolute top-2 left-2 bg-yellow-400 text-slate-900 text-[10px] font-black px-1.5 py-0.5 rounded-full z-10">3×3 放大镜</div>
+                                    ${Array.from({length: 49}).map((_, i) => {
+                                        const r = Math.floor(i / 7);
+                                        const c = i % 7;
+                                        // 高亮展示一个 3x3 区域作为示例
+                                        const active = (r >= 1 && r <= 3 && c >= 1 && c <= 3);
+                                        const num = active ? "9" : "2";
+                                        const colorClass = active ? "bg-yellow-400 text-slate-900 font-black ring-2 ring-yellow-300" : "bg-slate-900 text-slate-500 text-[10px]";
+                                        return `<div class="w-8 h-8 rounded flex items-center justify-center ${colorClass} transition-all">${num}</div>`;
+                                    }).join('')}
+                                </div>
+                                <span class="text-xs text-slate-400 font-bold mt-2">30×30 矩阵局部 (机器看到的数字)</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 2 步",
+                title: "第一步看：用 3×3 魔法放大镜扫描 30×30 大图 (卷积操作)",
+                desc: "这就是‘卷积’！机器手里拿着一个 <b>3×3 的九宫格线条放大镜</b>。由于数字太多，它需要从最左上角开始，<b>水平滑动、一行行平移扫描整个 30×30 大格子</b>。只要放大镜下方藏着特定的‘斜线条’，它就会在右边标记出‘特征亮斑’！",
+                render: () => {
+                    return `
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-6 w-full max-w-xl">
+                            <!-- 30x30 像素滑动大格子 -->
+                            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 relative">
+                                <span class="text-xs text-yellow-300 block mb-2 text-center font-bold">🕵️ 30×30 大格子 (局部)</span>
+                                <div class="grid grid-cols-7 gap-1">
+                                    ${Array.from({length: 49}).map((_, i) => {
+                                        const r = Math.floor(i / 7);
+                                        const c = i % 7;
+                                        // 放大镜是否覆盖该格子
+                                        const covered = (r >= convY && r < convY + 3 && c >= convX && c < convX + 3);
+                                        const cellColor = covered ? 'bg-yellow-400 text-slate-900 font-black scale-105' : 'bg-slate-900 text-slate-600 text-xs';
+                                        return `<div class="w-8 h-8 ${cellColor} flex items-center justify-center rounded transition-all duration-200">${gridValues[i]}</div>`;
+                                    }).join('')}
+                                </div>
+                            </div>
+
+                            <!-- 交互面板 -->
+                            <div class="flex flex-col items-center md:items-start bg-slate-950 p-4 rounded-2xl border border-slate-800 max-w-xs flex-1">
+                                <span class="text-xs text-slate-400 font-bold mb-3">🎮 动手操作：操控放大镜滑动</span>
+                                <div class="grid grid-cols-3 gap-2 w-full mb-4">
+                                    <div></div>
+                                    <button onclick="moveLens(0, -1)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-center font-bold text-white">▲</button>
+                                    <div></div>
+                                    <button onclick="moveLens(-1, 0)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-center font-bold text-white">◀</button>
+                                    <button onclick="resetLens()" class="p-2 bg-yellow-400 text-slate-950 rounded-lg text-center font-black text-xs">重置</button>
+                                    <button onclick="moveLens(1, 0)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-center font-bold text-white">▶</button>
+                                    <div></div>
+                                    <button onclick="moveLens(0, 1)" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-center font-bold text-white">▼</button>
+                                    <div></div>
+                                </div>
+                                <div class="text-[11px] text-slate-400 space-y-1 w-full border-t border-slate-800 pt-2 font-mono">
+                                    <div>放大镜中心X: <span class="text-yellow-400 font-bold">${convX + 1}</span> / 5</div>
+                                    <div>放大镜中心Y: <span class="text-yellow-400 font-bold">${convY + 1}</span> / 5</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 3 步",
+                title: "池化：把 3×3 眯眯眼压缩成 1 个格子 (池化大挑战)",
+                desc: "线条找完后，机器觉得数据量太庞大，记不住！于是它会开启<b>【眯眯眼最大值池化】</b>。它把每 3×3（共9个）小格子划为一个区域。<b>它的规矩是：只挑里面最大的那个数字，其余小数字统统扔掉</b>。这样 3×3 的区域瞬间合并成了 1 个格子，大照片就缩水变精简啦！",
+                render: () => {
+                    const isSuccess = selectedPoolingNum === 9;
+                    return `
+                        <div class="flex flex-col items-center gap-4 w-full">
+                            <span class="text-xs text-yellow-300 font-bold">🎮 挑战：请点击 3×3 格子里“最大的那个数字”来进行池化！</span>
+                            <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                                <!-- 3x3 池化网格 -->
+                                <div class="bg-slate-800 p-3 rounded-2xl border-2 border-dashed border-red-500/50">
+                                    <span class="text-xs text-red-300 block mb-1 text-center font-bold">3×3 池化输入区</span>
+                                    <div class="grid grid-cols-3 gap-2 text-white">
+                                        <button onclick="clickPool(1)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 1 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">1</button>
+                                        <button onclick="clickPool(4)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 4 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">4</button>
+                                        <button onclick="clickPool(2)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 2 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">2</button>
+                                        
+                                        <button onclick="clickPool(3)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 3 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">3</button>
+                                        <!-- 冠军数字 9 -->
+                                        <button onclick="clickPool(9)" class="w-10 h-10 rounded bg-emerald-600 hover:bg-emerald-500 font-black text-base text-white shadow-lg ${isSuccess ? 'ring-4 ring-yellow-400' : ''}">9</button>
+                                        <button onclick="clickPool(5)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 5 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">5</button>
+                                        
+                                        <button onclick="clickPool(0)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 0 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">0</button>
+                                        <button onclick="clickPool(7)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 7 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">7</button>
+                                        <button onclick="clickPool(2)" class="w-10 h-10 rounded bg-slate-700 hover:bg-slate-600 font-bold text-sm ${selectedPoolingNum === 2 ? 'ring-2 ring-red-400 bg-red-950/30' : ''}">2</button>
+                                    </div>
+                                </div>
+
+                                <div class="text-3xl text-yellow-300 font-black">➡️</div>
+
+                                <!-- 1个缩略格子 -->
+                                <div class="bg-slate-800 p-4 rounded-2xl border-2 border-emerald-500 flex flex-col items-center">
+                                    <span class="text-xs text-emerald-300 block mb-2 font-bold">1个压缩格子 (输出)</span>
+                                    ${isSuccess ? `
+                                        <div class="w-14 h-14 bg-emerald-500 text-slate-900 font-black text-2xl flex items-center justify-center rounded-xl shadow-lg animate-bounce">
+                                            9
+                                        </div>
+                                        <span class="text-xs text-emerald-400 font-bold mt-2">🎉 挑战成功！数字冠军9晋级！</span>
+                                    ` : `
+                                        <div class="w-14 h-14 bg-slate-700 text-slate-500 font-black text-xl flex items-center justify-center rounded-xl">
+                                            ?
+                                        </div>
+                                        <span class="text-xs text-slate-400 mt-2">请在左侧找出最大的数字</span>
+                                    `}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 4 步",
+                title: "第二步看：大图变小，侦探大眼继续找！(多层卷积与缩小)",
+                desc: "通过第一轮的找线条和池化，原来<b>大大的 30×30 照片</b>已经变小，成为了 10×10 的精炼特征图！但这个时候，机器侦探依然拿着 <b>3×3 放大镜</b>在继续拼凑。现在线条越来越短，大眼萌可以开始拼凑更复杂的图形啦！",
+                render: () => {
+                    return `
+                        <div class="flex flex-col md:flex-row items-center justify-around w-full gap-6">
+                            <!-- 30x30 原尺寸代表 -->
+                            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 text-center flex-1">
+                                <div class="text-[10px] text-slate-400 mb-2">第1层：30 × 30 大图</div>
+                                <div class="h-20 bg-slate-700/50 rounded flex items-center justify-center border-2 border-yellow-300">
+                                    <span class="text-4xl">🖼️</span>
+                                </div>
+                                <span class="text-xs text-yellow-300 font-bold block mt-2">3×3 放大镜在扫描简单线条</span>
+                            </div>
+
+                            <div class="text-2xl text-slate-500 font-black">➡️ 压缩 ➡️</div>
+
+                            <!-- 10x10 特征图代表 -->
+                            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700 text-center flex-1">
+                                <div class="text-[10px] text-slate-400 mb-2">第2层：10 × 10 缩水小图</div>
+                                <div class="h-14 w-14 bg-slate-700 mx-auto rounded flex items-center justify-center border-2 border-emerald-400 relative">
+                                    <span class="text-lg">🔎</span>
+                                    <!-- 缩小版的3x3滑动框 -->
+                                    <div class="absolute w-6 h-6 border-2 border-yellow-400 top-1 left-1 animate-pulse"></div>
+                                </div>
+                                <span class="text-xs text-emerald-400 font-bold block mt-2">3×3 放大镜在寻找拼图碎片</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 5 步",
+                title: "拼图大作战：组装出猫耳朵和狗舌头零件 (特征组合)",
+                desc: "在这一道流水线上，机器侦探开始把刚才在缩小图片里找到的线条、圆弧全部**焊接组装**起来。线条和斜线一拼接，拼成了<b>猫耳朵 🔺</b>；几个粉色曲线一拼接，拼成了<b>狗舌头 👅</b>。零件拼装完成，准备送去大投票！",
+                render: () => {
+                    return `
+                        <div class="flex flex-col items-center gap-4 w-full max-w-2xl">
+                            <span class="text-xs text-yellow-300 font-bold">🎮 点击下方按钮，现场观看机械臂的高级零件拼接：</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                <!-- 猫耳拼接 -->
+                                <div class="bg-slate-800 p-4 rounded-2xl border-2 border-red-500/30 flex flex-col items-center">
+                                    <span class="text-xs text-red-300 font-black mb-2">🔧 猫耳零件车间</span>
+                                    <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-xl h-16 w-full justify-center">
+                                        ${assemblyTriggered ? `
+                                            <span class="text-red-400 text-3xl font-black animate-merge-left">/</span>
+                                            <span class="text-slate-500">+</span>
+                                            <span class="text-red-400 text-3xl font-black animate-merge-right">\\</span>
+                                            <span class="text-slate-400 font-bold">➡️</span>
+                                            <svg class="w-12 h-12 text-red-500 fill-current animate-bounce" viewBox="0 0 100 100">
+                                                <polygon points="50,15 15,85 85,85" />
+                                            </svg>
+                                        ` : `
+                                            <span class="text-slate-500 font-bold text-xs">等待拼接信号...</span>
+                                        `}
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 mt-2">拼出特征：尖尖耳朵 🔺</span>
+                                </div>
+
+                                <!-- 狗舌拼接 -->
+                                <div class="bg-slate-800 p-4 rounded-2xl border-2 border-sky-500/30 flex flex-col items-center">
+                                    <span class="text-xs text-sky-300 font-black mb-2">🔧 狗舌零件车间</span>
+                                    <div class="flex items-center gap-3 bg-slate-900 p-3 rounded-xl h-16 w-full justify-center">
+                                        ${assemblyTriggered ? `
+                                            <span class="text-sky-400 text-xl font-bold animate-merge-left">(</span>
+                                            <span class="text-slate-500">+</span>
+                                            <span class="text-sky-400 text-xl font-bold animate-merge-right">)</span>
+                                            <span class="text-slate-400 font-bold">➡️</span>
+                                            <svg class="w-12 h-12 text-pink-400 fill-current animate-bounce" viewBox="0 0 100 100">
+                                                <path d="M20,40 Q50,10 80,40 Q80,80 50,90 Q20,80 20,40 Z" />
+                                                <line x1="50" y1="30" x2="50" y2="80" stroke="white" stroke-width="4" />
+                                            </svg>
+                                        ` : `
+                                            <span class="text-slate-500 font-bold text-xs">等待拼接信号...</span>
+                                        `}
+                                    </div>
+                                    <span class="text-[10px] text-slate-400 mt-2">拼出特征：长狗舌头 👅</span>
+                                </div>
+                            </div>
+                            <button onclick="triggerAssembly()" class="px-6 py-2.5 bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transform active:scale-95 transition-all">
+                                ⚡ 启动一键拼接！
+                            </button>
+                        </div>
+                    `;
+                }
+            },
+            {
+                badge: "第 6 步",
+                title: "特征得票数！你来调整秘密权重 (投票区与分类)",
+                desc: "现在，来到了最关键的<b>【超级选票大决选】</b>！你可以扮演总指挥，**拖动滑块来修改每个特征的选票（权重）**，看看随着选票的变化，底部的预测计分板会发生什么神奇的变化！当你把“猫耳”和“胡须”的选票拉大，大眼萌是不是瞬间就百分百认出那是猫咪了？",
+                render: () => {
+                    // 动态计算猫和狗的得分
+                    let catScore = featureWeights.ear * 1.5 + Math.round(featureWeights.hair * 0.2) + Math.round(featureWeights.color * 0.1);
+                    let dogScore = featureWeights.tongue * 1.5 + Math.round(featureWeights.tail * 0.8) + Math.round(featureWeights.color * 0.1);
+                    
+                    const total = catScore + dogScore;
+                    let catPercent = Math.round((catScore / total) * 100);
+                    let dogPercent = 100 - catPercent;
+
+                    return `
+                        <div class="w-full max-w-xl flex flex-col md:flex-row items-stretch gap-6">
+                            <!-- 调节滑块面板 -->
+                            <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 space-y-3 flex-1">
+                                <span class="text-xs text-yellow-300 font-black block mb-1">🎛️ 特征权重滑块控制区：</span>
+                                
+                                <div class="space-y-2">
+                                    <!-- 猫耳 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] w-20 text-slate-300">🔺 尖猫耳:</span>
+                                        <input type="range" min="0" max="100" value="${featureWeights.ear}" oninput="adjustWeight('ear', this.value)" class="flex-1 accent-red-500">
+                                        <span class="text-[10px] font-mono text-red-400 w-10 text-right">${featureWeights.ear} 票</span>
+                                    </div>
+                                    <!-- 狗舌 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] w-20 text-slate-300">👅 狗舌头:</span>
+                                        <input type="range" min="0" max="100" value="${featureWeights.tongue}" oninput="adjustWeight('tongue', this.value)" class="flex-1 accent-sky-500">
+                                        <span class="text-[10px] font-mono text-sky-400 w-10 text-right">${featureWeights.tongue} 票</span>
+                                    </div>
+                                    <!-- 毛发 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] w-20 text-slate-300">🐾 蓬蓬毛:</span>
+                                        <input type="range" min="0" max="100" value="${featureWeights.hair}" oninput="adjustWeight('hair', this.value)" class="flex-1 accent-yellow-500">
+                                        <span class="text-[10px] font-mono text-yellow-400 w-10 text-right">${featureWeights.hair} 票</span>
+                                    </div>
+                                    <!-- 颜色 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] w-20 text-slate-300">🎨 蓝底色:</span>
+                                        <input type="range" min="0" max="100" value="${featureWeights.color}" oninput="adjustWeight('color', this.value)" class="flex-1 accent-purple-500">
+                                        <span class="text-[10px] font-mono text-purple-400 w-10 text-right">${featureWeights.color} 票</span>
+                                    </div>
+                                    <!-- 尾巴 -->
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] w-20 text-slate-300">🐕 大尾巴:</span>
+                                        <input type="range" min="0" max="100" value="${featureWeights.tail}" oninput="adjustWeight('tail', this.value)" class="flex-1 accent-emerald-500">
+                                        <span class="text-[10px] font-mono text-emerald-400 w-10 text-right">${featureWeights.tail} 票</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 投票实时柱状图看板 -->
+                            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-col justify-between w-full md:w-56">
+                                <div>
+                                    <span class="text-xs text-slate-400 block mb-2 text-center">📊 侦探选票实时柱状图</span>
+                                    <div class="space-y-3">
+                                        <!-- 猫咪柱状条 -->
+                                        <div>
+                                            <div class="flex justify-between text-[10px] text-red-300 font-bold">
+                                                <span>🐱 猫猫概率</span>
+                                                <span>${catPercent}%</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-1">
+                                                <div class="bg-red-500 h-full transition-all duration-300" style="width: ${catPercent}%"></div>
+                                            </div>
+                                        </div>
+                                        <!-- 狗狗柱状条 -->
+                                        <div>
+                                            <div class="flex justify-between text-[10px] text-sky-300 font-bold">
+                                                <span>🐶 狗狗概率</span>
+                                                <span>${dogPercent}%</span>
+                                            </div>
+                                            <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mt-1">
+                                                <div class="bg-sky-500 h-full transition-all duration-300" style="width: ${dogPercent}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="text-center mt-4 border-t border-slate-800 pt-3">
+                                    <span class="text-[9px] text-slate-500 block">AI 最终预测结论：</span>
+                                    <div id="final-outcome-btn" class="text-3xl animate-bounce mt-1 cursor-pointer" onclick="runFinalSortingAnimation(${catPercent}, ${dogPercent})">
+                                        ${catPercent > dogPercent ? '🐱' : '🐶'}
+                                    </div>
+                                    <span class="text-xs font-black ${catPercent > dogPercent ? 'text-red-400' : 'text-sky-400'}">
+                                        ${catPercent > dogPercent ? '判定为猫猫！' : '判定为狗狗！'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        ];
+
+        // 初始化网页
+        window.onload = function () {
+            renderCurrentStep();
+        }
+
+        // 统一渲染当前关卡函数
+        function renderCurrentStep() {
+            const step = steps[activeStep];
+            
+            // 更新进度条
+            const progressPercent = ((activeStep + 1) / steps.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            
+            // 更新卡片信息
+            document.getElementById('step-badge').innerText = step.badge;
+            document.getElementById('step-title').innerText = step.title;
+            document.getElementById('step-description').innerHTML = step.desc;
+
+            // 渲染中央互动画面
+            const stage = document.getElementById('stage-content');
+            stage.innerHTML = step.render();
+
+            // 更新按钮状态
+            document.getElementById('prev-btn').disabled = (activeStep === 0);
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (activeStep === steps.length - 1) {
+                nextBtn.innerText = "🏆 大决战通关！";
+                nextBtn.classList.remove('from-amber-400', 'to-orange-500');
+                nextBtn.classList.add('from-emerald-400', 'to-teal-500');
+            } else {
+                nextBtn.innerText = "下一步 ➡️";
+                nextBtn.classList.add('from-amber-400', 'to-orange-500');
+                nextBtn.classList.remove('from-emerald-400', 'to-teal-500');
+            }
+        }
+
+        // 控制跳转
+        function goToStep(direction) {
+            let next = activeStep + direction;
+            if (next >= 0 && next < steps.length) {
+                activeStep = next;
+                renderCurrentStep();
+            } else if (next === steps.length) {
+                showModal();
+            }
+        }
+
+        // 重置应用
+        function resetStory() {
+            activeStep = 0;
+            chosenInput = "cat";
+            convX = 0;
+            convY = 0;
+            selectedPoolingNum = null;
+            assemblyTriggered = false;
+            featureWeights = {
+                ear: 90,
+                tongue: 85,
+                hair: 40,
+                color: 15,
+                tail: 70
+            };
+            // 重新开始时生成全新的随机背景数字
+            gridValues = Array.from({length: 49}, () => Math.floor(Math.random() * 10));
+            renderCurrentStep();
+        }
+
+        // 统一照片传送带入口按钮触发
+        function chooseInput(animal) {
+            chosenInput = animal;
+            renderCurrentStep();
+            // 晃动动效
+            const payload = document.getElementById('conveyor-payload');
+            if (payload) {
+                payload.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    payload.style.transform = 'scale(1)';
+                }, 200);
+            }
+        }
+
+        // 操控卷积放大镜滑动
+        function moveLens(dx, dy) {
+            let nextX = convX + dx;
+            let nextY = convY + dy;
+            if (nextX >= 0 && nextX <= 3) convX = nextX;
+            if (nextY >= 0 && nextY <= 3) convY = nextY;
+            renderCurrentStep();
+        }
+
+        function resetLens() {
+            convX = 0;
+            convY = 0;
+            renderCurrentStep();
+        }
+
+        // 池化大点击小挑战
+        function clickPool(num) {
+            selectedPoolingNum = num;
+            renderCurrentStep();
+        }
+
+        // 拼图机械组装焊接动画触发
+        function triggerAssembly() {
+            assemblyTriggered = true;
+            renderCurrentStep();
+        }
+
+        // 修改特征滑块选票（权重更新）
+        function adjustWeight(key, value) {
+            featureWeights[key] = parseInt(value);
+            renderCurrentStep();
+        }
+
+        // 终局滑行动画
+        let animationLocked = false;
+        function runFinalSortingAnimation(catP, dogP) {
+            if (animationLocked) return;
+            animationLocked = true;
+
+            const actorBtn = document.getElementById('final-outcome-btn');
+            if (!actorBtn) {
+                animationLocked = false;
+                return;
+            }
+
+            // 判断向左偏还是向右偏
+            if (catP > dogP) {
+                actorBtn.style.transform = 'translateX(-100px) rotate(-360deg) scale(1.3)';
+            } else {
+                actorBtn.style.transform = 'translateX(100px) rotate(360deg) scale(1.3)';
+            }
+
+            setTimeout(() => {
+                actorBtn.style.transform = 'translateX(0px) rotate(0deg) scale(1.1)';
+                animationLocked = false;
+            }, 2000);
+        }
+
+        // 弹窗辅助管理
+        function showModal() {
+            document.getElementById('win-modal').classList.remove('hidden');
+        }
+
+        // 关闭弹窗并重置
+        function closeModal() {
+            document.getElementById('win-modal').classList.add('hidden');
+            resetStory();
+        }
+    </script>
+</body>
+</html>

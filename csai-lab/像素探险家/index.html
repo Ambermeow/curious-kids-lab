@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>像素探险家 - 图像识别的二进制奥秘</title>
+    <!-- Rounded Google Fonts for kids-friendly aesthetics -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header & Mascot Area -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="mascot-svg-wrapper" id="mascot-container">
+                    <!-- SVG Mascot Vivi (Pip the Pixelbot) -->
+                    <svg viewBox="0 0 100 100" class="vivi-mascot" id="mascot-vivi">
+                        <!-- Ears/Antenna -->
+                        <line x1="50" y1="22" x2="50" y2="10" stroke="var(--accent-coral)" stroke-width="4" stroke-linecap="round" />
+                        <circle cx="50" cy="10" r="5" fill="var(--accent-amber)" class="antenna-bulb" />
+                        <!-- Body / Head -->
+                        <rect x="15" y="22" width="70" height="62" rx="16" fill="var(--primary-glow)" stroke="var(--bg-card)" stroke-width="4" />
+                        <!-- Screen -->
+                        <rect x="24" y="32" width="52" height="34" rx="8" fill="var(--bg-dark)" />
+                        <!-- Eyes -->
+                        <circle cx="40" cy="46" r="6" fill="var(--accent-mint)" class="vivi-eye eye-left" />
+                        <circle cx="60" cy="46" r="6" fill="var(--accent-mint)" class="vivi-eye eye-right" />
+                        <!-- Mouth -->
+                        <path d="M 44 54 Q 50 60 56 54" stroke="var(--accent-mint)" stroke-width="3.5" stroke-linecap="round" fill="none" class="vivi-mouth" />
+                        <!-- Cheeks -->
+                        <circle cx="33" cy="53" r="3" fill="var(--accent-coral)" opacity="0.6" />
+                        <circle cx="67" cy="53" r="3" fill="var(--accent-coral)" opacity="0.6" />
+                    </svg>
+                </div>
+                <div class="title-details">
+                    <h1>像素探险家 <span class="subtitle-badge">Beta</span></h1>
+                    <p class="tagline">跟着机器人小皮，探索图像与二进制的魔法世界！</p>
+                </div>
+            </div>
+            
+            <!-- Dynamic mascot dialogue box -->
+            <div class="mascot-bubble-container">
+                <div class="speech-bubble" id="mascot-bubble">
+                    嗨！我是小皮，你的像素向导！点击下方的关卡卡片，我们一起解密计算机视觉的终极秘密吧！
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation Tabs -->
+    <nav class="adventure-tabs">
+        <button onclick="window.switchTab(1)" id="tab-btn-1" class="tab-btn active">
+            <span class="step-num">1</span>
+            <span class="tab-label"><i data-lucide="zap"></i> 开关秘密</span>
+        </button>
+        <button onclick="window.switchTab(2)" id="tab-btn-2" class="tab-btn">
+            <span class="step-num">2</span>
+            <span class="tab-label"><i data-lucide="brush"></i> 神奇画板</span>
+        </button>
+        <button onclick="window.switchTab(3)" id="tab-btn-3" class="tab-btn">
+            <span class="step-num">3</span>
+            <span class="tab-label"><i data-lucide="grid"></i> 排队魔术</span>
+        </button>
+        <button onclick="window.switchTab(4)" id="tab-btn-4" class="tab-btn">
+            <span class="step-num">4</span>
+            <span class="tab-label"><i data-lucide="scan-eye"></i> 照片扫描仪</span>
+        </button>
+    </nav>
+
+    <!-- App Container -->
+    <main class="app-main">
+        
+        <!-- STEP 1: SWITCH MYSTERY -->
+        <section id="tab-content-1" class="tab-panel active">
+            <div class="panel-grid">
+                <div class="explanation-card">
+                    <span class="badge badge-amber"><i data-lucide="zap"></i> 物理本质</span>
+                    <h2>计算机里没有 0 和 1！</h2>
+                    <p class="desc">
+                        其实计算机的芯片里只有一根根微小的电线。当<b>通电</b>（高电平）时，我们记作 <b>1</b>；当<b>断电</b>（低电平）时，我们记作 <b>0</b>。
+                    </p>
+                    <p class="desc font-bold">
+                        一个开关就是 1位 (Bit)。如果把 8 个开关放在一起，就是 1字节 (Byte)！
+                    </p>
+                    
+                    <div class="decimal-hex-badges">
+                        <div class="info-stat">
+                            <span class="stat-label">十进制 (人类认识的数)</span>
+                            <span class="stat-val text-amber" id="dec-val">0</span>
+                        </div>
+                        <div class="info-stat">
+                            <span class="stat-label">十六进制 (程序员简称)</span>
+                            <span class="stat-val text-coral" id="hex-val">0x00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-card">
+                    <div class="quest-box" id="quest-card">
+                        <div class="quest-header">
+                            <span class="quest-tag"><i data-lucide="trophy"></i> 小皮的能量挑战</span>
+                            <button class="quest-refresh" id="refresh-quest-btn" title="换个数字"><i data-lucide="rotate-cw"></i></button>
+                        </div>
+                        <div class="quest-body">
+                            <p>小皮现在需要能量！请通过拨动下面的开关，组合出目标数值：</p>
+                            <div class="quest-target-num" id="target-value">42</div>
+                            <p class="quest-tip text-slate-400">配对成功就能为小皮充满能量哦！</p>
+                        </div>
+                    </div>
+
+                    <div class="switch-playground">
+                        <h3>物理电线与灯泡阵列 (8-Bit)</h3>
+                        <p class="subtext">点击下方的开关来连接或断开电流吧：</p>
+                        
+                        <!-- Bulb Visualizer -->
+                        <div class="circuit-bulbs" id="circuit-bulbs-container">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Circuit wires simulation -->
+                        <div class="circuit-wires">
+                            <div class="wire-line"></div>
+                        </div>
+
+                        <!-- Heavy toggle switches -->
+                        <div class="circuit-switches" id="circuit-switches-container">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 2: MAGIC PAINTBRUSH -->
+        <section id="tab-content-2" class="tab-panel">
+            <div class="panel-grid">
+                <div class="explanation-card">
+                    <span class="badge badge-primary"><i data-lucide="palette"></i> 色彩密码</span>
+                    <h2>给像素格染上颜色</h2>
+                    <p class="desc">
+                        像素格的颜色丰富度，取决于计算机给它分配了多少“格子空间”（也就是<b>位深度 Bit Depth</b>）。
+                    </p>
+                    
+                    <div class="depth-selector-container">
+                        <button onclick="window.setPaintDepth(1)" id="depth-btn-1" class="depth-btn active">
+                            <strong>1-Bit (双色)</strong>
+                            <span>每个格子只有 0 或 1。适合画复古二值像素画！</span>
+                        </button>
+                        <button onclick="window.setPaintDepth(8)" id="depth-btn-8" class="depth-btn">
+                            <strong>8-Bit (灰度)</strong>
+                            <span>每个格 0-255 阶灰色，表达丰富的阴影！</span>
+                        </button>
+                        <button onclick="window.setPaintDepth(24)" id="depth-btn-24" class="depth-btn">
+                            <strong>24-Bit (真彩)</strong>
+                            <span>红、绿、蓝各占 8 位，能混合出 1677 万种颜色！</span>
+                        </button>
+                    </div>
+
+                    <div class="brush-settings" id="color-palette-area">
+                        <!-- Custom color tools depending on bit depth -->
+                    </div>
+                </div>
+
+                <div class="interactive-card flex-col align-center">
+                    <div class="canvas-header-actions">
+                        <h3>神奇画板 (16x16)</h3>
+                        <button onclick="window.clearPaintCanvas()" class="btn btn-secondary btn-sm"><i data-lucide="trash-2"></i> 清空画布</button>
+                    </div>
+
+                    <div class="paint-container">
+                        <!-- Paint grid -->
+                        <div class="paint-grid-wrapper">
+                            <div class="paint-grid" id="paint-grid-16">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Real-time code inspect panel -->
+                        <div class="code-stream-panel">
+                            <h4>底层二进制内存流:</h4>
+                            <div class="code-stream-scroll scrollbar-custom" id="paint-binary-stream">
+                                <!-- Dynamic numbers -->
+                            </div>
+                            <div class="stream-summary">
+                                <span>画板大小: 16x16 = 256 像素</span>
+                                <span id="memory-size-label">已占用内存: 256 bits (32 Bytes)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: RESOLUTION LINEUP -->
+        <section id="tab-content-3" class="tab-panel">
+            <div class="panel-grid">
+                <div class="explanation-card">
+                    <span class="badge badge-mint"><i data-lucide="grid"></i> 数据对齐</span>
+                    <h2>像素是如何排队的？</h2>
+                    <p class="desc">
+                        其实在计算机的内存中，一幅图像就是<b>一长排</b>没有任何“回车键”的颜色数字。
+                    </p>
+                    <p class="desc">
+                        计算机在解开这张图时，必须读取文件头部的<b>宽度信息</b>（宽度分辨率），每读满宽度数，就命令显示器“另起一行”！
+                    </p>
+                    <p class="desc">
+                        拉动右侧的<b>换行宽度滑块</b>，看一看错误的宽度是如何让图形发生崩塌和变形的吧！
+                    </p>
+                </div>
+
+                <div class="interactive-card flex-col">
+                    <div class="slider-control-group">
+                        <div class="slider-label-info">
+                            <span>解密分辨率宽度 (每行像素):</span>
+                            <span class="slider-val text-mint" id="lineup-width-val">8 像素</span>
+                        </div>
+                        <input type="range" id="lineup-width-slider" min="2" max="16" value="8" class="w-full range-slider accent-mint">
+                    </div>
+
+                    <div class="lineup-visualizer-container">
+                        <!-- Left: 1D flat layout -->
+                        <div class="lineup-box">
+                            <h4>内存里的一维“排队”状态:</h4>
+                            <div class="lineup-1d-scroll scrollbar-custom" id="lineup-1d-container">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Right: 2D reconstructed layout -->
+                        <div class="lineup-box">
+                            <div class="lineup-grid-header">
+                                <h4>屏幕重组的二维“拼图”:</h4>
+                                <span class="fit-indicator" id="pattern-match-badge">❌ 图像错位中</span>
+                            </div>
+                            <div class="reconstructed-grid-wrapper">
+                                <div class="reconstructed-grid" id="lineup-2d-grid">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 4: SUPER PHOTO SCANNER -->
+        <section id="tab-content-4" class="tab-panel">
+            <div class="panel-grid-vertical">
+                
+                <!-- Controller Row -->
+                <div class="scanner-controls-card">
+                    <div class="upload-presets-group">
+                        <!-- Custom File Upload Button -->
+                        <label for="image-uploader" class="uploader-label" id="uploader-dropzone">
+                            <i data-lucide="upload-cloud"></i>
+                            <span>上传你的 PNG/JPG 照片</span>
+                            <input type="file" id="image-uploader" accept="image/png, image/jpeg" style="display: none;">
+                        </label>
+                        
+                        <div class="preset-divider"><span>或选择预设图像:</span></div>
+                        
+                        <div class="presets-buttons">
+                            <button onclick="window.loadPresetImage('cat')" class="preset-btn active" id="preset-btn-cat">🐱 可爱猫咪</button>
+                            <button onclick="window.loadPresetImage('panda')" class="preset-btn" id="preset-btn-panda">🐼 胖胖熊猫</button>
+                            <button onclick="window.loadPresetImage('robot')" class="preset-btn" id="preset-btn-robot">🤖 像素小皮</button>
+                        </div>
+                    </div>
+
+                    <div class="lens-toggles">
+                        <label class="toggle-control">
+                            <input type="checkbox" id="toggle-edge-detect">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-text"><i data-lucide="sparkles"></i> 开启边缘侦探 (AI 查轮廓)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Main Analysis Workspace -->
+                <div class="scanner-workspace">
+                    
+                    <!-- Left: Original Image Viewer with Magnifier overlays -->
+                    <div class="workspace-block left-block">
+                        <div class="block-header">
+                            <h3><i data-lucide="image"></i> 第一步：对准你的镜头</h3>
+                            <p class="subtext">在照片上移动鼠标，放大镜会读取那个位置的颜色电码：</p>
+                        </div>
+                        <div class="image-viewer-container" id="image-view-box">
+                            <!-- Real image canvas and magnifier elements -->
+                            <canvas id="src-canvas"></canvas>
+                            <div class="magnifier-lens" id="mag-lens"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Pixel Matrix Analysis Panel -->
+                    <div class="workspace-block right-block">
+                        <div class="block-header border-b">
+                            <div class="analysis-tabs">
+                                <button onclick="window.setAnalysisView('color')" id="btn-analysis-color" class="analysis-tab active">色彩矩阵</button>
+                                <button onclick="window.setAnalysisView('xray')" id="btn-analysis-xray" class="analysis-tab">X-Ray 二进制</button>
+                            </div>
+                            <h3><i data-lucide="zoom-in"></i> 第二步：微观像素眼 (8x8 放大网格)</h3>
+                        </div>
+
+                        <div class="grid-analysis-area">
+                            <!-- Zoomed Grid (8x8 pixels) -->
+                            <div class="zoomed-grid-container">
+                                <div class="zoomed-8x8-grid" id="zoom-grid-matrix">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+
+                            <!-- Diagnostic / Subpixel details panel -->
+                            <div class="diagnostic-panel-vertical">
+                                <div class="pixel-info-box">
+                                    <div class="info-row">
+                                        <span class="label">当前坐标:</span>
+                                        <span class="val font-bold text-mint" id="scan-coord">第 1 行, 第 1 列</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">内存序号:</span>
+                                        <span class="val" id="scan-index">Index 0</span>
+                                    </div>
+                                    <div class="info-row">
+                                        <span class="label">颜色代码 (HEX):</span>
+                                        <span class="val font-mono text-purple" id="scan-hex">#FFFFFF</span>
+                                    </div>
+                                    <div class="info-row flex-col">
+                                        <span class="label mb-1">底层二进制数据 (24-bit RGB):</span>
+                                        <span class="val-binary-block font-mono" id="scan-binary">
+                                            R: 11111111 <br>
+                                            G: 11111111 <br>
+                                            B: 11111111
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Subpixel LED visualizer -->
+                                <div class="subpixel-led-card">
+                                    <h4>屏幕显微镜 (红绿蓝子像素)</h4>
+                                    <div class="subpixel-display">
+                                        <div class="micro-led" id="led-r">
+                                            <div class="led-bar bg-rose-600" style="height: 100%;"></div>
+                                            <span class="led-label">R</span>
+                                        </div>
+                                        <div class="micro-led" id="led-g">
+                                            <div class="led-bar bg-emerald-600" style="height: 100%;"></div>
+                                            <span class="led-label">G</span>
+                                        </div>
+                                        <div class="micro-led" id="led-b">
+                                            <div class="led-bar bg-sky-600" style="height: 100%;"></div>
+                                            <span class="led-label">B</span>
+                                        </div>
+                                    </div>
+                                    <p class="led-explanation">你看到的每一个彩色点，在手机屏幕内部其实都是这红、绿、蓝三个小灯泡发光混出来的！</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>© 2026 像素探险家 (PixelQuest). 让抽象的数字拥有看得见的温度。</p>
+            <p>基于 HTML5 Canvas、原生 CSS 与模块化 JavaScript 实现本地安全运行，绝不上传您的隐私照片。</p>
+        </div>
+    </footer>
+
+    <!-- Confetti Overlay Canvas -->
+    <canvas id="confetti-canvas" class="confetti-overlay"></canvas>
+    <script src="app.js"></script>
+</body>
+</html>

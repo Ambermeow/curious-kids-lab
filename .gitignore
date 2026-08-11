@@ -1,0 +1,31 @@
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (if any)
+node_modules/
+package-lock.json
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temp
+*.tmp
+*.log
+
+# Large assets (>5MB binaries)
+*.psd
+*.ai
+*.sketch

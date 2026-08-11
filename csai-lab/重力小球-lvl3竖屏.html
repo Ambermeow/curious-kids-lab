@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>重力小球 · 三关挑战</title>
+<style>
+  * { -webkit-tap-highlight-color: transparent; }
+  /* hidden 属性必须生效（防止被 display:flex 覆盖） */
+  [hidden] { display: none !important; }
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: #0b1024; color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+    touch-action: none; user-select: none; -webkit-user-select: none;
+  }
+  #stage {
+    position: fixed; inset: 0; display: block;
+    width: 100vw; height: 100vh;
+    width: 100dvw; height: 100dvh; /* 动态视口：自动避开手机浏览器的地址栏/工具栏 */
+  }
+
+  /* 开始遮罩层 */
+  #overlay {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; text-align: center; padding: 24px; box-sizing: border-box;
+    background: radial-gradient(120% 90% at 50% 15%, #1b2a5e 0%, #0b1024 60%, #070a18 100%);
+  }
+  #overlay h1 {
+    font-size: 30px; margin: 0; letter-spacing: 3px;
+    background: linear-gradient(90deg, #ffd54f, #ff8a65, #64b5f6);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  #overlay p { margin: 0; color: #aab6dd; font-size: 15px; line-height: 1.9; max-width: 320px; }
+  #overlay .lv { color: #ffd54f; font-weight: 600; }
+  #startBtn {
+    border: none; cursor: pointer; font-size: 20px; font-weight: 700; color: #26200a;
+    padding: 16px 56px; border-radius: 999px; letter-spacing: 5px;
+    background: linear-gradient(180deg, #ffe082, #ffc107);
+    box-shadow: 0 6px 24px rgba(255,193,7,.45), inset 0 -3px 0 rgba(0,0,0,.15);
+    transition: transform .12s ease;
+  }
+  #startBtn:active { transform: scale(.94); }
+  .badge {
+    font-size: 12px; color: #7f8ab0;
+    border: 1px solid rgba(255,255,255,.18);
+    padding: 6px 12px; border-radius: 999px;
+  }
+
+  #hud {
+    position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 12px; z-index: 5;
+    font-size: 12px; color: #9fb4ff; opacity: .85; font-variant-numeric: tabular-nums;
+    background: rgba(10,14,32,.35); padding: 4px 10px; border-radius: 8px; pointer-events: none;
+  }
+  /* 顶部关卡信息栏 */
+  #levelbar {
+    position: fixed; top: calc(8px + env(safe-area-inset-top)); left: 50%;
+    transform: translateX(-50%); z-index: 5;
+    display: flex; gap: 10px; align-items: baseline; white-space: nowrap;
+    background: rgba(10,14,32,.55); border: 1px solid rgba(255,255,255,.14);
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; color: #cfe0ff;
+    pointer-events: none; backdrop-filter: blur(4px);
+  }
+  #levelbar b { color: #ffd54f; font-size: 15px; font-variant-numeric: tabular-nums; }
+  #hint {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 6; max-width: 88%;
+    background: rgba(20,26,54,.92); border: 1px solid rgba(255,213,79,.4); color: #ffe082;
+    font-size: 13px; line-height: 1.6; padding: 10px 14px; border-radius: 12px;
+    text-align: center; box-sizing: border-box;
+  }
+  /* 中间浮动提示 */
+  #toast {
+    position: fixed; top: 22%; left: 50%; transform: translateX(-50%); z-index: 7;
+    background: rgba(15,20,45,.9); border: 1px solid rgba(100,182,255,.5); color: #eaf2ff;
+    font-size: 16px; font-weight: 600; padding: 12px 22px; border-radius: 14px;
+    opacity: 0; transition: opacity .25s ease; pointer-events: none; text-align: center;
+    max-width: 84%; box-sizing: border-box;
+  }
+
+  /* 弹窗卡片（通关 / 坠机） */
+  .overlayLayer {
+    position: fixed; inset: 0; z-index: 9;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(5,8,20,.45);
+  }
+  .card {
+    background: rgba(16,22,52,.94); border: 1px solid rgba(255,213,79,.5);
+    border-radius: 24px; padding: 28px 32px; text-align: center;
+    box-shadow: 0 12px 60px rgba(0,0,0,.55); max-width: 84%; box-sizing: border-box;
+  }
+  .card .bigEmoji { font-size: 42px; animation: bounce 0.9s ease infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-10px) scale(1.08); } }
+  .card h2 { margin: 10px 0 6px; font-size: 28px; letter-spacing: 4px; color: #ffd54f; }
+  .card p { margin: 0 0 18px; color: #aab6dd; font-size: 14px; line-height: 1.7; }
+  .cardBtns { display: flex; flex-direction: column; gap: 10px; }
+  .cardBtns button {
+    border: none; cursor: pointer; font-size: 16px; font-weight: 700;
+    padding: 12px 28px; border-radius: 999px; letter-spacing: 2px;
+  }
+  .cardBtns .gold { color: #26200a; background: linear-gradient(180deg, #ffe082, #ffc107); }
+  .cardBtns .ghost { color: #cfe0ff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); }
+  .cardBtns button:active { transform: scale(.95); }
+</style>
+</head>
+<body>
+<canvas id="stage"></canvas>
+<div id="hud">β 0° · γ 0°</div>
+<div id="levelbar" hidden><span id="lvName"></span><b id="lvTime"></b></div>
+<div id="toast"></div>
+<div id="hint" hidden></div>
+
+<!-- 迷宫通关 -->
+<div id="winOverlay" class="overlayLayer" hidden>
+  <div class="card">
+    <div class="bigEmoji">🎉🥳🎉</div>
+    <h2>通关啦！</h2>
+    <p id="winStats"></p>
+    <div class="cardBtns">
+      <button id="btnLevel3" class="gold" hidden>🚀 解锁第三关 · 驾驶舱模式</button>
+      <button id="btnReMaze" class="gold">再玩一次迷宫</button>
+      <button id="btnRestart" class="ghost">从第一关重来</button>
+    </div>
+  </div>
+</div>
+
+<!-- 驾驶舱坠机 -->
+<div id="overOverlay" class="overlayLayer" hidden>
+  <div class="card">
+    <div class="bigEmoji">💥🚀💥</div>
+    <h2>飞船损毁！</h2>
+    <p id="overStats"></p>
+    <div class="cardBtns">
+      <button id="btnRetry3" class="gold">再飞一次</button>
+      <button id="btnMaze3" class="ghost">回到迷宫</button>
+      <button id="btnHome3" class="ghost">从第一关重来</button>
+    </div>
+  </div>
+</div>
+
+<div id="overlay">
+  <h1>重力小球 · 三关挑战</h1>
+  <p>
+    <span class="lv">第一关</span>：倾斜手机，坚持 10 秒不碰墙；<br/>
+    <span class="lv">第二关</span>：避开死胡同，把小球滚进迷宫中间的小洞；<br/>
+    <span class="lv">第三关</span>：通关迷宫后解锁——驾驶飞船躲开流星雨！
+  </p>
+  <button id="startBtn">点我开玩</button>
+  <div class="badge">点开始后会请求"运动与方向"权限 · 横竖屏都能玩</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var canvas = document.getElementById('stage');
+  var ctx = canvas.getContext('2d');
+  var hud = document.getElementById('hud');
+  var hint = document.getElementById('hint');
+  var overlay = document.getElementById('overlay');
+  var startBtn = document.getElementById('startBtn');
+  var levelbar = document.getElementById('levelbar');
+  var lvName = document.getElementById('lvName');
+  var lvTime = document.getElementById('lvTime');
+  var toastEl = document.getElementById('toast');
+  var winOverlay = document.getElementById('winOverlay');
+  var winStats = document.getElementById('winStats');
+  var btnLevel3 = document.getElementById('btnLevel3');
+  var btnReMaze = document.getElementById('btnReMaze');
+  var btnRestart = document.getElementById('btnRestart');
+  var overOverlay = document.getElementById('overOverlay');
+  var overStats = document.getElementById('overStats');
+  var btnRetry3 = document.getElementById('btnRetry3');
+  var btnMaze3 = document.getElementById('btnMaze3');
+  var btnHome3 = document.getElementById('btnHome3');
+
+  /* ---------------- 迷宫地图（# 墙 · S 起点 · H 小洞） ----------------
+     已验证：全部格子连通，含多处死胡同（右上角是 6 格深的大陷阱） */
+  var MAZE = [
+    '#########',
+    '#S..#...#',
+    '###.#.###',
+    '#...#.#.#',
+    '#.#...#.#',
+    '#.#.###.#',
+    '#.#.....#',
+    '#.#.H.#.#',
+    '#.#.#.#.#',
+    '#...#...#',
+    '###.#.###',
+    '#...#...#',
+    '#.#.#.#.#',
+    '#.#...#.#',
+    '#########'
+  ];
+  var MCOLS = MAZE[0].length, MROWS = MAZE.length;
+
+  var W = 0, H = 0, dpr = 1;
+  var box = { x: 0, y: 0, w: 0, h: 0 };
+  var ball = { x: 0, y: 0, vx: 0, vy: 0, r: 22 };
+  var tiltX = 0, tiltY = 0;          // 重力在屏幕坐标里的方向（-1 ~ 1）
+  var gotEvent = false, running = false;
+  var trail = [];
+  var lastT = 0, lastVib = 0, lastTap = 0;
+  var spaceBg = null, nebula1 = null, nebula2 = null;
+
+  /* ---------------- 关卡状态 ---------------- */
+  var mode = 'idle';                 // level1 | transition | level2 | falling | win | level3 | gameover
+  var LEVEL1_GOAL = 10;
+  var countdown = LEVEL1_GOAL;
+  var elapsed = 0;
+  var wasTouching = false;
+  var flashA = 0;
+  var transTimer = 0;
+  var mazeWalls = [];
+  var hole = { x: 0, y: 0, r: 0 };
+  var startPt = { x: 0, y: 0 };
+  var ballR1 = 22, ballR2 = 12;
+  var fallT = 0, fallFrom = null;
+  var particles = [];
+  var toastTimer = null;
+  var unlockedL3 = false;
+
+  /* ---------------- 第三关：驾驶舱 ---------------- */
+  var obstacles = [], stars = [];
+  var shipX = 0, shipY = 0;
+  var l3Time = 0, shields = 3, dodged = 0, invulnT = 0;
+  var spawnT = 0, speedLvl = 1, shakeT = 0;
+  var bestL3 = 0;
+  var spawned = 0;
+  var typeCount = { rock: 0, comet: 0, planet: 0, shard: 0 };
+  var OB_TYPES = ['rock', 'comet', 'planet', 'shard'];
+
+  function clamp(v, a, b) { return v < a ? a : (v > b ? b : v); }
+  function prand(n) { var x = Math.sin(n * 127.1) * 43758.5453; return x - Math.floor(x); }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 3);
+    // 用画布自身的 CSS 尺寸（跟随 dvh 动态视口），避免手机浏览器工具栏导致画面比屏幕大
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    if (window.visualViewport) {
+      W = Math.min(W, window.visualViewport.width);
+      H = Math.min(H, window.visualViewport.height);
+    }
+    if (W <= 0 || H <= 0) return;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    var m = Math.round(Math.min(W, H) * 0.045) + 6;
+    box.x = m;
+    box.y = m + 26;
+    box.w = W - 2 * m;
+    box.h = H - 2 * m - 34;
+    ballR1 = clamp(Math.min(box.w, box.h) * 0.065, 16, 42);
+    if (mode === 'level2' || mode === 'falling') {
+      buildMaze();
+      ball.r = ballR2;
+    } else {
+      ball.r = ballR1;
+    }
+    clampBall();
+    // 太空背景缓存
+    spaceBg = ctx.createLinearGradient(0, 0, 0, H);
+    spaceBg.addColorStop(0, '#04060f');
+    spaceBg.addColorStop(0.6, '#0a0f2a');
+    spaceBg.addColorStop(1, '#060818');
+    nebula1 = ctx.createRadialGradient(W * 0.22, H * 0.22, 10, W * 0.22, H * 0.22, Math.max(W, H) * 0.5);
+    nebula1.addColorStop(0, 'rgba(124,77,255,0.20)');
+    nebula1.addColorStop(1, 'rgba(124,77,255,0)');
+    nebula2 = ctx.createRadialGradient(W * 0.82, H * 0.55, 10, W * 0.82, H * 0.55, Math.max(W, H) * 0.45);
+    nebula2.addColorStop(0, 'rgba(41,121,255,0.16)');
+    nebula2.addColorStop(1, 'rgba(41,121,255,0)');
+  }
+
+  function buildMaze() {
+    var cw = box.w / MCOLS, ch = box.h / MROWS;
+    mazeWalls = [];
+    for (var r = 0; r < MROWS; r++) {
+      for (var c = 0; c < MCOLS; c++) {
+        var chh = MAZE[r][c];
+        var x = box.x + c * cw, y = box.y + r * ch;
+        if (chh === '#') {
+          mazeWalls.push({ x: x, y: y, w: cw, h: ch });
+        } else if (chh === 'H') {
+          hole.x = x + cw / 2; hole.y = y + ch / 2;
+          hole.r = Math.min(cw, ch) * 0.42;
+        } else if (chh === 'S') {
+          startPt.x = x + cw / 2; startPt.y = y + ch / 2;
+        }
+      }
+    }
+    ballR2 = clamp(Math.min(cw, ch) * 0.30, 9, 22);
+  }
+
+  function clampBall() {
+    ball.x = clamp(ball.x, box.x + ball.r, box.x + box.w - ball.r);
+    ball.y = clamp(ball.y, box.y + ball.r, box.y + box.h - ball.r);
+  }
+
+  function resetBall() {
+    trail.length = 0;
+    ball.vx = 0; ball.vy = 0;
+    if (mode === 'level2') {
+      ball.x = startPt.x; ball.y = startPt.y;
+    } else {
+      ball.x = box.x + box.w / 2;
+      ball.y = box.y + box.h / 2;
+    }
+  }
+
+  function screenAngle() {
+    if (screen.orientation && typeof screen.orientation.angle === 'number') return screen.orientation.angle;
+    if (typeof window.orientation === 'number') return window.orientation;
+    return 0;
+  }
+
+  /* 手机倾斜 → 屏幕方向的重力分量（自动适配横竖屏） */
+  function onOrient(e) {
+    if (e.beta == null && e.gamma == null) return;
+    gotEvent = true;
+    hint.hidden = true;
+    var b = clamp(e.beta, -89, 89) * Math.PI / 180;
+    var g = clamp(e.gamma, -89, 89) * Math.PI / 180;
+    var dx = Math.sin(g), dy = Math.sin(b);
+    var ax = dx, ay = dy;
+    switch (((screenAngle() % 360) + 360) % 360) {
+      case 90:  ax = -dy; ay = dx;  break;
+      case 270: ax = dy;  ay = -dx; break;
+      case 180: ax = -dx; ay = -dy; break;
+    }
+    tiltX = ax; tiltY = ay;
+    hud.textContent = 'β ' + Math.round(e.beta) + '° · γ ' + Math.round(e.gamma) + '°';
+  }
+
+  /* 电脑上的键盘后备方案（方向键 / WASD） */
+  var keys = {};
+  window.addEventListener('keydown', function (e) { keys[e.key] = true; });
+  window.addEventListener('keyup', function (e) { keys[e.key] = false; });
+  function keyTilt() {
+    var kx = 0, ky = 0;
+    if (keys.ArrowLeft || keys.a) kx -= 1;
+    if (keys.ArrowRight || keys.d) kx += 1;
+    if (keys.ArrowUp || keys.w) ky -= 1;
+    if (keys.ArrowDown || keys.s) ky += 1;
+    if (kx || ky) { tiltX = kx; tiltY = ky; }
+  }
+
+  function toast(msg, ms) {
+    toastEl.textContent = msg;
+    toastEl.style.opacity = '1';
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.style.opacity = '0'; }, ms || 1800);
+  }
+
+  function vib(p) { if (navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
+
+  /* ---------------- 关卡切换 ---------------- */
+  function enterLevel1() {
+    mode = 'level1';
+    ball.r = ballR1;
+    countdown = LEVEL1_GOAL;
+    wasTouching = false;
+    flashA = 0;
+    trail.length = 0;
+    resetBall();
+    winOverlay.hidden = true;
+    overOverlay.hidden = true;
+    levelbar.hidden = false;
+    lvName.textContent = '第一关 · 坚持 10 秒不碰墙';
+    lvTime.textContent = '⏱ ' + LEVEL1_GOAL.toFixed(1) + 's';
+  }
+
+  function enterLevel2() {
+    mode = 'level2';
+    buildMaze();
+    ball.r = ballR2;
+    elapsed = 0;
+    trail.length = 0;
+    ball.vx = 0; ball.vy = 0;
+    ball.x = startPt.x; ball.y = startPt.y;
+    clampBall();
+    winOverlay.hidden = true;
+    overOverlay.hidden = true;
+    levelbar.hidden = false;
+    lvName.textContent = '第二关 · 送小球进中间小洞';
+    lvTime.textContent = '⏱ 0.0s';
+    toast('从左上角出发，小心死胡同～', 2200);
+  }
+
+  function startFall() {
+    mode = 'falling';
+    fallT = 0;
+    fallFrom = { x: ball.x, y: ball.y, r: ball.r };
+    vib(30);
+  }
+
+  var CELEBRATE = ['🎉', '🥳', '🎊', '✨', '👏', '🏆', '⭐'];
+  var EXPLOSION = ['💥', '🔥', '✨', '☄️'];
+  function spawnBurst(x, y, emojis) {
+    particles = [];
+    for (var i = 0; i < 46; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var sp = 120 + Math.random() * 380;
+      particles.push({
+        x: x, y: y,
+        vx: Math.cos(a) * sp * 0.7,
+        vy: Math.sin(a) * sp - 240,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 8,
+        size: 18 + Math.random() * 18,
+        ch: emojis[Math.floor(Math.random() * emojis.length)],
+        life: 1.6 + Math.random() * 1.2
+      });
+    }
+  }
+
+  function doWin() {
+    mode = 'win';
+    unlockedL3 = true;
+    winStats.textContent = '第二关用时 ' + elapsed.toFixed(1) + ' 秒，你太厉害了！';
+    btnLevel3.hidden = false;
+    winOverlay.hidden = false;
+    levelbar.hidden = true;
+    spawnBurst(hole.x, hole.y, CELEBRATE);
+    vib([40, 60, 40, 60, 120]);
+  }
+
+  /* ---------------- 第三关逻辑 ---------------- */
+  function newStar(anyZ) {
+    return {
+      x: Math.random() * 2.6 - 1.3,
+      y: Math.random() * 2.0 - 1.0,
+      z: anyZ ? (0.05 + Math.random() * 0.95) : 1
+    };
+  }
+
+  function enterLevel3() {
+    mode = 'level3';
+    winOverlay.hidden = true;
+    overOverlay.hidden = true;
+    obstacles = [];
+    stars = [];
+    for (var i = 0; i < 90; i++) stars.push(newStar(true));
+    shipX = 0; shipY = 0;
+    l3Time = 0; shields = 3; dodged = 0; invulnT = 0;
+    spawnT = 0.5; shakeT = 0; speedLvl = 1;
+    spawned = 0;
+    typeCount = { rock: 0, comet: 0, planet: 0, shard: 0 };
+    levelbar.hidden = false;
+    lvName.textContent = '第三关 · 驾驶舱模式';
+    lvTime.textContent = '⏱ 0.0s';
+    toast('🚀 倾斜手机驾驶飞船，躲开流星和陨石！', 2400);
+  }
+
+  function spawnObstacle() {
+    if (obstacles.length >= 40) return; // 高密度时的性能保险
+    var type = OB_TYPES[Math.floor(Math.random() * OB_TYPES.length)];
+    var o = {
+      type: type,
+      x: Math.random() * 2.3 - 1.15,
+      y: Math.random() * 1.4 - 0.7,
+      z: 1,
+      rot: Math.random() * 6.2832,
+      vr: (Math.random() - 0.5) * 2.4,
+      drift: 0,
+      seed: Math.floor(Math.random() * 10000),
+      hue: Math.floor(Math.random() * 360),
+      variant: Math.floor(Math.random() * 3)
+    };
+    if (type === 'rock') {
+      // 陨石：小 / 标准 / 巨型 三种体型
+      var sizeMul = [0.65, 1.0, 1.45][o.variant];
+      o.r = (0.10 + Math.random() * 0.06) * sizeMul;
+      o.tint = Math.floor(Math.random() * 3); // 棕 / 灰 / 红
+      o.verts = [];
+      var n = 8 + Math.floor(Math.random() * 4);
+      for (var i = 0; i < n; i++) o.verts.push(0.72 + Math.random() * 0.36);
+    } else if (type === 'comet') {
+      // 流星：火焰 / 寒冰 / 翡翠 三种光色，会横向漂移
+      o.r = 0.10 + Math.random() * 0.06;
+      o.drift = (Math.random() - 0.5) * 0.24;
+    } else if (type === 'planet') {
+      // 小行星：随机色相，部分带光环、部分带小卫星
+      o.r = 0.15 + Math.random() * 0.05;
+      o.hasRing = Math.random() < 0.65;
+      o.hasMoon = Math.random() < 0.35;
+    } else {
+      // 飞船碎片：蒙皮板 / 长杆 / 齿轮残片 三种形状
+      o.r = 0.10 + Math.random() * 0.06;
+    }
+    spawned++;
+    typeCount[type]++;
+    obstacles.push(o);
+  }
+
+  function updateLevel3(dt) {
+    l3Time += dt;
+    lvTime.textContent = '⏱ ' + l3Time.toFixed(1) + 's';
+
+    // 每 10 秒升一级难度：障碍密度翻倍，速度小幅提升
+    var lvl = 1 + Math.floor(l3Time / 10);
+    if (lvl > speedLvl) {
+      speedLvl = lvl;
+      toast('⚡ 难度 Lv.' + lvl + '！障碍密度 ×' + Math.pow(2, lvl - 1), 1300);
+      vib(30);
+    }
+    var speed = Math.min(1.15, 0.5 + 0.06 * (speedLvl - 1));
+    var interval = Math.max(0.14, 0.95 * Math.pow(0.5, speedLvl - 1));
+
+    // 倾斜 → 飞船平滑移动
+    shipX += (tiltX * 0.95 - shipX) * Math.min(1, dt * 7);
+    shipY += (tiltY * 0.55 - shipY) * Math.min(1, dt * 7);
+
+    // 生成障碍
+    spawnT -= dt;
+    if (spawnT <= 0) {
+      spawnObstacle();
+      spawnT = interval * (0.7 + Math.random() * 0.6);
+    }
+
+    // 星空流动
+    for (var s = 0; s < stars.length; s++) {
+      stars[s].z -= speed * 1.5 * dt;
+      if (stars[s].z <= 0.03) stars[s] = newStar(false);
+    }
+
+    // 障碍逼近 + 碰撞判定
+    invulnT = Math.max(0, invulnT - dt);
+    shakeT = Math.max(0, shakeT - dt * 1.6);
+    for (var i = obstacles.length - 1; i >= 0; i--) {
+      var o = obstacles[i];
+      o.z -= speed * dt;
+      o.x += o.drift * dt;
+      o.rot += o.vr * dt;
+      if (o.z <= 0) {
+        var dx = o.x - shipX, dy = o.y - shipY;
+        var hitR = o.r + 0.13;
+        if (dx * dx + dy * dy < hitR * hitR && invulnT <= 0) {
+          hitObstacle(i);
+        } else {
+          dodged++;
+          obstacles.splice(i, 1);
+        }
+      }
+    }
+  }
+
+  function hitObstacle(i) {
+    obstacles.splice(i, 1);
+    shields--;
+    invulnT = 1.3;
+    shakeT = 0.55;
+    vib([80, 40, 80]);
+    if (shields <= 0) {
+      gameOver();
+    } else {
+      toast('⚠ 护盾受损！还剩 ' + shields + ' 层', 1300);
+    }
+  }
+
+  function gameOver() {
+    mode = 'gameover';
+    bestL3 = Math.max(bestL3, l3Time);
+    overStats.textContent = '坚持了 ' + l3Time.toFixed(1) + ' 秒，躲开 ' + dodged + ' 个障碍\n本次最佳：' + bestL3.toFixed(1) + ' 秒';
+    overOverlay.hidden = false;
+    levelbar.hidden = true;
+    spawnBurst(W / 2, H * 0.5, EXPLOSION);
+    vib([120, 80, 120, 80, 220]);
+  }
+
+  /* ---------------- 碰撞（第一/二关） ---------------- */
+  function collideBounds() {
+    var contact = false;
+    if (ball.x < box.x + ball.r) {
+      ball.x = box.x + ball.r;
+      if (ball.vx < 0) ball.vx = -ball.vx * 0.5;
+      contact = true;
+    } else if (ball.x > box.x + box.w - ball.r) {
+      ball.x = box.x + box.w - ball.r;
+      if (ball.vx > 0) ball.vx = -ball.vx * 0.5;
+      contact = true;
+    }
+    if (ball.y < box.y + ball.r) {
+      ball.y = box.y + ball.r;
+      if (ball.vy < 0) ball.vy = -ball.vy * 0.5;
+      contact = true;
+    } else if (ball.y > box.y + box.h - ball.r) {
+      ball.y = box.y + box.h - ball.r;
+      if (ball.vy > 0) ball.vy = -ball.vy * 0.5;
+      contact = true;
+    }
+    return contact;
+  }
+
+  function collideRect(w, rest) {
+    var nx = clamp(ball.x, w.x, w.x + w.w);
+    var ny = clamp(ball.y, w.y, w.y + w.h);
+    var dx = ball.x - nx, dy = ball.y - ny;
+    var d2 = dx * dx + dy * dy;
+    if (d2 >= ball.r * ball.r) return false;
+    var d = Math.sqrt(d2);
+    if (d < 0.0001) {
+      var l = ball.x - w.x, rr = w.x + w.w - ball.x;
+      var t = ball.y - w.y, b = w.y + w.h - ball.y;
+      var m = Math.min(l, rr, t, b);
+      if (m === l) { ball.x = w.x - ball.r; ball.vx = -Math.abs(ball.vx) * rest; }
+      else if (m === rr) { ball.x = w.x + w.w + ball.r; ball.vx = Math.abs(ball.vx) * rest; }
+      else if (m === t) { ball.y = w.y - ball.r; ball.vy = -Math.abs(ball.vy) * rest; }
+      else { ball.y = w.y + w.h + ball.r; ball.vy = Math.abs(ball.vy) * rest; }
+      return true;
+    }
+    var pen = ball.r - d;
+    var ux = dx / d, uy = dy / d;
+    ball.x += ux * pen; ball.y += uy * pen;
+    var vn = ball.vx * ux + ball.vy * uy;
+    if (vn < 0) {
+      ball.vx -= (1 + rest) * vn * ux;
+      ball.vy -= (1 + rest) * vn * uy;
+    }
+    return true;
+  }
+
+  /* ---------------- 主循环 ---------------- */
+  function step(t) {
+    if (!running) return;
+    requestAnimationFrame(step);
+    if (!lastT) { lastT = t; return; }
+    var dt = (t - lastT) / 1000; lastT = t;
+    if (dt > 0.05) dt = 0.05;
+
+    if (mode === 'win' || mode === 'gameover') {
+      updateParticles(dt);
+      draw(t);
+      return;
+    }
+    keyTilt();
+
+    if (mode === 'level3') {
+      updateLevel3(dt);
+      draw(t);
+      return;
+    }
+
+    var isL2 = (mode === 'level2');
+    var G = Math.min(box.w, box.h) * (isL2 ? 3.6 : 4.2);
+
+    // 子步积分，速度快时防止穿墙
+    var speed = Math.sqrt(ball.vx * ball.vx + ball.vy * ball.vy);
+    var sub = clamp(Math.ceil(speed * dt / (ball.r * 0.6)), 1, 4);
+    var sdt = dt / sub;
+    var contact = false;
+
+    for (var s = 0; s < sub; s++) {
+      ball.vx += tiltX * G * sdt;
+      ball.vy += tiltY * G * sdt;
+      var dmp = Math.exp((isL2 ? -1.1 : -0.6) * sdt);
+      ball.vx *= dmp; ball.vy *= dmp;
+      ball.x += ball.vx * sdt;
+      ball.y += ball.vy * sdt;
+
+      if (mode === 'level1' || mode === 'transition') {
+        if (collideBounds()) contact = true;
+      } else if (mode === 'level2') {
+        for (var i = 0; i < mazeWalls.length; i++) {
+          if (collideRect(mazeWalls[i], 0.18)) contact = true;
+        }
+        collideBounds();
+      }
+    }
+
+    if (mode === 'level1') {
+      if (contact && !wasTouching) {
+        countdown = LEVEL1_GOAL;
+        flashA = 1;
+        vib(70);
+        toast('哎呀，碰墙了！计时重新开始', 1300);
+      }
+      wasTouching = contact;
+      if (!contact) countdown -= dt;
+      lvTime.textContent = '⏱ ' + Math.max(0, countdown).toFixed(1) + 's';
+      if (countdown <= 0) {
+        mode = 'transition';
+        transTimer = 1.4;
+        vib([30, 50, 30]);
+        toast('🎉 第一关通过！准备进入迷宫…', 1500);
+        lvName.textContent = '✅ 第一关通过！';
+        lvTime.textContent = '';
+      }
+    } else if (mode === 'transition') {
+      transTimer -= dt;
+      if (transTimer <= 0) enterLevel2();
+    } else if (mode === 'level2') {
+      elapsed += dt;
+      lvTime.textContent = '⏱ ' + elapsed.toFixed(1) + 's';
+      var dxh = ball.x - hole.x, dyh = ball.y - hole.y;
+      if (dxh * dxh + dyh * dyh < Math.pow(hole.r * 0.6, 2)) {
+        startFall();
+      }
+    } else if (mode === 'falling') {
+      fallT += dt;
+      var k = Math.min(1, fallT / 0.5);
+      var ease = k * k;
+      ball.x = fallFrom.x + (hole.x - fallFrom.x) * ease;
+      ball.y = fallFrom.y + (hole.y - fallFrom.y) * ease;
+      ball.r = fallFrom.r * (1 - 0.85 * ease);
+      if (k >= 1) doWin();
+    }
+
+    flashA = Math.max(0, flashA - dt * 2.2);
+
+    if (mode !== 'falling') {
+      trail.push({ x: ball.x, y: ball.y });
+      if (trail.length > 24) trail.shift();
+    }
+
+    draw(t);
+  }
+
+  function updateParticles(dt) {
+    for (var i = particles.length - 1; i >= 0; i--) {
+      var p = particles[i];
+      p.life -= dt;
+      if (p.life <= 0) { particles.splice(i, 1); continue; }
+      p.vy += 620 * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rot += p.vr * dt;
+    }
+  }
+
+  /* ---------------- 绘制：通用 ---------------- */
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawParticles() {
+    if (!particles.length) return;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (var q = 0; q < particles.length; q++) {
+      var pt = particles[q];
+      ctx.save();
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(pt.rot);
+      ctx.globalAlpha = clamp(pt.life, 0, 1);
+      ctx.font = pt.size + 'px serif';
+      ctx.fillText(pt.ch, 0, 0);
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------------- 绘制：第三关太空 ---------------- */
+  function proj(wx, wy, z) {
+    var p = 0.16 / (z + 0.16);
+    return {
+      x: W / 2 + (wx - shipX) * p * W * 0.62,
+      y: H * 0.46 + (wy - shipY) * p * H * 0.52,
+      p: p
+    };
+  }
+
+  var ROCK_TINTS = [
+    ['#a08b70', '#6b5a45', '#39302a'], // 棕
+    ['#9aa3ad', '#626c78', '#333a42'], // 灰
+    ['#a97a62', '#7a4a38', '#402720']  // 红
+  ];
+
+  function drawRock(o, r) {
+    ctx.rotate(o.rot);
+    ctx.beginPath();
+    var n = o.verts.length;
+    for (var i = 0; i < n; i++) {
+      var ang = i / n * 6.2832;
+      var rr = r * o.verts[i];
+      var px = Math.cos(ang) * rr, py = Math.sin(ang) * rr;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    var tint = ROCK_TINTS[o.tint || 0];
+    var g = ctx.createRadialGradient(-r * 0.35, -r * 0.35, r * 0.1, 0, 0, r * 1.05);
+    g.addColorStop(0, tint[0]);
+    g.addColorStop(0.7, tint[1]);
+    g.addColorStop(1, tint[2]);
+    ctx.fillStyle = g;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.35)';
+    ctx.lineWidth = Math.max(1, r * 0.05);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(0,0,0,.25)';
+    for (var c = 0; c < 3; c++) {
+      var rv = prand(o.seed + c);
+      var ca = rv * 6.2832;
+      var cd = r * (0.2 + 0.45 * prand(o.seed + c + 9));
+      ctx.beginPath();
+      ctx.arc(Math.cos(ca) * cd, Math.sin(ca) * cd, r * (0.1 + 0.12 * rv), 0, 7);
+      ctx.fill();
+    }
+  }
+
+  var COMET_TINTS = [
+    { tail: '255,150,60',  head: ['#ffffff', '#ffe082', '#ff7043'], glow: 'rgba(255,180,80,.9)' },  // 火焰
+    { tail: '130,220,255', head: ['#ffffff', '#bfe9ff', '#409eff'], glow: 'rgba(120,200,255,.9)' }, // 寒冰
+    { tail: '150,255,120', head: ['#ffffff', '#d9ffb0', '#66bb6a'], glow: 'rgba(150,255,140,.9)' }  // 翡翠
+  ];
+
+  function drawComet(o, r, pr) {
+    var tint = COMET_TINTS[o.variant || 0];
+    // 尾巴：背向飞行方向（指向远处消失点）
+    var dx = W / 2 - pr.x, dy = H * 0.46 - pr.y;
+    var len = Math.hypot(dx, dy) || 1;
+    var ux = dx / len, uy = dy / len;
+    var tl = r * 4.2;
+    for (var i = 6; i >= 1; i--) {
+      var k = i / 6;
+      ctx.beginPath();
+      ctx.arc(ux * tl * k, uy * tl * k, r * 0.85 * (1 - k * 0.8), 0, 7);
+      ctx.fillStyle = 'rgba(' + tint.tail + ',' + (0.28 * (1 - k * 0.7)).toFixed(3) + ')';
+      ctx.fill();
+    }
+    var hg = ctx.createRadialGradient(0, 0, 0.5, 0, 0, r);
+    hg.addColorStop(0, tint.head[0]);
+    hg.addColorStop(0.4, tint.head[1]);
+    hg.addColorStop(1, tint.head[2]);
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, 7);
+    ctx.fillStyle = hg;
+    ctx.shadowColor = tint.glow;
+    ctx.shadowBlur = r * 0.9;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  function drawPlanet(o, r) {
+    ctx.rotate(o.rot * 0.25);
+    var g = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
+    g.addColorStop(0, 'hsl(' + o.hue + ',62%,74%)');
+    g.addColorStop(1, 'hsl(' + o.hue + ',55%,36%)');
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, 7);
+    ctx.fillStyle = g;
+    ctx.fill();
+    if (o.hasRing) {
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 1.75, r * 0.5, -0.45, 0, 7);
+      ctx.strokeStyle = 'hsla(' + ((o.hue + 45) % 360) + ',70%,72%,.75)';
+      ctx.lineWidth = Math.max(1.5, r * 0.12);
+      ctx.stroke();
+    }
+    if (o.hasMoon) {
+      var ma = o.rot * 2.2;
+      ctx.beginPath();
+      ctx.arc(Math.cos(ma) * r * 1.7, Math.sin(ma) * r * 0.6, r * 0.18, 0, 7);
+      ctx.fillStyle = '#c9ccd4';
+      ctx.fill();
+    }
+  }
+
+  function drawShard(o, r) {
+    ctx.rotate(o.rot);
+    var g = ctx.createLinearGradient(-r, -r, r, r);
+    g.addColorStop(0, '#b8c6d8');
+    g.addColorStop(0.5, '#77879c');
+    g.addColorStop(1, '#3c4657');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    if (o.variant === 1) {
+      // 长杆残骸
+      ctx.moveTo(-r * 1.25, -r * 0.2);
+      ctx.lineTo(r * 1.25, -r * 0.14);
+      ctx.lineTo(r * 1.15, r * 0.2);
+      ctx.lineTo(-r * 1.15, r * 0.26);
+    } else if (o.variant === 2) {
+      // 齿轮状残片
+      for (var i = 0; i < 12; i++) {
+        var ang = i / 12 * 6.2832;
+        var rr = r * (i % 2 === 0 ? 1.05 : 0.62);
+        var px = Math.cos(ang) * rr, py = Math.sin(ang) * rr;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+    } else {
+      // 蒙皮板
+      ctx.moveTo(r * 0.9, 0);
+      ctx.lineTo(-r * 0.5, r * 0.55);
+      ctx.lineTo(-r * 0.9, -r * 0.15);
+      ctx.lineTo(-r * 0.2, -r * 0.7);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(127,212,255,.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(20,26,40,.8)';
+    ctx.beginPath();
+    ctx.arc(r * 0.15, -r * 0.05, r * 0.12, 0, 7);
+    ctx.fill();
+  }
+
+  function drawObstacle(o) {
+    var pr = proj(o.x, o.y, o.z);
+    var r = o.r * pr.p * Math.min(W, H) * 0.95;
+    if (r < 1.2) return;
+    ctx.save();
+    ctx.translate(pr.x, pr.y);
+    if (o.type === 'rock') drawRock(o, r);
+    else if (o.type === 'comet') drawComet(o, r, pr);
+    else if (o.type === 'planet') drawPlanet(o, r);
+    else drawShard(o, r);
+    ctx.restore();
+  }
+
+  function drawShieldIcon(x, y, r, active) {
+    ctx.beginPath();
+    for (var i = 0; i < 6; i++) {
+      var a = Math.PI / 6 + i * Math.PI / 3;
+      var px = x + Math.cos(a) * r, py = y + Math.sin(a) * r;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    if (active) {
+      ctx.fillStyle = 'rgba(0,229,255,.85)';
+      ctx.shadowColor = 'rgba(0,229,255,.8)';
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.strokeStyle = 'rgba(120,140,180,.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+
+  function drawCockpit(t) {
+    var dashTop = H * 0.80;
+
+    // 玻璃反光
+    ctx.fillStyle = 'rgba(160,200,255,0.045)';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.18, 0); ctx.lineTo(W * 0.34, 0);
+    ctx.lineTo(W * 0.10, H * 0.7); ctx.lineTo(W * 0.02, H * 0.7);
+    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(W * 0.62, 0); ctx.lineTo(W * 0.68, 0);
+    ctx.lineTo(W * 0.94, H * 0.62); ctx.lineTo(W * 0.88, H * 0.66);
+    ctx.closePath(); ctx.fill();
+
+    // A 柱 + 顶棚
+    ctx.fillStyle = '#0a0e1f';
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(W * 0.12, 0); ctx.lineTo(0, H * 0.78); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(W, 0); ctx.lineTo(W * 0.88, 0); ctx.lineTo(W, H * 0.78); ctx.closePath(); ctx.fill();
+    ctx.fillRect(0, 0, W, H * 0.035);
+    ctx.strokeStyle = 'rgba(100,182,255,.30)';
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(W * 0.12, 0); ctx.lineTo(0, H * 0.78); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W * 0.88, 0); ctx.lineTo(W, H * 0.78); ctx.stroke();
+
+    // 仪表盘
+    var dg = ctx.createLinearGradient(0, dashTop, 0, H);
+    dg.addColorStop(0, '#141b3d');
+    dg.addColorStop(1, '#05070f');
+    ctx.beginPath();
+    ctx.moveTo(0, H); ctx.lineTo(0, dashTop + H * 0.045); ctx.lineTo(W * 0.14, dashTop);
+    ctx.lineTo(W * 0.86, dashTop); ctx.lineTo(W, dashTop + H * 0.045); ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fillStyle = dg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(127,212,255,.5)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, dashTop + H * 0.045); ctx.lineTo(W * 0.14, dashTop);
+    ctx.lineTo(W * 0.86, dashTop); ctx.lineTo(W, dashTop + H * 0.045);
+    ctx.stroke();
+
+    // 准星
+    var cx = W / 2, cy = H * 0.46;
+    ctx.strokeStyle = 'rgba(255,213,79,.55)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(cx, cy, 15, 0, 7); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx - 24, cy); ctx.lineTo(cx - 9, cy);
+    ctx.moveTo(cx + 9, cy); ctx.lineTo(cx + 24, cy);
+    ctx.moveTo(cx, cy - 24); ctx.lineTo(cx, cy - 9);
+    ctx.moveTo(cx, cy + 9); ctx.lineTo(cx, cy + 24);
+    ctx.stroke();
+
+    // 雷达
+    var rr = clamp(Math.min(W, H) * 0.085, 30, 54);
+    var rx = W / 2, ry = H * 0.905;
+    ctx.beginPath(); ctx.arc(rx, ry, rr, 0, 7);
+    ctx.fillStyle = 'rgba(4,10,20,.85)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(127,212,255,.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.arc(rx, ry, rr * 0.66, 0, 7); ctx.stroke();
+    ctx.beginPath(); ctx.arc(rx, ry, rr * 0.33, 0, 7); ctx.stroke();
+    var ang = (t / 900) % 6.2832;
+    ctx.strokeStyle = 'rgba(120,255,170,.7)';
+    ctx.beginPath();
+    ctx.moveTo(rx, ry);
+    ctx.lineTo(rx + Math.cos(ang) * rr, ry + Math.sin(ang) * rr);
+    ctx.stroke();
+    for (var i = 0; i < obstacles.length; i++) {
+      var o = obstacles[i];
+      var ox = clamp((o.x - shipX) / 1.2, -1, 1) * rr * 0.85;
+      var oy = ((1 - o.z) * 2 - 1) * rr * 0.8;
+      if (o.type === 'comet') {
+        ctx.fillStyle = ['#ffb74d', '#7fd4ff', '#9ccc65'][o.variant || 0];
+      } else {
+        ctx.fillStyle = '#ff5f6d';
+      }
+      ctx.beginPath();
+      ctx.arc(rx + ox, ry + oy, 2.2, 0, 7);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#7fdc8a';
+    ctx.beginPath();
+    ctx.arc(rx, ry + rr * 0.8, 2.6, 0, 7);
+    ctx.fill();
+
+    // 护盾指示
+    for (var s2 = 0; s2 < 3; s2++) {
+      drawShieldIcon(W * 0.13 + s2 * 30, H * 0.9, 11, s2 < shields);
+    }
+
+    // 右侧读数
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = 'bold 12px "PingFang SC", monospace';
+    ctx.fillStyle = '#7fd4ff';
+    ctx.fillText('难度 Lv.' + speedLvl, W * 0.87, H * 0.875);
+    ctx.fillText('闪避 ' + dodged, W * 0.87, H * 0.905);
+    ctx.fillStyle = '#ffd54f';
+    ctx.fillText(l3Time.toFixed(1) + 's', W * 0.87, H * 0.935);
+    ctx.textAlign = 'left';
+  }
+
+  function drawSpace(t) {
+    ctx.fillStyle = spaceBg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = nebula1;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = nebula2;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    if (shakeT > 0) {
+      ctx.translate((Math.random() - 0.5) * shakeT * 26, (Math.random() - 0.5) * shakeT * 26);
+    }
+
+    // 星空
+    ctx.fillStyle = '#cfe4ff';
+    for (var s = 0; s < stars.length; s++) {
+      var st = stars[s];
+      var pr = proj(st.x, st.y, st.z);
+      ctx.globalAlpha = 0.2 + 0.8 * (1 - st.z);
+      var sz = 0.6 + 2.0 * (1 - st.z);
+      ctx.fillRect(pr.x, pr.y, sz, sz);
+    }
+    ctx.globalAlpha = 1;
+
+    // 障碍（远的先画）
+    var sorted = obstacles.slice().sort(function (a, b) { return b.z - a.z; });
+    for (var i = 0; i < sorted.length; i++) drawObstacle(sorted[i]);
+    ctx.restore();
+
+    drawCockpit(t);
+
+    // 受伤红晕
+    if (invulnT > 0 && mode === 'level3') {
+      var pulse = 0.5 + 0.5 * Math.sin(t / 90);
+      var vg = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.72);
+      vg.addColorStop(0, 'rgba(255,60,60,0)');
+      vg.addColorStop(1, 'rgba(255,60,60,' + (0.30 * pulse * Math.min(1, invulnT)).toFixed(3) + ')');
+      ctx.fillStyle = vg;
+      ctx.fillRect(0, 0, W, H);
+    }
+  }
+
+  /* ---------------- 绘制：总入口 ---------------- */
+  function draw(t) {
+    if (mode === 'level3' || mode === 'gameover') {
+      drawSpace(t);
+      drawParticles();
+      return;
+    }
+
+    var bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#101736');
+    bg.addColorStop(1, '#080b1c');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    var inMaze = (mode === 'level2' || mode === 'falling' || mode === 'win');
+
+    if (inMaze) {
+      ctx.beginPath();
+      for (var i = 0; i < mazeWalls.length; i++) {
+        var wl = mazeWalls[i];
+        ctx.rect(wl.x, wl.y, wl.w + 0.6, wl.h + 0.6);
+      }
+      ctx.fillStyle = '#33427f';
+      ctx.fill();
+
+      var cell = Math.min(box.w / MCOLS, box.h / MROWS);
+      ctx.beginPath();
+      ctx.setLineDash([4, 4]);
+      ctx.arc(startPt.x, startPt.y, cell * 0.32, 0, 7);
+      ctx.strokeStyle = 'rgba(120,220,140,.8)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(120,220,140,.9)';
+      ctx.font = '10px "PingFang SC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('起点', startPt.x, startPt.y + cell * 0.66);
+
+      var pulse = 1 + Math.sin(t / 300) * 0.06;
+      var hg = ctx.createRadialGradient(hole.x, hole.y, 1, hole.x, hole.y, hole.r);
+      hg.addColorStop(0, '#000');
+      hg.addColorStop(0.75, '#05060f');
+      hg.addColorStop(1, '#141a3a');
+      ctx.beginPath();
+      ctx.arc(hole.x, hole.y, hole.r, 0, 7);
+      ctx.fillStyle = hg;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(hole.x, hole.y, hole.r * pulse + 3, 0, 7);
+      ctx.strokeStyle = 'rgba(255,213,79,.65)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,213,79,.85)';
+      ctx.font = '10px "PingFang SC", sans-serif';
+      ctx.fillText('小洞', hole.x, hole.y - hole.r - 10);
+    } else {
+      roundRect(box.x, box.y, box.w, box.h, 18);
+      ctx.fillStyle = 'rgba(255,255,255,0.035)';
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = 'rgba(100,182,255,0.75)';
+      ctx.shadowColor = 'rgba(100,182,255,.5)';
+      ctx.shadowBlur = 14;
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+      if (flashA > 0) {
+        roundRect(box.x, box.y, box.w, box.h, 18);
+        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(255,90,90,' + flashA.toFixed(3) + ')';
+        ctx.stroke();
+      }
+    }
+
+    for (var j = 0; j < trail.length; j++) {
+      var p = trail[j], k = (j + 1) / trail.length;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, ball.r * (0.3 + 0.5 * k), 0, 7);
+      ctx.fillStyle = 'rgba(255,193,7,' + (0.10 * k).toFixed(3) + ')';
+      ctx.fill();
+    }
+
+    if (mode !== 'win') {
+      ctx.beginPath();
+      ctx.ellipse(ball.x + tiltX * 8 + 5, ball.y + tiltY * 8 + 9, ball.r * 1.02, ball.r * 0.9, 0, 0, 7);
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fill();
+
+      var grad = ctx.createRadialGradient(
+        ball.x - ball.r * 0.35, ball.y - ball.r * 0.4, ball.r * 0.15,
+        ball.x, ball.y, ball.r * 1.05
+      );
+      grad.addColorStop(0, '#fff3c4');
+      grad.addColorStop(0.35, '#ffd54f');
+      grad.addColorStop(1, '#e08900');
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, Math.max(0.5, ball.r), 0, 7);
+      ctx.fillStyle = grad;
+      ctx.fill();
+      if (ball.r > 5) {
+        ctx.beginPath();
+        ctx.arc(ball.x - ball.r * 0.35, ball.y - ball.r * 0.42, ball.r * 0.22, 0, 7);
+        ctx.fillStyle = 'rgba(255,255,255,.75)';
+        ctx.fill();
+      }
+    }
+
+    drawParticles();
+  }
+
+  function showHint(msg) {
+    hint.textContent = msg;
+    hint.hidden = false;
+  }
+
+  /* ---------------- 启动与按钮 ---------------- */
+  startBtn.addEventListener('click', function () {
+    overlay.style.display = 'none';
+
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(function (state) {
+        if (state !== 'granted') {
+          showHint('权限未允许。iPhone 请到 设置 → Safari → 运动与方向 中允许后刷新页面重试。');
+        }
+      }).catch(function (err) {
+        showHint('权限请求失败：' + err.message);
+      });
+    }
+
+    window.addEventListener('deviceorientation', onOrient);
+
+    if (navigator.wakeLock) {
+      navigator.wakeLock.request('screen').catch(function () {});
+    }
+
+    running = true;
+    resize();
+    enterLevel1();
+    lastT = 0;
+    requestAnimationFrame(step);
+
+    setTimeout(function () {
+      if (!gotEvent) {
+        showHint('还没有收到倾斜数据：桌面浏览器没有重力传感器（可用方向键/WASD 模拟）；手机上请用 Safari/Chrome 直接打开本页面，必要时需要 https 环境。');
+      }
+    }, 2200);
+  });
+
+  btnLevel3.addEventListener('click', function () { resize(); enterLevel3(); });
+  btnReMaze.addEventListener('click', function () { resize(); enterLevel2(); });
+  btnRestart.addEventListener('click', function () { resize(); enterLevel1(); });
+  btnRetry3.addEventListener('click', function () { resize(); enterLevel3(); });
+  btnMaze3.addEventListener('click', function () { resize(); enterLevel2(); });
+  btnHome3.addEventListener('click', function () { resize(); enterLevel1(); });
+
+  // 双击屏幕 → 小球回起点
+  canvas.addEventListener('touchstart', function () {
+    var now = Date.now();
+    if (now - lastTap < 300 && (mode === 'level1' || mode === 'level2')) {
+      resetBall();
+      vib(20);
+    }
+    lastTap = now;
+  }, { passive: true });
+  canvas.addEventListener('dblclick', function () {
+    if (mode === 'level1' || mode === 'level2') resetBall();
+  });
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', function () { setTimeout(resize, 150); });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', resize);
+    window.visualViewport.addEventListener('scroll', resize);
+  }
+
+  resize();
+  ball.x = box.x + box.w / 2;
+  ball.y = box.y + box.h / 2;
+  draw(0);
+  // 调试钩子（自动化测试用）
+  window.__gravityBall = {
+    ball: ball, hole: hole, startPt: startPt,
+    getMode: function () { return mode; },
+    get obstacles() { return obstacles; },
+    get shields() { return shields; },
+    get dodged() { return dodged; },
+    setBallToHole: function () { ball.x = hole.x; ball.y = hole.y; ball.vx = 0; ball.vy = 0; },
+    setShip: function (x, y) { shipX = x; shipY = y; },
+    spawnNow: function () { spawnObstacle(); },
+    get spawned() { return spawned; },
+    get typeCounts() { return { rock: typeCount.rock, comet: typeCount.comet, planet: typeCount.planet, shard: typeCount.shard }; },
+    getLevel: function () { return speedLvl; }
+  };
+  // 部分手机内置浏览器（微信等）首次打开时尺寸上报偏慢，补两次校正
+  setTimeout(function () { resize(); draw(0); }, 300);
+  setTimeout(function () { resize(); draw(0); }, 1000);
+})();
+</script>
+</body>
+</html>

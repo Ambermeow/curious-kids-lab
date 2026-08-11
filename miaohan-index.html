@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>喵喵和孩子们的实验室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', 'Heiti SC', system-ui, sans-serif;
+      background: #faf8f5;
+      color: #1a1a2e;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ====== HERO ====== */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 60px 32px;
+      background: linear-gradient(160deg, #fff5ed 0%, #faf5f0 25%, #f3edfa 55%, #edf7f0 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 22px;
+      background: rgba(26,26,46,0.06);
+      border-radius: 50px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      color: #63636a;
+    }
+    .hero h1 {
+      font-size: clamp(36px, 7vw, 72px);
+      font-weight: 900;
+      line-height: 1.15;
+      color: #1a1a2e;
+      margin-bottom: 24px;
+    }
+    .hero h1 .emoji {
+      font-size: 0.85em;
+    }
+    .hero .subtitle {
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 400;
+      color: #63636a;
+      line-height: 1.65;
+      max-width: 640px;
+    }
+    .hero-scroll {
+      margin-top: 56px;
+      animation: bounce 2s infinite;
+      opacity: 0.4;
+    }
+    @keyframes bounce {
+      0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(10px)}60%{transform:translateY(5px)}
+    }
+
+    /* ====== CARDS SECTION ====== */
+    .cards-section {
+      padding: 80px 32px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .cards-section .section-title {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 56px;
+    }
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 28px;
+    }
+
+    .lab-card {
+      position: relative;
+      border-radius: 28px;
+      padding: 44px 38px;
+      text-decoration: none;
+      color: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      border: none;
+    }
+    .lab-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+    }
+    /* Decorative circle */
+    .lab-card::after {
+      content: '';
+      position: absolute;
+      top: -20px; right: -40px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    /* Card 1: CS+AI */
+    .lab-card:nth-child(1) { background: #fff0e6; }
+    .lab-card:nth-child(1)::after { background: #ff6b35; }
+
+    /* Card 2: Physics */
+    .lab-card:nth-child(2) { background: #e8f4fd; }
+    .lab-card:nth-child(2)::after { background: #3b82f6; }
+
+    /* Card 3: Philosophy */
+    .lab-card:nth-child(3) { background: #f0e6f6; }
+    .lab-card:nth-child(3)::after { background: #8b5cf6; }
+
+    /* Card 4: Play */
+    .lab-card:nth-child(4) { background: #e6f7ec; }
+    .lab-card:nth-child(4)::after { background: #22c55e; }
+
+    .lab-card .card-icon {
+      width: 64px; height: 64px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    .lab-card:nth-child(1) .card-icon { background: rgba(255,107,53,0.15); }
+    .lab-card:nth-child(2) .card-icon { background: rgba(59,130,246,0.15); }
+    .lab-card:nth-child(3) .card-icon { background: rgba(139,92,246,0.15); }
+    .lab-card:nth-child(4) .card-icon { background: rgba(34,197,94,0.15); }
+
+    .lab-card .card-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+    .lab-card:nth-child(1) .card-number { color: #ff6b35; }
+    .lab-card:nth-child(2) .card-number { color: #3b82f6; }
+    .lab-card:nth-child(3) .card-number { color: #8b5cf6; }
+    .lab-card:nth-child(4) .card-number { color: #22c55e; }
+
+    .lab-card h2 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+    .lab-card p {
+      font-size: 15px;
+      color: #63636a;
+      line-height: 1.65;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+    .lab-card .card-arrow {
+      margin-top: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+      transition: gap 0.2s ease;
+    }
+    .lab-card:hover .card-arrow { gap: 14px; }
+    .lab-card:nth-child(1) .card-arrow { color: #ff6b35; }
+    .lab-card:nth-child(2) .card-arrow { color: #3b82f6; }
+    .lab-card:nth-child(3) .card-arrow { color: #8b5cf6; }
+    .lab-card:nth-child(4) .card-arrow { color: #22c55e; }
+
+    /* ====== FOOTER ====== */
+    footer {
+      text-align: center;
+      padding: 48px 32px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+    }
+    footer p {
+      font-size: 14px;
+      color: #63636a;
+    }
+    footer .heart { color: #ff6b35; }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 768px) {
+      .cards-grid { grid-template-columns: 1fr; }
+      .cards-section { padding: 48px 24px 72px; }
+      .hero { padding: 48px 24px; }
+      .lab-card { padding: 32px 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="hero">
+    <div class="hero-badge">Explore · Create · Think · Play</div>
+    <h1>喵喵和孩子们的实验室 <span class="emoji">🧪</span></h1>
+    <p class="subtitle">
+      一个充满好奇心的地方。<br>
+      在这里，我们一起动手、一起思考、一起玩耍，<br>
+      让科学和创造变成最有趣的游戏。
+    </p>
+    <div class="hero-scroll">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 13l5 5 5-5M7 6l5 5 5-5"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="cards-section">
+    <h2 class="section-title">🔬 选择你的实验室</h2>
+    <div class="cards-grid">
+
+      <!-- Card 1: CS+AI -->
+      <a class="lab-card" href="csai-lab.html">
+        <span class="card-number">Lab 01</span>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ff6b35" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+        </div>
+        <h2>CS+AI 实验室</h2>
+        <p>从写第一行代码到训练自己的 AI 模型。用 Jupyter Notebook 做实验，让算法成为你的画笔，用技术创造属于你的数字世界。</p>
+        <span class="card-arrow">
+          进入实验室
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- Card 2: Virtual Lab -->
+      <a class="lab-card" href="virtual-lab.html">
+        <span class="card-number">Lab 02</span>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="7"/>
+            <path d="M12 5v3M12 16v3M5 12h3M16 12h3"/>
+            <ellipse cx="12" cy="12" rx="3" ry="5" transform="rotate(60 12 12)"/>
+          </svg>
+        </div>
+        <h2>虚拟实验室</h2>
+        <p>从极光到量子跃迁，从电磁场到化学分子——用交互式模拟来探索科学规律。物理、化学、生物、数学，每个现象都能亲手"做"出来。</p>
+        <span class="card-arrow">
+          进入实验室
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- Card 3: Philosophy -->
+      <a class="lab-card" href="think-lab.html">
+        <span class="card-number">Lab 03</span>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h2>思辨剧场</h2>
+        <p>"如果 AI 能写诗，诗人还存在吗？""如果我们能永生，生命还有意义吗？"—— 这里没有标准答案，只有勇敢的提问和自由的辩论。每个孩子都是小小哲学家。</p>
+        <span class="card-arrow">
+          进入剧场
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+
+      <!-- Card 4: Playground -->
+      <a class="lab-card" href="#">
+        <span class="card-number">Lab 04</span>
+        <div class="card-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/>
+          </svg>
+        </div>
+        <h2>孩子们的游乐场</h2>
+        <p>像素画编辑器、声音合成器、互动小游戏——这里是纯粹的创造乐园。没有"对"与"错"，只有无尽的想象和快乐。</p>
+        <span class="card-arrow">
+          进入游乐场
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>喵喵和孩子们的实验室 <span class="heart">❤</span> 2026 &mdash; 让好奇心带我们去任何地方。</p>
+  </footer>
+
+</body>
+</html>

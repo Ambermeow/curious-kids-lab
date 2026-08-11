@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>思辨剧场 — 喵喵和孩子们的实验室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Noto Sans SC','PingFang SC','Heiti SC',system-ui,sans-serif;background:#f5f3f0;color:#1a1a2e;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+    .topbar{background:#fff;border-bottom:1px solid #eee;padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar .logo{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
+    .topbar .logo .ico{width:34px;height:34px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
+    .topbar .back-link{font-size:14px;font-weight:500;color:#63636a;display:flex;align-items:center;gap:6px;transition:color .2s}
+    .topbar .back-link:hover{color:#1a1a2e}
+    .page-header{text-align:center;padding:56px 32px 32px}
+    .page-header h1{font-size:clamp(28px,4vw,42px);font-weight:900;margin-bottom:12px}
+    .page-header p{font-size:16px;color:#63636a;max-width:620px;margin:0 auto}
+    .filter-bar{padding:0 32px 32px;max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+    .filter-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-row .flabel{font-size:14px;font-weight:600;color:#63636a;min-width:60px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.3px}
+    .fchip{padding:8px 20px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s ease;background:#fff;color:#63636a;border:1.5px solid #e2e2e2;white-space:nowrap}
+    .fchip:hover{border-color:#b0b0b0;color:#1a1a2e}
+    .fchip.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+    .fchip.cat-story.active{background:#8b5cf6;border-color:#8b5cf6}
+    .fchip.cat-whatif.active{background:#f59e0b;border-color:#f59e0b}
+    .fchip.diff-easy{color:#22c55e;border-color:#c8f0d4}
+    .fchip.diff-easy.active{background:#22c55e;color:#fff;border-color:#22c55e}
+    .results-count{max-width:1200px;margin:0 auto;padding:0 32px 20px;font-size:14px;color:#63636a}
+    .project-grid{max-width:1200px;margin:0 auto;padding:0 32px 64px;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:24px}
+    .pcard{background:#fff;border-radius:18px;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;display:flex;flex-direction:column;border:1px solid #eee}
+    .pcard:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.08)}
+    .pcard .cover{height:170px;display:flex;align-items:center;justify-content:center;font-size:52px}
+    .pcard .body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column}
+    .pcard .body h3{font-size:17px;font-weight:700;margin-bottom:6px;line-height:1.35}
+    .pcard .body .desc{font-size:13px;color:#63636a;line-height:1.5;flex:1;margin-bottom:12px}
+    .pcard .tags{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{font-size:11px;font-weight:600;padding:4px 12px;border-radius:50px}
+    .tag-cat{background:rgba(0,0,0,.05);color:#63636a}
+    .tag-diff{font-family:'JetBrains Mono',monospace}
+    .tag-diff.easy{background:#dcfce7;color:#16a34a}
+    .cover-story{background:linear-gradient(135deg,#ede9fe,#c4b5fd,#a78bfa)}
+.cover-story2{background:linear-gradient(135deg,#e8fdf5,#a7f3d0,#6ee7b7)}
+    footer{text-align:center;padding:40px 32px;border-top:1px solid rgba(0,0,0,.06);font-size:13px;color:#63636a}
+    @media(max-width:768px){.topbar{padding:0 16px}.page-header{padding:40px 16px 24px}.filter-bar{padding:0 16px 24px}.project-grid{padding:0 16px 48px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}.pcard .cover{height:130px;font-size:40px}}
+  </style>
+</head>
+<body>
+<nav class="topbar">
+  <a class="logo" href="index.html"><span class="ico">🎭</span>喵喵和孩子们的实验室</a>
+  <a class="back-link" href="index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回首页</a>
+</nav>
+<header class="page-header">
+  <h1>🎭 思辨剧场</h1>
+  <p>这里没有标准答案，只有勇敢的提问和自由的辩论。每个孩子都是小小哲学家——用思辨的眼光看世界，用逻辑的力量说服彼此。</p>
+</header>
+<div class="filter-bar">
+  <div class="filter-row">
+    <span class="flabel">分类</span>
+    <button class="fchip active" data-filter="cat" data-value="all">全部</button>
+    <button class="fchip cat-story" data-filter="cat" data-value="story">故事新辨</button>
+    <button class="fchip cat-whatif" data-filter="cat" data-value="whatif">生活中的 What-If</button>
+  </div>
+  <div class="filter-row">
+    <span class="flabel">难度</span>
+    <button class="fchip active" data-filter="diff" data-value="all">ALL</button>
+    <button class="fchip diff-easy" data-filter="diff" data-value="easy">简单</button>
+  </div>
+</div>
+<div class="results-count" id="rc">共 1 个项目</div>
+<div class="project-grid" id="pg"></div>
+<footer><p>喵喵和孩子们的实验室 ❤ 2026 — 让好奇心带我们去任何地方。</p></footer>
+<script>
+const data=[
+  {id:'t1',title:'当你遇到一个负责却绩优主义的老师',cat:'story',diff:'easy',desc:'你如何看待一个对学业负责，同时也是绩优主义的老师？看到老师对成绩好的同学说话和颜悦色，对成绩差的学生疏离冷淡，你有什么感觉？一起来聊聊教育与成长。',coverClass:'cover-story',emoji:'🏫',link:'meritocracy-teacher.html'},
+  {id:'t2',title:'含羞草曾经叫"得意草"？',cat:'story',diff:'easy',desc:'一棵原本骄傲的草，经历了什么才学会了"害羞"？一个关于骄傲、挫折与谦逊的寓言故事，等你来重新讲述。',coverClass:'cover-story2',emoji:'🌿',link:'bebrave_mimosa.html'}
+];
+let aC='all',aD='all';
+function r(){
+  const f=data.filter(p=>(aC==='all'||p.cat===aC)&&(aD==='all'||p.diff===aD));
+  document.getElementById('rc').textContent='共 '+f.length+' 个项目';
+  document.getElementById('pg').innerHTML=f.map(p=>`<a class="pcard" href="${p.link}">
+    <div class="cover ${p.coverClass}"><span>${p.emoji}</span></div>
+    <div class="body"><h3>${p.title}</h3><p class="desc">${p.desc}</p>
+      <div class="tags"><span class="tag tag-cat">${p.cat==='story'?'故事新辨':'生活中的What-If'}</span><span class="tag tag-diff ${p.diff}">简单</span></div>
+    </div></a>`).join('');
+}
+document.querySelectorAll('.fchip').forEach(c=>c.addEventListener('click',()=>{
+  c.parentElement.querySelectorAll('.fchip').forEach(x=>x.classList.remove('active'));
+  c.classList.add('active');
+  if(c.dataset.filter==='cat')aC=c.dataset.value;
+  if(c.dataset.filter==='diff')aD=c.dataset.value;
+  r();
+}));
+r();
+</script>
+</body>
+</html>

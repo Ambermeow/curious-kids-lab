@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS+AI 实验室 — 喵喵和孩子们的实验室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body{font-family:'Noto Sans SC','PingFang SC','Heiti SC',system-ui,sans-serif;background:#f5f3f0;color:#1a1a2e;line-height:1.6;-webkit-font-smoothing:antialiased}
+    a{text-decoration:none;color:inherit}
+    .topbar{background:#fff;border-bottom:1px solid #eee;padding:0 32px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .topbar .logo{font-size:17px;font-weight:700;display:flex;align-items:center;gap:10px}
+    .topbar .logo .ico{width:34px;height:34px;background:linear-gradient(135deg,#ff6b35,#f59e0b);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px}
+    .topbar .back-link{font-size:14px;font-weight:500;color:#63636a;display:flex;align-items:center;gap:6px;transition:color .2s}
+    .topbar .back-link:hover{color:#1a1a2e}
+    .page-header{text-align:center;padding:56px 32px 32px}
+    .page-header h1{font-size:clamp(28px,4vw,42px);font-weight:900;margin-bottom:12px}
+    .page-header p{font-size:16px;color:#63636a;max-width:600px;margin:0 auto}
+    .filter-bar{padding:0 32px 32px;max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+    .filter-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .filter-row .flabel{font-size:14px;font-weight:600;color:#63636a;min-width:60px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.3px}
+    .fchip{padding:8px 20px;border-radius:50px;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s ease;background:#fff;color:#63636a;border:1.5px solid #e2e2e2;white-space:nowrap}
+    .fchip:hover{border-color:#b0b0b0;color:#1a1a2e}
+    .fchip.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+    .fchip.cat-cs.active{background:#ff6b35;border-color:#ff6b35}
+    .fchip.cat-ai.active{background:#8b5cf6;border-color:#8b5cf6}
+    .fchip.cat-sensor.active{background:#14b8a6;border-color:#14b8a6}
+    .fchip.diff-easy{color:#22c55e;border-color:#c8f0d4}
+    .fchip.diff-medium{color:#f59e0b;border-color:#fde9c4}
+    .fchip.diff-easy.active{background:#22c55e;color:#fff;border-color:#22c55e}
+    .fchip.diff-medium.active{background:#f59e0b;color:#fff;border-color:#f59e0b}
+    .results-count{max-width:1200px;margin:0 auto;padding:0 32px 20px;font-size:14px;color:#63636a}
+    .project-grid{max-width:1200px;margin:0 auto;padding:0 32px 64px;display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:24px}
+    .pcard{background:#fff;border-radius:18px;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease;display:flex;flex-direction:column;border:1px solid #eee}
+    .pcard:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.08)}
+    .pcard .cover{height:170px;display:flex;align-items:center;justify-content:center;font-size:52px}
+    .pcard .body{padding:18px 20px 20px;flex:1;display:flex;flex-direction:column}
+    .pcard .body h3{font-size:17px;font-weight:700;margin-bottom:6px;line-height:1.35}
+    .pcard .body .desc{font-size:13px;color:#63636a;line-height:1.5;flex:1;margin-bottom:12px}
+    .pcard .tags{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{font-size:11px;font-weight:600;padding:4px 12px;border-radius:50px}
+    .tag-cat{background:rgba(0,0,0,.05);color:#63636a}
+    .tag-diff{font-family:'JetBrains Mono',monospace}
+    .tag-diff.easy{background:#dcfce7;color:#16a34a}
+    .tag-diff.medium{background:#fef9c3;color:#ca8a04}
+    .cover-cs-1{background:linear-gradient(135deg,#fff0e6,#ffd4c0,#ffab8a)}
+.cover-cs-2{background:linear-gradient(135deg,#f0fdf4,#bbf7d0,#86efac)}
+.cover-ai-1{background:linear-gradient(135deg,#f0e6ff,#d4c0ff,#b894f8)}
+.cover-ai-2{background:linear-gradient(135deg,#e8f4fd,#b8dafa,#7eb8f4)}
+.cover-ai-3{background:linear-gradient(135deg,#fef9f0,#fdeab8,#fcd34d)}
+.cover-ai-4{background:linear-gradient(135deg,#fff1f2,#fecdd3,#fda4af)}
+.cover-sensor-1{background:linear-gradient(135deg,#ccfbf1,#99f6e4,#5eead4)}
+    footer{text-align:center;padding:40px 32px;border-top:1px solid rgba(0,0,0,.06);font-size:13px;color:#63636a}
+    @media(max-width:768px){.topbar{padding:0 16px}.page-header{padding:40px 16px 24px}.filter-bar{padding:0 16px 24px}.project-grid{padding:0 16px 48px;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px}.pcard .cover{height:130px;font-size:40px}}
+  </style>
+</head>
+<body>
+<nav class="topbar">
+  <a class="logo" href="index.html"><span class="ico">🤖</span>喵喵和孩子们的实验室</a>
+  <a class="back-link" href="index.html"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回首页</a>
+</nav>
+<header class="page-header">
+  <h1>💻 CS+AI 实验室</h1>
+  <p>从写第一行代码到训练自己的 AI 模型。计算机科学和人工智能，从原理到实践，亲手体验技术的力量。</p>
+</header>
+<div class="filter-bar">
+  <div class="filter-row">
+    <span class="flabel">分类</span>
+    <button class="fchip active" data-filter="cat" data-value="all">全部</button>
+    <button class="fchip cat-cs" data-filter="cat" data-value="cs">CS 计算机</button>
+    <button class="fchip cat-ai" data-filter="cat" data-value="ai">AI 人工智能</button>
+    <button class="fchip cat-sensor" data-filter="cat" data-value="sensor">Sensor 传感器</button>
+  </div>
+  <div class="filter-row">
+    <span class="flabel">难度</span>
+    <button class="fchip active" data-filter="diff" data-value="all">ALL</button>
+    <button class="fchip diff-easy" data-filter="diff" data-value="easy">简单</button>
+    <button class="fchip diff-medium" data-filter="diff" data-value="medium">中等</button>
+  </div>
+</div>
+<div class="results-count" id="resultsCount">共 3 个项目</div>
+<div class="project-grid" id="projectGrid"></div>
+<footer><p>喵喵和孩子们的实验室 ❤ 2026 — 让好奇心带我们去任何地方。</p></footer>
+<script>
+const projects=[
+  {id:'binary',title:'从二进制到图像',cat:'cs',diff:'easy',desc:'探索计算机如何用0和1表示一切——从数字到颜色，从像素到图像。理解二进制编码的核心原理。',coverClass:'cover-cs-1',emoji:'🖼️',link:'从二进制到图像.html'},
+  {id:'function',title:'什么是函数',cat:'cs',diff:'easy',desc:'函数是编程世界的"魔法咒语"。输入一个值，输出一个结果——像一台神奇的自动售货机，理解它，你就打开了编程的大门。',coverClass:'cover-cs-2',emoji:'🔧',link:'whatisfunction.html'},
+  {id:'thought',title:'AI 思想实验',cat:'ai',diff:'easy',desc:'如果 AI 有了意识怎么办？如果机器人能感受情绪呢？一起做有趣的思想实验，像哲学家一样思考 AI 的未来。',coverClass:'cover-ai-3',emoji:'💭',link:'ai_thought_experiment_for_kids.html'},
+  {id:'cnn',title:'猫狗 CNN 分类器',cat:'ai',diff:'medium',desc:'用卷积神经网络识别猫和狗！可视化 CNN 的卷积层、池化层和全连接层如何一步步提取特征。',coverClass:'cover-ai-1',emoji:'🐱🐶',link:'猫狗CNN.html'},
+  {id:'word2vec',title:'word2vec 词向量探秘',cat:'ai',diff:'medium',desc:'探索词语如何在 AI 的"大脑"中变成数学向量。理解"国王 - 男人 + 女人 = 女王"的语义运算。',coverClass:'cover-ai-2',emoji:'📝',link:'word2vec.html'},
+  {id:'triplet',title:'Triplet Loss 三元组损失',cat:'ai',diff:'medium',desc:'AI 如何学会"区分"相似但不相同的事物？让锚点靠近正例、远离负例——这是人脸识别和图像搜索的核心算法。',coverClass:'cover-ai-4',emoji:'🎯',link:'triplet-loss-function.html'},
+  {id:'voice',title:'声音侦探实验室',cat:'ai',diff:'medium',desc:'一句"开灯"，小板子怎样听懂？从声波到 MFCC 特征，动手观察语音指令被一步步"翻译"成 13 个数字的完整过程。',coverClass:'cover-ai-2',emoji:'🎤',link:'语音控制台灯的原理/index.html'},
+  {id:'gravity',title:'重力小球：用传感器感知世界',cat:'sensor',diff:'easy',desc:'掏出手机摇一摇、转一转——加速度计和陀螺仪怎么知道你做了啥？一颗虚拟小球带你玩转传感器。',coverClass:'cover-sensor-1',emoji:'📳',link:'重力小球.html'}
+];
+let activeCat='all',activeDiff='all';
+const grid=document.getElementById('projectGrid'),countEl=document.getElementById('resultsCount');
+function render(){
+  const f=projects.filter(p=>{
+    if(activeCat!=='all'&&p.cat!==activeCat)return false;
+    if(activeDiff!=='all'&&p.diff!==activeDiff)return false;
+    return true;
+  });
+  countEl.textContent='共 '+f.length+' 个项目';
+  grid.innerHTML=f.map(p=>`
+    <a class="pcard" href="${p.link}">
+      <div class="cover ${p.coverClass}"><span>${p.emoji}</span></div>
+      <div class="body">
+        <h3>${p.title}</h3>
+        <p class="desc">${p.desc}</p>
+        <div class="tags">
+          <span class="tag tag-cat">${p.cat==='cs'?'CS 计算机':p.cat==='ai'?'AI 人工智能':'Sensor 传感器'}</span>
+          <span class="tag tag-diff ${p.diff}">${p.diff==='easy'?'简单':'中等'}</span>
+        </div>
+      </div>
+    </a>
+  `).join('');
+}
+document.querySelectorAll('.fchip').forEach(c=>{
+  c.addEventListener('click',()=>{
+    c.parentElement.querySelectorAll('.fchip').forEach(x=>x.classList.remove('active'));
+    c.classList.add('active');
+    if(c.dataset.filter==='cat')activeCat=c.dataset.value;
+    if(c.dataset.filter==='diff')activeDiff=c.dataset.value;
+    render();
+  });
+});
+render();
+</script>
+</body>
+</html>

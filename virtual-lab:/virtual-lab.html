@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>虚拟实验室 — 喵喵和孩子们的实验室</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Noto Sans SC', 'PingFang SC', 'Heiti SC', system-ui, sans-serif;
+      background: #f5f3f0;
+      color: #1a1a2e;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration:none; color:inherit; }
+
+    /* ====== TOP BAR ====== */
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 0 32px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .topbar .logo {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .topbar .logo .ico {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+    }
+    .topbar .back-link {
+      font-size: 14px;
+      font-weight: 500;
+      color: #63636a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s;
+    }
+    .topbar .back-link:hover { color: #1a1a2e; }
+
+    /* ====== PAGE HEADER ====== */
+    .page-header {
+      text-align: center;
+      padding: 56px 32px 32px;
+    }
+    .page-header h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+    .page-header p {
+      font-size: 16px;
+      color: #63636a;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ====== FILTER BAR ====== */
+    .filter-bar {
+      padding: 0 32px 32px;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .filter-row .filter-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #63636a;
+      min-width: 60px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .filter-chip {
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fff;
+      color: #63636a;
+      border: 1.5px solid #e2e2e2;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      border-color: #b0b0b0;
+      color: #1a1a2e;
+    }
+    .filter-chip.active {
+      background: #1a1a2e;
+      color: #fff;
+      border-color: #1a1a2e;
+    }
+    .filter-chip.subject-physics.active  { background: #3b82f6; border-color: #3b82f6; }
+    .filter-chip.subject-chemistry.active { background: #f59e0b; border-color: #f59e0b; }
+    .filter-chip.subject-biology.active   { background: #22c55e; border-color: #22c55e; }
+    .filter-chip.subject-math.active      { background: #8b5cf6; border-color: #8b5cf6; }
+
+    /* Difficulty badges */
+    .diff-easy  { color: #22c55e; border-color: #c8f0d4; }
+    .diff-medium { color: #f59e0b; border-color: #fde9c4; }
+    .diff-hard  { color: #ef4444; border-color: #fdd4d4; }
+    .diff-easy.active  { background: #22c55e; color: #fff; border-color: #22c55e; }
+    .diff-medium.active { background: #f59e0b; color: #fff; border-color: #f59e0b; }
+    .diff-hard.active  { background: #ef4444; color: #fff; border-color: #ef4444; }
+
+    /* ====== RESULTS COUNT ====== */
+    .results-count {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px 20px;
+      font-size: 14px;
+      color: #63636a;
+    }
+
+    /* ====== PROJECT GRID ====== */
+    .project-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px 64px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: #fff;
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #eee;
+    }
+    .project-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+    }
+    .project-card .card-cover {
+      height: 170px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 52px;
+    }
+    .project-card .card-cover .cover-bg {
+      position: absolute;
+      inset: 0;
+    }
+    .project-card .card-cover .cover-emoji {
+      position: relative;
+      z-index: 1;
+    }
+    .project-card .card-body {
+      padding: 18px 20px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .project-card .card-body h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+    .project-card .card-body .desc {
+      font-size: 13px;
+      color: #63636a;
+      line-height: 1.5;
+      flex: 1;
+      margin-bottom: 12px;
+    }
+    .project-card .card-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .project-card .tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 50px;
+      white-space: nowrap;
+    }
+    .tag-subject {
+      background: rgba(0,0,0,0.05);
+      color: #63636a;
+    }
+    .tag-diff {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tag-diff.easy    { background: #dcfce7; color: #16a34a; }
+    .tag-diff.medium  { background: #fef9c3; color: #ca8a04; }
+    .tag-diff.hard    { background: #fee2e2; color: #dc2626; }
+
+    /* Cover backgrounds */
+    .cover-physics-1  { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #7dd3fc 100%); }
+    .cover-physics-2  { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fcd34d 100%); }
+    .cover-physics-3  { background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 50%, #a78bfa 100%); }
+    .cover-physics-4  { background: linear-gradient(135deg, #e6f7ec 0%, #a7f3d0 50%, #6ee7b7 100%); }
+    .cover-chemistry-1 { background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 50%, #fdba74 100%); }
+    .cover-chemistry-2 { background: linear-gradient(135deg, #f0f9ff 0%, #bae6fd 50%, #7dd3fc 100%); }
+    .cover-chemistry-3 { background: linear-gradient(135deg, #fdf2f8 0%, #fbcfe8 50%, #f9a8d4 100%); }
+    .cover-biology-1   { background: linear-gradient(135deg, #f0fdf4 0%, #bbf7d0 50%, #86efac 100%); }
+    .cover-biology-2   { background: linear-gradient(135deg, #ecfdf5 0%, #a7f3d0 50%, #6ee7b7 100%); }
+    .cover-biology-3   { background: linear-gradient(135deg, #fefce8 0%, #fef08a 50%, #facc15 100%); }
+    .cover-math-1      { background: linear-gradient(135deg, #faf5ff 0%, #e9d5ff 50%, #d8b4fe 100%); }
+    .cover-math-2      { background: linear-gradient(135deg, #f5f3ff 0%, #ddd6fe 50%, #c4b5fd 100%); }
+    .cover-math-3      { background: linear-gradient(135deg, #fff1f2 0%, #fecdd3 50%, #fda4af 100%); }
+
+    /* ====== FOOTER ====== */
+    footer {
+      text-align: center;
+      padding: 40px 32px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      font-size: 13px;
+      color: #63636a;
+    }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 768px) {
+      .topbar { padding: 0 16px; }
+      .page-header { padding: 40px 16px 24px; }
+      .filter-bar { padding: 0 16px 24px; }
+      .project-grid { padding: 0 16px 48px; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+      .project-card .card-cover { height: 130px; font-size: 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ====== TOP BAR ====== -->
+  <nav class="topbar">
+    <a class="logo" href="index.html">
+      <span class="ico">🧪</span>
+      喵喵和孩子们的实验室
+    </a>
+    <a class="back-link" href="index.html">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      返回首页
+    </a>
+  </nav>
+
+  <!-- ====== PAGE HEADER ====== -->
+  <header class="page-header">
+    <h1>🔬 虚拟实验室</h1>
+    <p>探索物理、化学、生物、数学的奇妙世界。每个实验都像游戏一样，让你亲手操作、亲眼见证科学的神奇。</p>
+  </header>
+
+  <!-- ====== FILTERS ====== -->
+  <div class="filter-bar">
+    <!-- Subject filter -->
+    <div class="filter-row">
+      <span class="filter-label">学科</span>
+      <button class="filter-chip active" data-filter="subject" data-value="all">全部</button>
+      <button class="filter-chip subject-physics" data-filter="subject" data-value="physics">物理</button>
+      <button class="filter-chip subject-chemistry" data-filter="subject" data-value="chemistry">化学</button>
+      <button class="filter-chip subject-biology" data-filter="subject" data-value="biology">生物</button>
+      <button class="filter-chip subject-math" data-filter="subject" data-value="math">数学</button>
+    </div>
+    <!-- Difficulty filter -->
+    <div class="filter-row">
+      <span class="filter-label">难度</span>
+      <button class="filter-chip active" data-filter="difficulty" data-value="all">ALL</button>
+      <button class="filter-chip diff-easy" data-filter="difficulty" data-value="easy">简单</button>
+      <button class="filter-chip diff-medium" data-filter="difficulty" data-value="medium">中等</button>
+      <button class="filter-chip diff-hard" data-filter="difficulty" data-value="hard">难</button>
+    </div>
+  </div>
+
+  <div class="results-count" id="resultsCount">共 12 个项目</div>
+
+  <!-- ====== PROJECT GRID ====== -->
+  <div class="project-grid" id="projectGrid">
+    <!-- Projects defined in JS -->
+  </div>
+
+  <footer>
+    <p>喵喵和孩子们的实验室 ❤ 2026 &mdash; 让好奇心带我们去任何地方。</p>
+  </footer>
+
+  <script>
+    // ============ PROJECT DATA ============
+    const projects = [
+      {
+        id: 'aurora',
+        title: '极光物理实验室',
+        subject: 'physics',
+        difficulty: 'medium',
+        desc: '操控太阳风、磁场和气体分子，亲手创造绚丽的极光。理解电磁学与量子跃迁。',
+        coverClass: 'cover-physics-3',
+        emoji: '🌌',
+        link: 'aurora-physics.html'
+      },
+      {
+        id: 'magnet',
+        title: '微观磁学实验室',
+        subject: 'physics',
+        difficulty: 'medium',
+        desc: '拖动磁铁靠近铁块，观察微观磁畴如何翻转排列。从无序到有序——亲眼见证铁块被磁化的全过程。',
+        coverClass: 'cover-physics-2',
+        emoji: '🧲',
+        link: 'Magnetization.html'
+      },
+      {
+        id: 'wave',
+        title: '蓝牙 · WiFi · 红外',
+        subject: 'physics',
+        difficulty: 'medium',
+        desc: '为什么遥控器要对准电视，WiFi 却可以穿墙？用一瓶水和一张纸，就能理解电磁波的频率秘密。',
+        coverClass: 'cover-physics-1',
+        emoji: '📡',
+        link: 'bluetooth_WIFI_infrared.html'
+      }
+    ];
+
+    // ============ FILTER STATE ============
+    let activeSubject = 'all';
+    let activeDifficulty = 'all';
+
+    // ============ RENDER ============
+    const grid = document.getElementById('projectGrid');
+    const countEl = document.getElementById('resultsCount');
+
+    function renderProjects() {
+      const filtered = projects.filter(p => {
+        if (activeSubject !== 'all' && p.subject !== activeSubject) return false;
+        if (activeDifficulty !== 'all' && p.difficulty !== activeDifficulty) return false;
+        return true;
+      });
+
+      countEl.textContent = '共 ' + filtered.length + ' 个项目';
+
+      grid.innerHTML = filtered.map(p => `
+        <a class="project-card" href="${p.link}">
+          <div class="card-cover ${p.coverClass}">
+            <span class="cover-emoji">${p.emoji}</span>
+          </div>
+          <div class="card-body">
+            <h3>${p.title}</h3>
+            <p class="desc">${p.desc}</p>
+            <div class="card-tags">
+              <span class="tag tag-subject">${
+                p.subject === 'physics' ? '物理' :
+                p.subject === 'chemistry' ? '化学' :
+                p.subject === 'biology' ? '生物' : '数学'
+              }</span>
+              <span class="tag tag-diff ${p.difficulty}">${
+                p.difficulty === 'easy' ? '简单' :
+                p.difficulty === 'medium' ? '中等' : '难'
+              }</span>
+            </div>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // ============ FILTER LOGIC ============
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const filterType = chip.dataset.filter; // 'subject' or 'difficulty'
+        const value = chip.dataset.value;
+
+        // Deactivate siblings
+        chip.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        // Activate clicked
+        chip.classList.add('active');
+
+        if (filterType === 'subject') activeSubject = value;
+        if (filterType === 'difficulty') activeDifficulty = value;
+
+        renderProjects();
+      });
+    });
+
+    // Initial render
+    renderProjects();
+  </script>
+</body>
+</html>

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI小科学家：人脸识别的三元组训练大冒险</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* 动画效果：让警戒圈有微微呼吸的效果 */
+        @keyframes pulse-soft {
+            0%, 100 { transform: scale(1); opacity: 0.15; }
+            50% { transform: scale(1.02); opacity: 0.25; }
+        }
+        .pulse-bg {
+            animation: pulse-soft 3s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- 顶部温馨导航 -->
+    <header class="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white shadow-md py-4 px-6">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-3xl animate-bounce">🤖</span>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-black tracking-wider">AI 小科学家：人脸识别的三元组训练</h1>
+                    <p class="text-xs text-blue-100 opacity-90">真实还原 FaceID 背后“拉近同人、推开他人”的深度学习硬核数学！</p>
+                </div>
+            </div>
+            <span class="bg-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md">
+                🎓 严肃科普 / 计算机视觉 (CV) 基础
+            </span>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow w-full">
+        
+        <!-- 左侧：通俗易懂的原理讲解（5格） -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- 1. 角色卡片 -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+                <h2 class="text-lg font-bold text-indigo-600 flex items-center gap-2 mb-3">
+                    <span>🖼️</span> 真实训练三元组 (Triplet)
+                </h2>
+                <p class="text-xs text-slate-500 leading-relaxed mb-4">
+                    当人脸特征提取网络（如 CNN/Transformer）将人脸照片转化为超空间中的**特征坐标（向量）**后，AI需要通过以下三张照片来调校自己的参数：
+                </p>
+                <div class="grid grid-cols-3 gap-3 text-center text-xs">
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-100 hover:scale-105 transition-transform">
+                        <span class="text-3xl block mb-1">👦</span>
+                        <span class="font-bold text-blue-600">基准照片</span>
+                        <span class="text-[10px] text-slate-400 block">Anchor (张三-大笑)</span>
+                    </div>
+                    <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-100 hover:scale-105 transition-transform">
+                        <span class="text-3xl block mb-1">🧔</span>
+                        <span class="font-bold text-emerald-600">同人照片</span>
+                        <span class="text-[10px] text-slate-400 block">Positive (张三-严肃)</span>
+                    </div>
+                    <div class="p-3 bg-rose-50 rounded-xl border border-rose-100 hover:scale-105 transition-transform">
+                        <span class="text-3xl block mb-1">🦊</span>
+                        <span class="font-bold text-rose-600">他人照片</span>
+                        <span class="text-[10px] text-slate-400 block">Negative (李四)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 两个关键硬性条件 -->
+            <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 shadow-sm border border-indigo-100">
+                <h2 class="text-lg font-bold text-purple-900 flex items-center gap-2 mb-2">
+                    <span>🎯</span> 损失函数必须约束的【双重条件】
+                </h2>
+                <p class="text-xs text-purple-950/80 mb-3">
+                    损失函数（Triplet Loss）用来衡量 AI 的<b>“认知糊涂度（苦恼值）”</b>。只有在满足以下两条铁律时，AI 的训练误差才会归零（Loss = 0）：
+                </p>
+                <div class="space-y-3">
+                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100">
+                        <p class="text-xs font-bold text-emerald-700 flex items-center gap-1.5 mb-1">
+                            <span>✅ 条件 ①</span> 同一人不同照片，距离越近越好
+                        </p>
+                        <p class="text-[11px] text-slate-600 leading-normal pl-5">
+                            张三不管是哭是笑、在白天还是黑夜，在特征空间中<b>同一个人的距离 $d(A, P)$ 必须极小</b>，代表能抵抗表情和光线干扰。
+                        </p>
+                    </div>
+                    <div class="bg-white/80 p-3 rounded-xl border border-indigo-100">
+                        <p class="text-xs font-bold text-rose-600 flex items-center gap-1.5 mb-1">
+                            <span>✅ 条件 ②</span> 他人照片，必须退到安全界限外
+                        </p>
+                        <p class="text-[11px] text-slate-600 leading-normal pl-5">
+                            李四（他人 $N$）必须离张三远一些。他的距离 $d(A, N)$ 不仅要大于 $d(A, P)$，而且<b>必须再多拉开一个安全差值（Margin）</b>，防止坏人蒙混过关。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. AI苦力工的职责 -->
+            <div class="bg-slate-900 text-slate-100 rounded-2xl p-5 shadow-sm">
+                <h2 class="text-base font-bold text-yellow-400 flex items-center gap-2 mb-2">
+                    <span>👷</span> AI优化器（梯度下降）在干什么？
+                </h2>
+                <p class="text-xs leading-relaxed text-slate-300">
+                    在真实训练中，优化器（如 Adam / SGD）就像一位拼命拉扯皮筋的“苦力工”：
+                </p>
+                <div class="bg-slate-800 p-3 rounded-xl my-2 border border-slate-700 text-xs text-left leading-relaxed">
+                    ⚙️ <b>若 Loss > 0（有人脸越界）：</b>神经网络就会产生负向梯度。优化器根据这个梯度，往死里<b>把同一个人（张三的照片）往一起拽</b>，同时<b>把他人（李四的照片）往外猛推</b>。
+                    <br><br>
+                    🎉 <b>若 Loss = 0（分类安全）：</b>模型在当前样本上收敛，优化器在这个三元组上停止拉扯。
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 右侧：交互展示与实验区（7格） -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <!-- 实验主卡片 -->
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col items-center">
+                
+                <!-- 实时状态状态栏 -->
+                <div class="w-full flex justify-between items-center mb-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm">
+                    <div class="flex items-center gap-2">
+                        <span id="laborer-emoji" class="text-3xl transition-transform duration-300">😫</span>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">AI优化器状态</span>
+                            <span id="laborer-status" class="font-bold text-slate-700 text-xs sm:text-sm">正在等待梯度更新...</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">当前三元组损失 (Loss)</span>
+                        <span id="loss-display" class="text-xl sm:text-2xl font-black text-red-500">计算中...</span>
+                    </div>
+                </div>
+
+                <!-- Canvas 画布容器 -->
+                <div class="relative w-full aspect-[4/3] bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                    <canvas id="playgroundCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+                    
+                    <!-- 浮动的新手提示 -->
+                    <div class="absolute bottom-2 left-2 right-2 bg-slate-900/80 text-white text-[10px] sm:text-xs py-1.5 px-3 rounded-lg backdrop-blur-sm text-center pointer-events-none">
+                        💡 <b>动手实验：</b>用鼠标或触屏拖动 👦(张三A)、🧔(张三B)、🦊(李四)，观察特征坐标的距离变化！
+                    </div>
+                </div>
+
+                <!-- 交互控制面板 -->
+                <div class="w-full mt-4 space-y-4">
+                    <!-- 安全边界调节 -->
+                    <div class="bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+                        <div class="flex justify-between items-center text-xs text-slate-600 mb-1">
+                            <span class="font-bold text-indigo-900 flex items-center gap-1">
+                                📏 安全决策容错边界 (Margin - α): <span id="margin-val" class="text-sm font-black text-indigo-600">1.50</span>
+                            </span>
+                            <span class="text-[10px] text-slate-400">(控制他人被驱逐的硬性安全阈值)</span>
+                        </div>
+                        <input id="margin-slider" type="range" min="0.5" max="3.0" step="0.1" value="1.5" 
+                               class="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                    </div>
+
+                    <!-- 功能按钮 -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <button id="btn-run" class="bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl font-bold text-sm sm:text-base shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
+                            👷 一键启动梯度更新 (梯度下降)
+                        </button>
+                        <button id="btn-reset" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 border border-slate-200">
+                            🔄 重置坐标位置
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 数学公式直观对照面板 -->
+            <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 shadow-sm">
+                <h3 class="text-xs font-bold text-slate-400 mb-2.5 flex items-center gap-1.5">
+                    <span>🧮</span> 神经网络特征空间计算：
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                    <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
+                        <span class="text-slate-400 block mb-0.5">同人距离 d(Anchor, Positive)：</span>
+                        <span id="formula-dp" class="text-emerald-400 font-bold text-sm">--</span>
+                    </div>
+                    <div class="p-3 bg-slate-800 rounded-xl border border-slate-700">
+                        <span class="text-slate-400 block mb-0.5">他人距离 d(Anchor, Negative)：</span>
+                        <span id="formula-dn" class="text-rose-400 font-bold text-sm">--</span>
+                    </div>
+                    <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 md:col-span-1">
+                        <span class="text-indigo-400 block mb-0.5">三元组损失函数 (Triplet Loss)：</span>
+                        <span id="formula-loss" class="text-indigo-400 font-mono font-bold text-sm">max(0, d(A,P) - d(A,N) + α)</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-slate-900 text-slate-500 text-xs py-4 px-6 border-t border-slate-800 text-center">
+        <div class="max-w-6xl mx-auto space-y-1">
+            <p>💡 <b>严谨学术背景：</b>人脸特征识别通常将照片映射到 128 或 512 维的超球面上，并通过欧氏距离或余弦夹角计算相似度。本模拟在二维特征面中等比展示该几何训练过程。</p>
+            <p>© 2026 AI 互动科学实验室 - 激发对算法本质的好奇心</p>
+        </div>
+    </footer>
+
+    <!-- 交互脚本 -->
+    <script>
+        const canvas = document.getElementById('playgroundCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // UI 绑定
+        const marginSlider = document.getElementById('margin-slider');
+        const marginVal = document.getElementById('margin-val');
+        const lossDisplay = document.getElementById('loss-display');
+        const laborerEmoji = document.getElementById('laborer-emoji');
+        const laborerStatus = document.getElementById('laborer-status');
+        const btnRun = document.getElementById('btn-run');
+        const btnReset = document.getElementById('btn-reset');
+        
+        const formulaDp = document.getElementById('formula-dp');
+        const formulaDn = document.getElementById('formula-dn');
+        const formulaLoss = document.getElementById('formula-loss');
+
+        // 缩放比例：1标准单位 = 100像素
+        const pxPerMeter = 100;
+        let margin = parseFloat(marginSlider.value);
+        let activeElement = null;
+        let isRunning = false;
+        let animationFrameId = null;
+
+        // 角色数据类 (严格人脸识别学术命名)
+        class Element {
+            constructor(name, label, emoji, x, y, color) {
+                this.name = name;      // 对应名字（张三/李四）
+                this.label = label;    // 对应学术符号（Anchor / Positive / Negative）
+                this.emoji = emoji;
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.radius = 30; // 判定半径
+            }
+
+            draw() {
+                // 绘制外圈彩色光晕
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + 6, 0, Math.PI * 2);
+                ctx.fillStyle = this.color + '22';
+                ctx.fill();
+                ctx.strokeStyle = this.color;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // 绘制圆形背景
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.fill();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // 绘制 Emoji 表情
+                ctx.font = "32px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(this.emoji, this.x, this.y + 1);
+
+                // 绘制下方标签
+                ctx.font = "bold 12px Noto Sans SC";
+                ctx.fillStyle = '#1e293b';
+                ctx.fillText(this.name, this.x, this.y + this.radius + 16);
+
+                // 绘制学术标注标签 (A / P / N)
+                ctx.font = "900 11px Arial";
+                ctx.fillStyle = this.color;
+                ctx.fillText(`(${this.label})`, this.x, this.y + this.radius + 30);
+            }
+
+            isClicked(mx, my) {
+                return Math.hypot(this.x - mx, this.y - my) < this.radius + 10;
+            }
+        }
+
+        // 定义三个学术对象
+        let anchor, positive, negative;
+
+        function initPositions() {
+            const w = canvas.width;
+            const h = canvas.height;
+            // 设定不平衡的特征空间坐标，展示越界产生的 Loss
+            anchor = new Element('张三大笑 👦', 'Anchor 基准', '👦', w * 0.5, h * 0.6, '#3b82f6');
+            positive = new Element('张三严肃 🧔', 'Positive 同人', '🧔', w * 0.25, h * 0.35, '#10b981');
+            negative = new Element('李四(他人) 🦊', 'Negative 他人', '🦊', w * 0.55, h * 0.25, '#f43f5e');
+            isRunning = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            updateFrame();
+        }
+
+        function resizeCanvas() {
+            const rect = canvas.parentNode.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.width * 0.75; // 保持 4:3 比例
+            initPositions();
+        }
+
+        // 核心数学计算
+        function getMetrics() {
+            const dpPx = Math.hypot(positive.x - anchor.x, positive.y - anchor.y);
+            const dnPx = Math.hypot(negative.x - anchor.x, negative.y - anchor.y);
+
+            const dp = dpPx / pxPerMeter; // 归一化特征距离
+            const dn = dnPx / pxPerMeter;
+
+            // Triplet Loss 公式：max(0, dp - dn + margin)
+            const loss = Math.max(0, dp - dn + margin);
+
+            return { dp, dn, loss, dpPx, dnPx };
+        }
+
+        // 绘制辅助线和虚线圆圈
+        function drawOverlay(dp, dn, loss, dpPx, dnPx) {
+            // 1. 绘制网格背景，营造特征坐标空间的科技感
+            ctx.strokeStyle = '#f1f5f9';
+            ctx.lineWidth = 1;
+            const size = 30;
+            for (let x = 0; x < canvas.width; x += size) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += size) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+
+            // 2. 绘制【安全决策边界圈】（以 Anchor 为圆心，半径为 d(A, P) + Margin）
+            const safeRadiusPx = dpPx + (margin * pxPerMeter);
+            ctx.beginPath();
+            ctx.arc(anchor.x, anchor.y, safeRadiusPx, 0, Math.PI * 2);
+            if (loss > 0) {
+                ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)'; // 出现交叉混淆时警告橘红色虚线
+                ctx.fillStyle = 'rgba(244, 63, 94, 0.02)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 6]);
+            } else {
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)'; // 安全界限通过时为绿色实线
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.02)';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([]);
+            }
+            ctx.fill();
+            ctx.stroke();
+            ctx.setLineDash([]); // 重置实线
+
+            // 决策线安全标注
+            ctx.fillStyle = loss > 0 ? '#ef4444' : '#10b981';
+            ctx.font = "bold 11px Noto Sans SC";
+            ctx.fillText(`🚨 安全特征判定边界 (d(A,P) + α = ${(dp + margin).toFixed(2)})`, anchor.x, anchor.y - safeRadiusPx - 10);
+
+            // 3. 绘制同人特征关联线 d(A, P)
+            ctx.beginPath();
+            ctx.moveTo(anchor.x, anchor.y);
+            ctx.lineTo(positive.x, positive.y);
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            const midP = { x: (anchor.x + positive.x) / 2, y: (anchor.y + positive.y) / 2 };
+            ctx.fillStyle = '#065f46';
+            ctx.font = "bold 12px Arial";
+            ctx.fillText(`${dp.toFixed(2)}`, midP.x, midP.y - 10);
+
+            // 4. 绘制他人特征关联线 d(A, N)
+            ctx.beginPath();
+            ctx.moveTo(anchor.x, anchor.y);
+            ctx.lineTo(negative.x, negative.y);
+            ctx.strokeStyle = loss > 0 ? '#f43f5e' : '#64748b';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            const midN = { x: (anchor.x + negative.x) / 2, y: (anchor.y + negative.y) / 2 };
+            ctx.fillStyle = loss > 0 ? '#991b1b' : '#334155';
+            ctx.font = "bold 12px Arial";
+            ctx.fillText(`${dn.toFixed(2)}`, midN.x, midN.y - 10);
+        }
+
+        // 统一更新和重绘
+        function updateFrame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const { dp, dn, loss, dpPx, dnPx } = getMetrics();
+
+            // 绘制特征图谱
+            drawOverlay(dp, dn, loss, dpPx, dnPx);
+
+            // 绘制三个特征照片节点
+            positive.draw();
+            negative.draw();
+            anchor.draw(); // Anchor 绘制于最上层方便拖动
+
+            // 数据面板更新
+            lossDisplay.textContent = `${loss.toFixed(2)}`;
+            marginVal.textContent = `${margin.toFixed(2)}`;
+
+            // 算式面板实时刷新
+            formulaDp.textContent = `${dp.toFixed(2)}`;
+            formulaDn.textContent = `${dn.toFixed(2)}`;
+            formulaLoss.innerHTML = `max(0, <span class="text-emerald-400">${dp.toFixed(2)}</span> - <span class="text-rose-400">${dn.toFixed(2)}</span> + ${margin.toFixed(2)}) = <span class="text-yellow-400">${loss.toFixed(2)}</span>`;
+
+            // 优化器状态反馈
+            if (loss > 0) {
+                lossDisplay.className = "text-xl sm:text-2xl font-black text-red-500 animate-pulse";
+                laborerEmoji.textContent = "😫";
+                laborerEmoji.style.transform = "rotate(8deg) scale(1.1)";
+                laborerStatus.innerHTML = `人脸特征混淆！他人特征距离 <b>${dn.toFixed(2)}</b> 小于安全阀值 <b>${(dp + margin).toFixed(2)}</b>，存在误识漏洞！`;
+            } else {
+                lossDisplay.className = "text-xl sm:text-2xl font-black text-emerald-500";
+                laborerEmoji.textContent = "😎";
+                laborerEmoji.style.transform = "rotate(0deg) scale(1.2)";
+                laborerStatus.innerHTML = "网络分类达到鲁棒要求！特征收敛，优化器成功完成训练！";
+            }
+        }
+
+        // 鼠标和触控拖拽逻辑
+        function getEventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return {
+                x: (clientX - rect.left) * (canvas.width / rect.width),
+                y: (clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function onStart(e) {
+            if (isRunning) return; 
+            const pos = getEventPos(e);
+            const targets = [anchor, positive, negative];
+            for (let el of targets) {
+                if (el.isClicked(pos.x, pos.y)) {
+                    activeElement = el;
+                    break;
+                }
+            }
+        }
+
+        // 限制拖拽超出坐标空间
+        function onMove(e) {
+            if (!activeElement) return;
+            e.preventDefault();
+            const pos = getEventPos(e);
+            const padding = activeElement.radius + 10;
+            activeElement.x = Math.max(padding, Math.min(canvas.width - padding, pos.x));
+            activeElement.y = Math.max(padding, Math.min(canvas.height - padding, pos.y));
+            updateFrame();
+        }
+
+        function onEnd() {
+            activeElement = null;
+        }
+
+        // 监听鼠标事件
+        canvas.addEventListener('mousedown', onStart);
+        canvas.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onEnd);
+
+        // 监听触控事件
+        canvas.addEventListener('touchstart', onStart, { passive: false });
+        canvas.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onEnd);
+
+        marginSlider.addEventListener('input', (e) => {
+            margin = parseFloat(e.target.value);
+            updateFrame();
+        });
+
+        btnReset.addEventListener('click', () => {
+            initPositions();
+        });
+
+        // 模拟 AI 优化器进行特征聚类梯度下降
+        btnRun.addEventListener('click', () => {
+            if (isRunning) return;
+            isRunning = true;
+            btnRun.disabled = true;
+            btnRun.classList.add('opacity-50', 'cursor-not-allowed');
+
+            const lr = 0.08; // 学习率 Learning Rate
+
+            function gradientDescentStep() {
+                const { dp, dn, loss } = getMetrics();
+
+                if (loss <= 0.005) {
+                    // 损失降为0，宣告局部极小值或最优解达成
+                    isRunning = false;
+                    btnRun.disabled = false;
+                    btnRun.classList.remove('opacity-50', 'cursor-not-allowed');
+                    updateFrame();
+                    return;
+                }
+
+                // 梯度一：同人特征相互靠近的拉力
+                const gPX = anchor.x - positive.x;
+                const gPY = anchor.y - positive.y;
+                const distP = Math.hypot(gPX, gPY) || 1;
+
+                positive.x += (gPX / distP) * lr * pxPerMeter * 0.4;
+                positive.y += (gPY / distP) * lr * pxPerMeter * 0.4;
+
+                // 梯度二：他人特征偏离基准特征的推力
+                if (dn < dp + margin) {
+                    const gNX = negative.x - anchor.x;
+                    const gNY = negative.y - anchor.y;
+                    const distN = Math.hypot(gNX, gNY) || 1;
+
+                    negative.x += (gNX / distN) * lr * pxPerMeter * 0.6;
+                    negative.y += (gNY / distN) * lr * pxPerMeter * 0.6;
+                }
+
+                // 防护越界
+                const pad = 40;
+                positive.x = Math.max(pad, Math.min(canvas.width - pad, positive.x));
+                positive.y = Math.max(pad, Math.min(canvas.height - pad, positive.y));
+                negative.x = Math.max(pad, Math.min(canvas.width - pad, negative.x));
+                negative.y = Math.max(pad, Math.min(canvas.height - pad, negative.y));
+
+                updateFrame();
+                animationFrameId = requestAnimationFrame(gradientDescentStep);
+            }
+
+            gradientDescentStep();
+        });
+
+        // 初始化
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+    </script>
+</body>
+</html>

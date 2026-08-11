@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>从 0101 到计算机图像的奇妙之旅</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .mono-font {
+            font-family: 'Fira Code', monospace;
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-slate-800 bg-slate-900/50 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-indigo-600 rounded-lg text-white">
+                    <i data-lucide="binary" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">从 0101 到璀璨图像</h1>
+                    <p class="text-xs text-slate-400">解密计算机视觉的底层逻辑</p>
+                </div>
+            </div>
+            <div class="text-xs text-slate-500 bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700/50">
+                💡 提示：点击下方 Tab 切换步骤进行探索
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
+        
+        <!-- Tab Navigation -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 bg-slate-900 p-1.5 rounded-xl border border-slate-800">
+            <button onclick="switchTab(1)" id="tab-btn-1" class="tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 active bg-indigo-600 text-white shadow-lg shadow-indigo-600/20">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-500/50 text-xs font-bold">1</span>
+                <span>电与开关</span>
+            </button>
+            <button onclick="switchTab(2)" id="tab-btn-2" class="tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-800 text-xs font-bold">2</span>
+                <span>颜色密码</span>
+            </button>
+            <button onclick="switchTab(3)" id="tab-btn-3" class="tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-800 text-xs font-bold">3</span>
+                <span>像素网格</span>
+            </button>
+            <button onclick="switchTab(4)" id="tab-btn-4" class="tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                <span class="flex items-center justify-center w-5 h-5 rounded-full bg-slate-800 text-xs font-bold">4</span>
+                <span>光电呈现</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: 电与开关 -->
+        <div id="tab-1" class="tab-content active space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Text Explainer -->
+                <div class="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 border border-slate-800 p-6 rounded-2xl">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 text-amber-400 text-xs font-semibold">
+                            <i data-lucide="zap" class="w-3.5 h-3.5"></i> 核心概念：电信号的物理本质
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">计算机里没有真正的“0”和“1”</h2>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            在物理芯片里，一切只是<b>“通电（高电平）”</b>和<b>“断电（低电平）”</b>两种状态。为了方便计算，人们规定：
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/30 flex flex-col items-center">
+                                <span class="mono-font text-3xl font-bold text-emerald-400">1</span>
+                                <span class="text-xs text-slate-400 mt-1">高电压 / 通电 / ON</span>
+                            </div>
+                            <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/30 flex flex-col items-center">
+                                <span class="mono-font text-3xl font-bold text-rose-500">0</span>
+                                <span class="text-xs text-slate-400 mt-1">低电压 / 断电 / OFF</span>
+                            </div>
+                        </div>
+                        <p class="text-slate-400 text-xs leading-relaxed">
+                            一个“0”或“1”就是 <b>1位 (Bit)</b>。如果把无数个微型电线排在一起，就可以瞬间传输成千上万个状态。
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-500">
+                        * 在微观芯片中，通过控制晶体管的开合来实现 0 和 1 的存储与传递。
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Playground -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-base font-semibold mb-2 text-slate-200">互动体验：手动输入二进制电码</h3>
+                        <p class="text-xs text-slate-400 mb-6">点击下方的 0 或 1 组合，实时观察对应的“电信号”是如何点亮微型灯泡的。</p>
+                        
+                        <!-- Pulse Stream Panel -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 mb-6">
+                            <div class="text-xs text-slate-500 mb-2 font-semibold tracking-wider">实时二进制数据流</div>
+                            <div class="flex flex-wrap gap-2 items-center justify-center min-h-[50px]" id="binary-stream">
+                                <!-- Generated JS buttons -->
+                            </div>
+                        </div>
+
+                        <!-- Circuit / Bulb Visualizer -->
+                        <div class="bg-slate-950/40 p-6 rounded-xl border border-slate-800/60 flex flex-col items-center justify-center gap-4">
+                            <div class="text-xs text-slate-400">电线与灯泡阵列 (实时状态)</div>
+                            <div class="flex items-center gap-6" id="bulb-array">
+                                <!-- Generated JS bulbs -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 flex justify-between items-center bg-slate-950 p-3 rounded-lg border border-slate-800/80">
+                        <span class="text-xs text-slate-400">当前存储状态 (Byte)：</span>
+                        <span class="mono-font text-sm font-semibold text-indigo-400" id="byte-hex">16进制: 0xFF | 10进制: 255</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: 颜色密码 -->
+        <div id="tab-2" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Text Explainer -->
+                <div class="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 border border-slate-800 p-6 rounded-2xl">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold">
+                            <i data-lucide="palette" class="w-3.5 h-3.5"></i> 核心概念：数值如何定义颜色
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">用数字编制的彩色世界</h2>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            一个像素要显示颜色，也得靠 0 和 1。颜色表达的精细度，取决于我们给每个像素分配了多少“空间（Bit）”。
+                        </p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <!-- 1 Bit -->
+                            <div class="flex items-start gap-3 p-3 bg-slate-800/40 rounded-xl border border-slate-700/20">
+                                <span class="bg-slate-700 text-slate-200 px-2 py-0.5 rounded text-xs font-bold mono-font">1-Bit</span>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-200">二值图 (最原始)</h4>
+                                    <p class="text-xs text-slate-400 mt-1">只有 2 种状态：0 = 黑色，1 = 白色。适合展示纯文字或古老掌机画面。</p>
+                                </div>
+                            </div>
+                            <!-- 8 Bit -->
+                            <div class="flex items-start gap-3 p-3 bg-slate-800/40 rounded-xl border border-slate-700/20">
+                                <span class="bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded text-xs font-bold mono-font">8-Bit</span>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-slate-200">灰度图</h4>
+                                    <p class="text-xs text-slate-400 mt-1">每个点拥有 8 位数据（0-255）。0 表示纯黑，255 表示纯白，中间有 254 种不同深浅的灰色。</p>
+                                </div>
+                            </div>
+                            <!-- 24 Bit -->
+                            <div class="flex items-start gap-3 p-3 bg-indigo-900/20 rounded-xl border border-indigo-500/20">
+                                <span class="bg-indigo-600 text-white px-2 py-0.5 rounded text-xs font-bold mono-font">24-Bit</span>
+                                <div>
+                                    <h4 class="text-sm font-semibold text-indigo-300">真彩色 (RGB)</h4>
+                                    <p class="text-xs text-indigo-100/70 mt-1">每个像素里放入红、绿、蓝三盏微型灯，各分配 8 位（0-255）亮度，能混合出 1677 万种不同的色彩！</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-500">
+                        * 24-Bit 是当今智能手机和电脑显示器的绝对主流颜色标准。
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Demonstration -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h3 class="text-base font-semibold mb-2 text-slate-200">视觉对比：不同位数带来的画质差异</h3>
+                    <p class="text-xs text-slate-400 mb-6">选择不同的数据位深度，看看同一幅图像会被还原成什么样。</p>
+                    
+                    <!-- Mode Switcher -->
+                    <div class="grid grid-cols-3 gap-2 bg-slate-950 p-1 rounded-xl border border-slate-850 mb-6">
+                        <button onclick="switchVisualMode('1bit')" id="btn-mode-1bit" class="mode-btn py-2 text-xs font-medium rounded-lg transition-all bg-indigo-600 text-white">1-Bit 二值</button>
+                        <button onclick="switchVisualMode('8bit')" id="btn-mode-8bit" class="mode-btn py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all">8-Bit 灰度</button>
+                        <button onclick="switchVisualMode('24bit')" id="btn-mode-24bit" class="mode-btn py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all">24-Bit 真彩</button>
+                    </div>
+
+                    <!-- Canvas/Preview Box -->
+                    <div class="relative bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col items-center justify-center min-h-[300px]">
+                        <!-- Canvas Container with gradient grid -->
+                        <div class="w-full max-w-[280px] aspect-square rounded-lg overflow-hidden border border-slate-800 flex items-center justify-center relative" id="image-simulation-container">
+                            <!-- We will render pixels dynamically -->
+                            <div class="grid grid-cols-8 grid-rows-8 w-full h-full" id="pixel-canvas"></div>
+                        </div>
+                        
+                        <!-- Metadata dynamic info -->
+                        <div class="w-full mt-4 flex justify-between items-center border-t border-slate-800 pt-3 text-xs">
+                            <span class="text-slate-400" id="bitdepth-label">当前色彩位数: 1-Bit</span>
+                            <span class="mono-font text-indigo-400 font-medium" id="color-combinations">组合数量: 2 种</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 像素网格 -->
+        <div id="tab-3" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Text Explainer -->
+                <div class="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 border border-slate-800 p-6 rounded-2xl">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold">
+                            <i data-lucide="grid" class="w-3.5 h-3.5"></i> 核心概念：像素网格与拼图
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">用数据编织而成的“大拼图”</h2>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            计算机怎么知道哪个点放在哪儿？答案是<b>“像素网格协议”</b>。
+                        </p>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            任何图像在内存里都是排成<b>一长排</b>的。就像超市收银小票一样，没有换行符号。
+                        </p>
+                        
+                        <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/20 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-300 tracking-wider">💡 头部信息 (File Header)</h4>
+                            <p class="text-xs text-slate-400 leading-relaxed">
+                                图片文件的开头会记录：<b>“宽度：8像素，高度：8像素”</b>。
+                                计算机读取它时，每读满 8 个像素的颜色数据，就会命令系统：“另起一行！”，这样就把一长串数字成功“折叠”成了二维的图像。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-500">
+                        * 所谓分辨率（如 1920x1080），代表横向有 1920 个像素，纵向有 1080 个像素。
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Playground -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h3 class="text-base font-semibold mb-2 text-slate-200">像素眼见为实：图像放大镜</h3>
+                    <p class="text-xs text-slate-400 mb-4">我们将一个由 $8 \times 8$ 网格组成的心形图案放大，点击任意格子，查看其背后的二进制数据和颜色代号。</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Grid visualizer -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col items-center justify-center">
+                            <span class="text-[10px] text-slate-500 mb-2">点击格点获取底层信息</span>
+                            <div class="grid grid-cols-8 grid-rows-8 gap-1 w-full max-w-[200px] aspect-square" id="grid-heart">
+                                <!-- JS Populated -->
+                            </div>
+                        </div>
+
+                        <!-- Panel details -->
+                        <div class="flex flex-col justify-between bg-slate-950/60 p-4 rounded-xl border border-slate-850">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-400 mb-3 tracking-wider">🕵️ 选中格点诊断面板</h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between border-b border-slate-800 pb-1.5 text-xs">
+                                        <span class="text-slate-500">网格坐标:</span>
+                                        <span class="font-semibold text-slate-300" id="diag-coord">点击任一像素块</span>
+                                    </div>
+                                    <div class="flex justify-between border-b border-slate-800 pb-1.5 text-xs">
+                                        <span class="text-slate-500">像素序号 (内存顺序):</span>
+                                        <span class="font-semibold text-slate-300" id="diag-index">-</span>
+                                    </div>
+                                    <div class="flex justify-between border-b border-slate-800 pb-1.5 text-xs">
+                                        <span class="text-slate-500">颜色代码 (HEX):</span>
+                                        <span class="font-semibold text-indigo-400 mono-font" id="diag-hex">-</span>
+                                    </div>
+                                    <div class="flex flex-col gap-1 text-xs">
+                                        <span class="text-slate-500">底层二进制数据 (24-bit RGB):</span>
+                                        <span class="font-semibold text-emerald-400 mono-font block break-all text-[10px] p-2 bg-slate-950 rounded border border-slate-800" id="diag-binary">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-[11px] text-slate-500 leading-relaxed">
+                                顺次读入内存，然后依靠宽高分辨率重排，这就是图片拼图的过程。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: 光电呈现 (包含 RGB 调控器) -->
+        <div id="tab-4" class="tab-content space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left: Text Explainer -->
+                <div class="lg:col-span-5 flex flex-col justify-between bg-slate-900/60 border border-slate-800 p-6 rounded-2xl">
+                    <div class="space-y-4">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold">
+                            <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> 核心概念：微型灯泡的调色大法
+                        </div>
+                        <h2 class="text-2xl font-bold text-white">从二进制到发光的子像素</h2>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            每个像素在硬件底层，实际上都是红、绿、蓝（RGB）<b>三个微型发光体</b>的组合。
+                        </p>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            显卡（GPU）会将一串 24 位的二进制数据折成 3 段（每段 8 位），代表 RGB 的亮度，并控制发光体的<b>驱动电压</b>：
+                        </p>
+                        <ul class="text-xs text-slate-400 space-y-2 list-disc list-inside">
+                            <li><b class="text-rose-400">红光段 (R)</b>: 前 8 位 (`00000000` 到 `11111111`)</li>
+                            <li><b class="text-emerald-400">绿光段 (G)</b>: 中 8 位 (`00000000` 到 `11111111`)</li>
+                            <li><b class="text-sky-400">蓝光段 (B)</b>: 后 8 位 (`00000000` 到 `11111111`)</li>
+                        </ul>
+                        <p class="text-slate-300 leading-relaxed text-sm">
+                            不同电压使得每个小灯泡射出强弱不同的三色光，在人眼里混在一起，就成了最终看到的绚丽色彩！
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 text-xs text-slate-500">
+                        * 比如红绿各开最大，蓝光关闭，你看到的将是明亮的黄色。
+                    </div>
+                </div>
+
+                <!-- Right: RGB Interactivity Playground -->
+                <div class="lg:col-span-7 bg-slate-900 border border-slate-800 p-6 rounded-2xl">
+                    <h3 class="text-base font-semibold mb-2 text-slate-200">终极互动：24-Bit RGB 调色电码模拟器</h3>
+                    <p class="text-xs text-slate-400 mb-6">滑动下方的 R、G、B 进度条，实时观察 24 位二进制电码是如何随之变化的，以及如何在子像素中产生颜色的。</p>
+
+                    <!-- Real-time Pixel and Emitted Light Panel -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <!-- Big Output Color Block -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col items-center justify-center gap-3">
+                            <div class="w-24 h-24 rounded-2xl border-4 border-slate-850 shadow-inner transition-all duration-150" id="rgb-color-preview" style="background-color: rgb(130, 90, 250)"></div>
+                            <div class="text-center">
+                                <span class="text-xs text-slate-400 block mb-1">人眼看到的颜色</span>
+                                <span class="mono-font text-sm font-bold text-white tracking-widest" id="rgb-hex-display">#825AFA</span>
+                            </div>
+                        </div>
+
+                        <!-- Simulated Hardware Light Emitting Sub-pixels -->
+                        <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 flex flex-col justify-center gap-4">
+                            <span class="text-xs text-slate-400 text-center block">屏幕微观下的三个子像素 (红、绿、蓝)</span>
+                            <div class="flex justify-around items-end h-24 px-4">
+                                <!-- Red light -->
+                                <div class="flex flex-col items-center gap-1.5 w-10">
+                                    <div class="w-4 w-full rounded-md bg-rose-600 transition-all duration-150" id="subpixel-r" style="height: 50%; opacity: 0.5;"></div>
+                                    <span class="text-[10px] font-bold text-rose-400">R</span>
+                                </div>
+                                <!-- Green light -->
+                                <div class="flex flex-col items-center gap-1.5 w-10">
+                                    <div class="w-4 w-full rounded-md bg-emerald-600 transition-all duration-150" id="subpixel-g" style="height: 35%; opacity: 0.35;"></div>
+                                    <span class="text-[10px] font-bold text-emerald-400">G</span>
+                                </div>
+                                <!-- Blue light -->
+                                <div class="flex flex-col items-center gap-1.5 w-10">
+                                    <div class="w-4 w-full rounded-md bg-sky-600 transition-all duration-150" id="subpixel-b" style="height: 98%; opacity: 0.98;"></div>
+                                    <span class="text-[10px] font-bold text-sky-400">B</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Code Panel -->
+                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-850 mb-6 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-400">生成的 24-Bit 二进制电码数据流</span>
+                            <span class="text-[10px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full font-semibold">1字节(Byte) = 8位(Bit)</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div class="bg-rose-950/20 border border-rose-900/30 p-2 rounded">
+                                <div class="text-[9px] text-rose-400 font-semibold mb-1">红（8-Bit）</div>
+                                <div class="mono-font font-bold text-[11px] text-rose-300" id="binary-r">10000010</div>
+                            </div>
+                            <div class="bg-emerald-950/20 border border-emerald-900/30 p-2 rounded">
+                                <div class="text-[9px] text-emerald-400 font-semibold mb-1">绿（8-Bit）</div>
+                                <div class="mono-font font-bold text-[11px] text-emerald-300" id="binary-g">01011010</div>
+                            </div>
+                            <div class="bg-sky-950/20 border border-sky-900/30 p-2 rounded">
+                                <div class="text-[9px] text-sky-400 font-semibold mb-1">蓝（8-Bit）</div>
+                                <div class="mono-font font-bold text-[11px] text-sky-300" id="binary-b">11111010</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sliders panel -->
+                    <div class="space-y-4">
+                        <!-- R -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-rose-400 font-semibold">红色通道 (Red)</span>
+                                <span class="mono-font text-slate-300" id="val-r">130 / 255</span>
+                            </div>
+                            <input type="range" id="slider-r" min="0" max="255" value="130" oninput="updateRGBColor()" class="w-full accent-rose-500 bg-slate-950 h-2 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <!-- G -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-emerald-400 font-semibold">绿色通道 (Green)</span>
+                                <span class="mono-font text-slate-300" id="val-g">90 / 255</span>
+                            </div>
+                            <input type="range" id="slider-g" min="0" max="255" value="90" oninput="updateRGBColor()" class="w-full accent-emerald-500 bg-slate-950 h-2 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                        <!-- B -->
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-sky-400 font-semibold">蓝色通道 (Blue)</span>
+                                <span class="mono-font text-slate-300" id="val-b">250 / 255</span>
+                            </div>
+                            <input type="range" id="slider-b" min="0" max="255" value="250" oninput="updateRGBColor()" class="w-full accent-sky-500 bg-slate-950 h-2 rounded-lg appearance-none cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950/80 py-6 mt-8">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
+            <div>
+                © 2026 二进制视觉原理解析. 让抽象的数字拥有看得见的温度。
+            </div>
+            <div class="flex gap-4">
+                <span>10101010 ➡️ 🎨</span>
+                <span>纯前端无状态渲染</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application -->
+    <script>
+        // Init Lucide Icons
+        lucide.createIcons();
+
+        // --- TAB SWITCHING ---
+        function switchTab(tabIndex) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Show selected tab
+            document.getElementById(`tab-${tabIndex}`).classList.add('active');
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50";
+                // Reset small index badge style
+                const badge = btn.querySelector('span:first-child');
+                if (badge) {
+                    badge.className = "flex items-center justify-center w-5 h-5 rounded-full bg-slate-800 text-xs font-bold";
+                }
+            });
+
+            // Activate current button
+            const activeBtn = document.getElementById(`tab-btn-${tabIndex}`);
+            activeBtn.className = "tab-btn py-3 px-4 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 active bg-indigo-600 text-white shadow-lg shadow-indigo-600/20";
+            const activeBadge = activeBtn.querySelector('span:first-child');
+            if (activeBadge) {
+                activeBadge.className = "flex items-center justify-center w-5 h-5 rounded-full bg-indigo-500/50 text-xs font-bold";
+            }
+        }
+
+        // --- TAB 1: BINARY CIRCUIT SYSTEM ---
+        let currentByte = [1, 0, 1, 1, 0, 0, 1, 1]; // Init byte values
+
+        function renderTab1Circuit() {
+            const streamContainer = document.getElementById('binary-stream');
+            const bulbArray = document.getElementById('bulb-array');
+            
+            streamContainer.innerHTML = '';
+            bulbArray.innerHTML = '';
+
+            currentByte.forEach((bit, index) => {
+                // Render Bit Toggle Button
+                const btn = document.createElement('button');
+                btn.className = `w-11 h-11 rounded-lg font-bold mono-font text-lg transition-all border flex items-center justify-center cursor-pointer ${
+                    bit === 1 
+                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/30' 
+                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700/80'
+                }`;
+                btn.innerText = bit;
+                btn.title = `点击切换第 ${index + 1} 位电平状态`;
+                btn.onclick = () => {
+                    currentByte[index] = bit === 1 ? 0 : 1;
+                    renderTab1Circuit();
+                };
+                streamContainer.appendChild(btn);
+
+                // Render Corresponding Light Bulb + Wire
+                const bulbWrapper = document.createElement('div');
+                bulbWrapper.className = "flex flex-col items-center gap-2";
+                
+                // Bulb UI
+                const bulb = document.createElement('div');
+                bulb.className = `w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 border-2 ${
+                    bit === 1
+                    ? 'bg-amber-400 border-amber-300 text-slate-950 shadow-[0_0_15px_rgba(251,191,36,0.8)]'
+                    : 'bg-slate-800 border-slate-700 text-slate-600'
+                }`;
+                bulb.innerHTML = `<i data-lucide="${bit === 1 ? 'lightbulb' : 'lightbulb-off'}" class="w-5 h-5"></i>`;
+                
+                // Bit index
+                const subLabel = document.createElement('span');
+                subLabel.className = `text-[10px] font-semibold tracking-tight ${bit === 1 ? 'text-amber-400' : 'text-slate-600'}`;
+                subLabel.innerText = bit === 1 ? 'ON' : 'OFF';
+
+                bulbWrapper.appendChild(bulb);
+                bulbWrapper.appendChild(subLabel);
+                bulbArray.appendChild(bulbWrapper);
+            });
+
+            // Update stats
+            const binaryString = currentByte.join('');
+            const decimalValue = parseInt(binaryString, 2);
+            const hexValue = decimalValue.toString(16).toUpperCase().padStart(2, '0');
+            document.getElementById('byte-hex').innerText = `16进制: 0x${hexValue} | 10进制: ${decimalValue}`;
+            
+            // Render lucide icons again for newly created bulbs
+            lucide.createIcons();
+        }
+
+        // --- TAB 2: PIXEL BIT DEPTH SIMULATOR ---
+        const smileyPattern = [
+            0, 0, 1, 1, 1, 1, 0, 0,
+            0, 1, 0, 0, 0, 0, 1, 0,
+            1, 0, 1, 0, 0, 1, 0, 1,
+            1, 0, 0, 0, 0, 0, 0, 1,
+            1, 0, 1, 0, 0, 1, 0, 1,
+            1, 0, 0, 1, 1, 0, 0, 1,
+            0, 1, 0, 0, 0, 0, 1, 0,
+            0, 0, 1, 1, 1, 1, 0, 0
+        ];
+
+        // 8-bit values (range 0 to 255)
+        const grayPattern = [
+            30,  30,  180, 180, 180, 180, 30,  30,
+            30,  180, 80,  80,  80,  80,  180, 30,
+            180, 80,  255, 80,  80,  255, 80,  180,
+            180, 80,  80,  80,  80,  80,  80,  180,
+            180, 80,  220, 80,  80,  220, 80,  180,
+            180, 80,  80,  220, 220, 80,  80,  180,
+            30,  180, 80,  80,  80,  80,  180, 30,
+            30,  30,  180, 180, 180, 180, 30,  30
+        ];
+
+        // 24-bit colors [r, g, b]
+        const colorPattern = [
+            [20, 20, 35],   [20, 20, 35],   [255, 80, 80],  [255, 80, 80],  [255, 80, 80],  [255, 80, 80],  [20, 20, 35],   [20, 20, 35],
+            [20, 20, 35],   [255, 80, 80],  [240, 240, 80], [240, 240, 80], [240, 240, 80], [240, 240, 80], [255, 80, 80],  [20, 20, 35],
+            [255, 80, 80],  [240, 240, 80], [30, 180, 255], [240, 240, 80], [240, 240, 80], [30, 180, 255], [240, 240, 80], [255, 80, 80],
+            [255, 80, 80],  [240, 240, 80], [240, 240, 80], [240, 240, 80], [240, 240, 80], [240, 240, 80], [240, 240, 80], [255, 80, 80],
+            [255, 80, 80],  [240, 240, 80], [30, 220, 120], [240, 240, 80], [240, 240, 80], [30, 220, 120], [240, 240, 80], [255, 80, 80],
+            [255, 80, 80],  [240, 240, 80], [240, 240, 80], [30, 220, 120], [30, 220, 120], [240, 240, 80], [240, 240, 80], [255, 80, 80],
+            [20, 20, 35],   [255, 80, 80],  [240, 240, 80], [240, 240, 80], [240, 240, 80], [240, 240, 80], [255, 80, 80],  [20, 20, 35],
+            [20, 20, 35],   [20, 20, 35],   [255, 80, 80],  [255, 80, 80],  [255, 80, 80],  [255, 80, 80],  [20, 20, 35],   [20, 20, 35],
+        ];
+
+        let currentVisualMode = '1bit';
+
+        function switchVisualMode(mode) {
+            currentVisualMode = mode;
+            
+            // Set active states on buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = "mode-btn py-2 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 transition-all";
+            });
+            document.getElementById(`btn-mode-${mode}`).className = "mode-btn py-2 text-xs font-medium rounded-lg transition-all bg-indigo-600 text-white";
+
+            renderTab2Canvas();
+        }
+
+        function renderTab2Canvas() {
+            const pixelCanvas = document.getElementById('pixel-canvas');
+            const bitdepthLabel = document.getElementById('bitdepth-label');
+            const colorCombinations = document.getElementById('color-combinations');
+            
+            pixelCanvas.innerHTML = '';
+
+            if (currentVisualMode === '1bit') {
+                bitdepthLabel.innerText = "当前色彩位数: 1-Bit";
+                colorCombinations.innerText = "组合数量: 2 种状态 (黑/白)";
+
+                smileyPattern.forEach(val => {
+                    const block = document.createElement('div');
+                    block.className = "border border-slate-900 transition-all duration-300";
+                    block.style.backgroundColor = val === 1 ? '#ffffff' : '#090d16';
+                    pixelCanvas.appendChild(block);
+                });
+            } else if (currentVisualMode === '8bit') {
+                bitdepthLabel.innerText = "当前色彩位数: 8-Bit";
+                colorCombinations.innerText = "组合数量: 256 阶亮度 (黑白灰)";
+
+                grayPattern.forEach(val => {
+                    const block = document.createElement('div');
+                    block.className = "border border-slate-900 transition-all duration-300";
+                    block.style.backgroundColor = `rgb(${val}, ${val}, ${val})`;
+                    pixelCanvas.appendChild(block);
+                });
+            } else if (currentVisualMode === '24bit') {
+                bitdepthLabel.innerText = "当前色彩位数: 24-Bit";
+                colorCombinations.innerText = "组合数量: 16,777,216 种炫彩色";
+
+                colorPattern.forEach(rgb => {
+                    const block = document.createElement('div');
+                    block.className = "border border-slate-900 transition-all duration-300";
+                    block.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                    pixelCanvas.appendChild(block);
+                });
+            }
+        }
+
+
+        // --- TAB 3: 8x8 GRID DIAGNOSTICS (HEART PATTERN) ---
+        // Heart pattern colors (R, G, B)
+        const heartGrid = [
+            [10, 10, 20],   [240, 40, 80],  [240, 40, 80],  [10, 10, 20],   [10, 10, 20],   [240, 40, 80],  [240, 40, 80],  [10, 10, 20],
+            [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],
+            [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],
+            [10, 10, 20],   [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [10, 10, 20],
+            [10, 10, 20],   [10, 10, 20],   [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [240, 40, 80],  [10, 10, 20],   [10, 10, 20],
+            [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [240, 40, 80],  [240, 40, 80],  [10, 10, 20],   [10, 10, 20],   [10, 10, 20],
+            [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],
+            [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20],   [10, 10, 20]
+        ];
+
+        function decToBin8(dec) {
+            return dec.toString(2).padStart(8, '0');
+        }
+
+        function hexColor(rgb) {
+            return "#" + rgb.map(x => {
+                const hex = x.toString(16).toUpperCase();
+                return hex.length === 1 ? '0' + hex : hex;
+            }).join('');
+        }
+
+        function selectPixel(index) {
+            const rgb = heartGrid[index];
+            const col = (index % 8) + 1;
+            const row = Math.floor(index / 8) + 1;
+
+            // Highlight in diagnostics
+            document.getElementById('diag-coord').innerText = `第 ${row} 行, 第 ${col} 列`;
+            document.getElementById('diag-index').innerText = `Index ${index} (从 0 开始)`;
+            document.getElementById('diag-hex').innerText = hexColor(rgb);
+            
+            // Format 24-bit binary display nicely
+            const bR = decToBin8(rgb[0]);
+            const bG = decToBin8(rgb[1]);
+            const bB = decToBin8(rgb[2]);
+            document.getElementById('diag-binary').innerText = `${bR} ${bG} ${bB}`;
+
+            // Add visual border active class to grid elements
+            document.querySelectorAll('.heart-cell').forEach((cell, i) => {
+                if (i === index) {
+                    cell.className = "heart-cell border-2 border-amber-400 rounded-sm cursor-pointer transition-all scale-105 shadow-md";
+                } else {
+                    cell.className = "heart-cell border border-slate-900 rounded-sm cursor-pointer hover:scale-105 transition-all";
+                }
+            });
+        }
+
+        function renderTab3Heart() {
+            const gridHeart = document.getElementById('grid-heart');
+            gridHeart.innerHTML = '';
+
+            heartGrid.forEach((rgb, index) => {
+                const cell = document.createElement('div');
+                cell.className = "heart-cell border border-slate-900 rounded-sm cursor-pointer hover:scale-105 transition-all";
+                cell.style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+                cell.onclick = () => selectPixel(index);
+                gridHeart.appendChild(cell);
+            });
+            
+            // Auto-select first pixel as teaser
+            selectPixel(1);
+        }
+
+
+        // --- TAB 4: RGB COLOR CONTROLLER (THE FINAL LINK) ---
+        function updateRGBColor() {
+            const r = parseInt(document.getElementById('slider-r').value);
+            const g = parseInt(document.getElementById('slider-g').value);
+            const b = parseInt(document.getElementById('slider-b').value);
+
+            // Update range indicators
+            document.getElementById('val-r').innerText = `${r} / 255`;
+            document.getElementById('val-g').innerText = `${g} / 255`;
+            document.getElementById('val-b').innerText = `${b} / 255`;
+
+            // Convert to Binaries
+            const binR = decToBin8(r);
+            const binG = decToBin8(g);
+            const binB = decToBin8(b);
+
+            document.getElementById('binary-r').innerText = binR;
+            document.getElementById('binary-g').innerText = binG;
+            document.getElementById('binary-b').innerText = binB;
+
+            // Hex calculation
+            const hexStr = hexColor([r, g, b]);
+            document.getElementById('rgb-hex-display').innerText = hexStr;
+
+            // Live Preview Background
+            document.getElementById('rgb-color-preview').style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+            // Live hardware sub-pixels (representing physical light bulbs in LEDs/LCDs)
+            const subR = document.getElementById('subpixel-r');
+            const subG = document.getElementById('subpixel-g');
+            const subB = document.getElementById('subpixel-b');
+
+            // Height matches percentage intensity
+            subR.style.height = `${(r / 255) * 100}%`;
+            subG.style.height = `${(g / 255) * 100}%`;
+            subB.style.height = `${(b / 255) * 100}%`;
+
+            // Opacity reflects brightness to mimic emissions
+            subR.style.opacity = r / 255 < 0.15 ? 0.15 : r / 255;
+            subG.style.opacity = g / 255 < 0.15 ? 0.15 : g / 255;
+            subB.style.opacity = b / 255 < 0.15 ? 0.15 : b / 255;
+        }
+
+
+        // --- WINDOW ON LOAD INITIALIZATIONS ---
+        window.onload = function() {
+            // Render Tab 1 interactive bits
+            renderTab1Circuit();
+            // Render Tab 2 image simulation
+            renderTab2Canvas();
+            // Render Tab 3 heart block diagnostics
+            renderTab3Heart();
+            // Fire once for RGB values in Tab 4
+            updateRGBColor();
+        }
+    </script>
+</body>
+</html>

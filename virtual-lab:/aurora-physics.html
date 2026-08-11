@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>极光物理实验室 — Aurora Physics Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;340;400;480;540;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="aurora-physics.css">
+</head>
+<body>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="hero">
+    <canvas id="heroCanvas" class="hero-canvas"></canvas>
+    <div class="hero-content">
+      <span class="eyebrow hero-eyebrow">Aurora Physics Lab</span>
+      <h1 class="display-xl">极光的物理密码</h1>
+      <p class="body-lg">一场跨越 1.5 亿公里的宇宙实验。从太阳日冕到地球磁层，从高能碰撞到量子跃迁——用交互的方式，亲手揭开极光诞生的全部秘密。</p>
+      <a href="#level1" class="btn btn-primary">开始探索</a>
+      <div class="hero-scroll">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== LEVEL NAVIGATION ==================== -->
+  <nav class="level-nav" id="levelNav">
+    <div class="level-nav-inner">
+      <button class="level-nav-item active" data-target="level1">01 · 太阳风</button>
+      <button class="level-nav-item" data-target="level2">02 · 磁场偏转</button>
+      <button class="level-nav-item" data-target="level3">03 · 量子跃迁</button>
+      <button class="level-nav-item" data-target="level4">04 · 色彩实验室</button>
+    </div>
+  </nav>
+
+  <!-- ==================== LEVEL 1: SOLAR WIND ==================== -->
+  <section id="level1">
+    <div class="color-block color-block-coral">
+      <div class="section-header">
+        <span class="level-badge level-badge-coral mb-16">关卡一</span>
+        <h2 class="display-lg">源头 — 太阳风与带电粒子</h2>
+        <p class="body-lg">太阳日冕层温度高达 100–200 万摄氏度，足以克服引力束缚，将带电粒子以每秒数百公里的速度喷射向太空。这股"太阳风"是极光能量的唯一来源。</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="card mb-24">
+            <h3 class="headline mb-16">太阳风成分</h3>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span class="dot-electron" style="width:10px;height:10px;border-radius:50%;display:inline-block;"></span>
+                <strong>电子 e⁻</strong> — 约占 50%，质量极小，最易被磁场加速
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span class="dot-proton" style="width:10px;height:10px;border-radius:50%;display:inline-block;"></span>
+                <strong>质子 H⁺</strong> — 氢原子核，携带正电荷，质量是电子的 1836 倍
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span class="dot-helium" style="width:10px;height:10px;border-radius:50%;display:inline-block;"></span>
+                <strong>α 粒子 He²⁺</strong> — 氦原子核，约占 5%
+              </div>
+            </div>
+          </div>
+          <p class="body mb-16">太阳风速度通常在 <strong>300–800 km/s</strong> 之间。当太阳表面发生<strong>日冕物质抛射（CME）</strong>时，速度可飙升至 3000 km/s，引发强烈地磁暴。</p>
+          <div class="formula-box" style="margin-top:12px;">
+            E<sub>k</sub> = <span class="hl">½ m v²</span>  — 动能与速度平方成正比
+          </div>
+        </div>
+        <div>
+          <div class="sim-frame">
+            <canvas id="solarWindCanvas" class="sim-canvas"></canvas>
+            <div class="sim-controls">
+              <div class="sim-control-group">
+                <label>风暴强度</label>
+                <div class="custom-slider" id="swIntensitySlider" data-value="35">
+                  <div class="custom-slider-track"></div>
+                  <div class="custom-slider-thumb"></div>
+                </div>
+                <input type="hidden" id="swIntensity" value="35">
+                <span class="sim-readout" id="swIntensityVal">35%</span>
+              </div>
+              <div class="sim-control-group">
+                <label>粒子速度</label>
+                <div class="custom-slider" id="swSpeedSlider" data-value="25">
+                  <div class="custom-slider-track"></div>
+                  <div class="custom-slider-thumb"></div>
+                </div>
+                <input type="hidden" id="swSpeed" value="450">
+                <span class="sim-readout" id="swSpeedVal">450 km/s</span>
+              </div>
+              <div class="sim-control-group">
+                <button class="btn btn-secondary btn-sm" id="swCmeBtn">模拟 CME 爆发</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== LEVEL 2: MAGNETOSPHERE ==================== -->
+  <section id="level2">
+    <div class="color-block color-block-navy">
+      <div class="section-header">
+        <span class="level-badge level-badge-navy mb-16">关卡二</span>
+        <h2 class="display-lg">盾牌 — 地球磁场的偏转与引导</h2>
+        <p class="body-lg" style="opacity:0.9;">地球磁场形成了一层名为<strong>磁层（Magnetosphere）</strong>的保护罩，偏转绝大多数太阳风粒子。但在南北两极，磁力线几乎垂直于地面，形成天然"漏斗"——极光椭圆区。</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="sim-frame sim-frame-dark">
+            <canvas id="magnetosphereCanvas" class="sim-canvas-lg"></canvas>
+            <div class="sim-controls sim-controls-dark mag-controls">
+              <div class="sim-control-group">
+                <label>发射源 X</label>
+                <div class="custom-slider custom-slider-light" id="magSourceXSlider" data-value="10">
+                  <div class="custom-slider-track"></div>
+                  <div class="custom-slider-thumb"></div>
+                </div>
+                <input type="hidden" id="magSourceX" value="10">
+              </div>
+              <div class="sim-control-group">
+                <label>发射源 Y</label>
+                <div class="custom-slider custom-slider-light" id="magSourceYSlider" data-value="50">
+                  <div class="custom-slider-track"></div>
+                  <div class="custom-slider-thumb"></div>
+                </div>
+                <input type="hidden" id="magSourceY" value="50">
+              </div>
+              <div class="sim-control-group">
+                <button class="btn btn-secondary btn-sm" id="magLaunchBtn">发射粒子</button>
+              </div>
+            </div>
+          </div>
+          <p class="caption mt-16" style="color:rgba(255,255,255,0.5);">拖动滑块改变粒子发射源位置，观察洛伦兹力如何引导粒子沿磁力线螺旋下降至两极</p>
+        </div>
+        <div>
+          <div class="card card-dark mb-24">
+            <h3 class="headline mb-16">洛伦兹力</h3>
+            <p class="body-sm" style="opacity:0.9;margin-bottom:12px;">带电粒子在磁场中受到垂直于运动方向的力：</p>
+            <div class="formula-box" style="background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.15);color:white;">
+              <span class="hl">F→</span> = q (<span class="hl">v→</span> × <span class="hl">B→</span>)
+            </div>
+            <p class="body-sm mt-16" style="opacity:0.8;">这个力不做功，只改变粒子运动方向，使其围绕磁力线做螺旋运动，最终滑向两极。</p>
+          </div>
+          <div class="card card-dark mb-24">
+            <h3 class="headline mb-16">极光椭圆区</h3>
+            <p class="body-sm" style="opacity:0.9;">带电粒子被引导至南北磁极周围约 <strong>65°–75° 纬度</strong>的环状区域——极光椭圆区（Auroral Oval）。夜侧椭圆区比日侧更宽，因此极光在夜晚更易被观测到。</p>
+          </div>
+          <div class="card card-dark">
+            <h3 class="headline mb-16">范艾伦辐射带</h3>
+            <p class="body-sm" style="opacity:0.9;">磁力线困住一批高能粒子，形成内带（约 1000–5000 km）和外带（约 13,000–60,000 km）。这些粒子偶尔沿磁力线逃逸，成为极光粒子的补充来源。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== LEVEL 3: QUANTUM JUMP ==================== -->
+  <section id="level3">
+    <div class="color-block color-block-lime">
+      <div class="section-header">
+        <span class="level-badge level-badge-lime mb-16">关卡三</span>
+        <h2 class="display-lg">碰撞 — 气体分子与量子跃迁</h2>
+        <p class="body-lg">高能电子撞入大气层，与氧原子、氮分子发生碰撞。这不是简单的"撞球"——而是将原子中的电子推上更高能级轨道。当电子跌落回基态时，释放特定波长的光子。</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="sim-frame">
+            <div class="quantum-stage" id="quantumStage">
+              <div class="quantum-nucleus" style="top:50%;left:50%;margin-top:-10px;margin-left:-10px;"></div>
+              <div class="quantum-orbit" style="width:80px;height:80px;top:50%;left:50%;margin-top:-40px;margin-left:-40px;"></div>
+              <div class="quantum-orbit" style="width:140px;height:140px;top:50%;left:50%;margin-top:-70px;margin-left:-70px;"></div>
+              <div class="quantum-orbit" style="width:200px;height:200px;top:50%;left:50%;margin-top:-100px;margin-left:-100px;"></div>
+              <div class="quantum-electron" id="qElectron" style="top:50%;left:50%;margin-top:-40px;margin-left:-6px;"></div>
+              <div class="quantum-photon" id="qPhoton" style="top:50%;left:50%;"></div>
+            </div>
+            <div class="sim-controls">
+              <div class="sim-control-group">
+                <label>目标气体</label>
+                <select id="qGasSelect" style="font-family:'Inter',sans-serif;font-size:14px;padding:6px 12px;border-radius:8px;border:1px solid var(--hairline);background:white;">
+                  <option value="oxygen">原子氧 O (557.7nm 绿)</option>
+                  <option value="oxygen-high">高层原子氧 O (630.0nm 红)</option>
+                  <option value="nitrogen">氮离子 N₂⁺ (427.8nm 紫蓝)</option>
+                  <option value="nitrogen-ion">氮离子 N₂⁺ (391.4nm 蓝紫)</option>
+                </select>
+              </div>
+              <div class="sim-control-group">
+                <button class="btn btn-primary btn-sm" id="qCollideBtn">引发碰撞</button>
+              </div>
+              <div class="sim-control-group">
+                <span class="body-sm" id="qStateLabel" style="font-weight:540;">基态 — 等待碰撞</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-24">
+            <h3 class="headline mb-16">碰撞方程</h3>
+            <div class="formula-box">
+              A + <span class="hl">e⁻<sub>fast</sub></span> → A* + e⁻<sub>slow</sub>
+            </div>
+            <p class="body-sm mt-16">高能电子将能量转移给气体原子 A，使其进入激发态 A*。</p>
+          </div>
+          <div class="card mb-24">
+            <h3 class="headline mb-16">去激发与光子发射</h3>
+            <div class="formula-box">
+              A* → A + <span class="hl">hν</span>
+            </div>
+            <p class="body-sm mt-16">普通允许跃迁（Allowed transition）：电子约 10⁻⁸ 秒跌落。<strong>但极光中最核心的绿光和红光属于"禁戒跃迁（Forbidden transition）"</strong>——¹S 态寿命约 0.7 秒，¹D 态长达 110 秒。</p>
+            <p class="body-sm mt-12" style="font-size:13px;color:#63636a;">这正是极光高度分层的关键：低空大气稠密，¹D 态（准备发红光）在 110 秒内会被碰撞猝灭（Collisional quenching），来不及发光。所以深红色极光只能在 >200 km 的稀薄高空出现。</p>
+            <div class="formula-box mt-12">
+              ν = (E₂ – E₁) / h
+            </div>
+          </div>
+          <div class="card">
+            <h3 class="headline mb-16">为什么不同气体颜色不同？</h3>
+            <p class="body-sm">每种原子和离子的能级结构是独特的——就像指纹。氧原子的能级差对应绿光（557.7 nm）和红光（630.0 nm），氮离子 N₂⁺ 则发出紫蓝色光（391.4 nm、427.8 nm）。这就是极光的"光谱签名"。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== LEVEL 4: COLOR LAB ==================== -->
+  <section id="level4">
+    <div class="color-block color-block-lilac">
+      <div class="section-header">
+        <span class="level-badge level-badge-lilac mb-16">关卡四</span>
+        <h2 class="display-lg">核心实验 — 分子配置与极光色彩化验室</h2>
+        <p class="body-lg">你掌控一切。选择大气中的气体成分，调整极光发生的高度，观察不同配置下极光的颜色变化。每一次调整，都是一次真实的物理实验。</p>
+      </div>
+
+      <!-- Aurora Renderer -->
+      <div class="sim-frame mb-32">
+        <canvas id="auroraLabCanvas" class="sim-canvas-lg"></canvas>
+        <div class="sim-controls">
+          <div class="sim-control-group">
+            <label>太阳风强度</label>
+            <div class="custom-slider" id="labWindSlider" data-value="45">
+              <div class="custom-slider-track"></div>
+              <div class="custom-slider-thumb"></div>
+            </div>
+            <input type="hidden" id="labWind" value="45">
+            <span class="sim-readout" id="labWindVal">45%</span>
+          </div>
+          <div class="sim-control-group">
+            <label>高度</label>
+            <div class="custom-slider" id="labHeightSlider" data-value="24">
+              <div class="custom-slider-track"></div>
+              <div class="custom-slider-thumb"></div>
+            </div>
+            <input type="hidden" id="labHeight" value="180">
+            <span class="sim-readout" id="labHeightVal">180 km</span>
+          </div>
+          <div class="sim-control-group" style="flex-wrap:wrap;">
+            <label>气体成分：</label>
+            <div class="molecule-grid">
+              <button class="molecule-chip oxygen active" data-type="oxygen">
+                <span class="dot"></span>O 氧原子
+              </button>
+              <button class="molecule-chip nitrogen active" data-type="nitrogen">
+                <span class="dot"></span>N₂ 氮分子
+              </button>
+              <button class="molecule-chip nitrogen-ion" data-type="nitrogenIon">
+                <span class="dot"></span>N₂⁺ 氮离子
+              </button>
+              <button class="molecule-chip helium" data-type="helium">
+                <span class="dot"></span>He 氦原子 (罕见)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Spectrum Analyzer -->
+      <div class="grid-2">
+        <div class="spectrum-panel">
+          <span class="eyebrow mb-16">光谱仪面板</span>
+          <h3 class="headline mb-16">Spectral Line Analyzer</h3>
+          <canvas id="spectrumCanvas" class="spectrum-canvas mb-16"></canvas>
+          <div id="spectrumList">
+            <div class="spectrum-row">
+              <div class="spectrum-color-bar" style="background:linear-gradient(90deg,#22c55e,#4ade80);"></div>
+              <span class="spectrum-wavelength">557.7 nm</span>
+              <span class="spectrum-transition">O — ¹S → ¹D 禁戒跃迁</span>
+              <span class="caption">黄绿光</span>
+            </div>
+            <div class="spectrum-row">
+              <div class="spectrum-color-bar" style="background:linear-gradient(90deg,#ef4444,#f87171);"></div>
+              <span class="spectrum-wavelength">630.0 nm</span>
+              <span class="spectrum-transition">O — ¹D → ³P 禁戒跃迁</span>
+              <span class="caption">深红光</span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card mb-24">
+            <span class="eyebrow mb-16">实时读数</span>
+            <h3 class="headline mb-16" id="labColorTitle">黄绿色极光</h3>
+            <p class="body-sm" id="labColorDesc">当前高度 180 km，氧原子占主导。电子碰撞将氧原子激发到 ¹S 态，¹S→¹D 禁戒跃迁释放 557.7 nm 绿光（寿命 0.7 秒）。这是极光最常见的颜色。</p>
+          </div>
+          <div class="card">
+            <span class="eyebrow mb-16">颜色对照表</span>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span style="width:16px;height:16px;background:#22c55e;border-radius:4px;display:inline-block;"></span>
+                <strong>557.7 nm 黄绿</strong> — 氧原子 O ¹S→¹D，100–240 km（寿命 0.7 秒）
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span style="width:16px;height:16px;background:#ef4444;border-radius:4px;display:inline-block;"></span>
+                <strong>630.0 nm 深红</strong> — 氧原子 O ¹D→³P，&gt;200 km（寿命 110 秒，低空被碰撞猝灭）
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span style="width:16px;height:16px;background:#818cf8;border-radius:4px;display:inline-block;"></span>
+                <strong>391.4 nm 蓝紫</strong> — 氮离子 N₂⁺ 第一负带，&lt;100 km（极光下边缘）
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span style="width:16px;height:16px;background:#a78bfa;border-radius:4px;display:inline-block;"></span>
+                <strong>427.8 nm 紫蓝</strong> — 氮离子 N₂⁺ 第一负带，&lt;100 km
+              </div>
+              <div class="body-sm" style="display:flex;align-items:center;gap:12px;">
+                <span style="width:16px;height:16px;background:#f59e0b;border-radius:4px;display:inline-block;"></span>
+                <strong>587.6 nm 黄橙</strong> — 氦原子 He D3 谱线，极高空（极其罕见）
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="page-footer">
+    <p class="caption mb-8">Aurora Physics Lab · 基于大气物理学与空间科学公开知识构建</p>
+    <p class="caption" style="opacity:0.5;">数据参考：NASA GSFC · NOAA SWPC · IRI Model · NRLMSIS-00</p>
+  </footer>
+
+  <script src="aurora-physics.js"></script>
+</body>
+</html>

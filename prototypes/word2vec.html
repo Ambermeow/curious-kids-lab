@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>词向量觉醒传奇 - Word2Vec 互动特训画板</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts for retro anime/sci-fi style -->
+  <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans SC', sans-serif;
+    }
+    .title-font {
+      font-family: 'ZCOOL KuaiLe', cursive;
+    }
+    /* Custom Neon Glows */
+    .glow-gold {
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.6);
+    }
+    .glow-red {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+    }
+    /* Custom Scrollbar for Retro Log */
+    #log-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    #log-container::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.5);
+    }
+    #log-container::-webkit-scrollbar-thumb {
+      background: #f59e0b;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col overflow-x-hidden selection:bg-amber-500 selection:text-slate-950">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-tr from-amber-500 to-rose-500 w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-black shadow-lg shadow-amber-500/20">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-2xl md:text-3xl font-black title-font tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-rose-400 to-cyan-400">
+            词向量觉醒传奇
+          </h1>
+          <p class="text-xs text-slate-400">—— 听懂人类悲欢的“文字王国”热血修行记</p>
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <span class="px-3 py-1 rounded-full border border-slate-700 bg-slate-800 text-xs text-slate-300 flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+          少儿科普互动引擎 v2.5
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Space Navigation Tabs -->
+  <div class="max-w-4xl mx-auto w-full px-4 md:px-6 mt-6">
+    <div class="flex border-b border-slate-800 gap-2">
+      <button id="tab-onehot-btn" onclick="switchTab('onehot')" class="px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-cyan-500 text-cyan-400 bg-cyan-500/5 rounded-t-2xl flex items-center gap-2">
+        ❄️ One-Hot 稀疏空间 (第一幕)
+      </button>
+      <button id="tab-word2vec-btn" onclick="switchTab('word2vec')" class="px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 rounded-t-2xl flex items-center gap-2">
+        ⚡ Word2Vec 稠密空间 (第二至四幕)
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content Space -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-4 md:p-6">
+
+    <!-- TAB 1: One-Hot Section (Ice World) -->
+    <section id="onehot-section" class="flex flex-col gap-6">
+      <!-- Act 1 Block -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden flex flex-col justify-between min-h-[520px]">
+        <!-- Glow decoration -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div>
+          <div class="flex justify-between items-start mb-4">
+            <span class="px-3 py-1 text-xs font-black bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-md">one-hot 时代</span>
+            <span class="text-xs text-slate-500">第一幕 · 冰封的正交孤岛</span>
+          </div>
+          
+          <h2 class="text-2xl font-black title-font text-cyan-400 mb-3 flex items-center gap-2">
+            ❄️ 孤立无援的直角世界
+          </h2>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            在这个冷酷的时代，每个词都被国王发了一张和“全村人口”一样长的专属身份证。在这个身份证上，<b>除了自己对应的那个格子写着 1，其余全都是 0</b>。
+            <br><br>
+            这在数学上面临着绝望的物理法则：<b>任何两个词在几何空间里都是垂直（正交）的</b>，任意两个词的羁绊（内积相似度）竟然全都等于 <span class="text-rose-500 font-bold">0.00</span>！
+          </p>
+
+          <!-- Word Selection Grid -->
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <button onclick="selectOneHotWord('apple', this)" id="btn-oh-apple" class="oh-word-btn py-3.5 px-4 rounded-xl border border-slate-800 bg-slate-950 hover:bg-slate-800 hover:border-slate-700 transition-all text-left relative overflow-hidden group">
+              <span class="text-lg font-bold block text-slate-200 group-hover:text-cyan-400 transition-colors">🍎 苹果</span>
+              <span class="text-xs text-slate-500 font-mono">[1, 0, 0, 0]</span>
+            </button>
+            <button onclick="selectOneHotWord('banana', this)" id="btn-oh-banana" class="oh-word-btn py-3.5 px-4 rounded-xl border border-slate-800 bg-slate-950 hover:bg-slate-800 hover:border-slate-700 transition-all text-left relative overflow-hidden group">
+              <span class="text-lg font-bold block text-slate-200 group-hover:text-cyan-400 transition-colors">🍌 香蕉</span>
+              <span class="text-xs text-slate-500 font-mono">[0, 1, 0, 0]</span>
+            </button>
+            <button onclick="selectOneHotWord('rocket', this)" id="btn-oh-rocket" class="oh-word-btn py-3.5 px-4 rounded-xl border border-slate-800 bg-slate-950 hover:bg-slate-800 hover:border-slate-700 transition-all text-left relative overflow-hidden group">
+              <span class="text-lg font-bold block text-slate-200 group-hover:text-cyan-400 transition-colors">🚀 火箭</span>
+              <span class="text-xs text-slate-500 font-mono">[0, 0, 1, 0]</span>
+            </button>
+            <button onclick="selectOneHotWord('plane', this)" id="btn-oh-plane" class="oh-word-btn py-3.5 px-4 rounded-xl border border-slate-800 bg-slate-950 hover:bg-slate-800 hover:border-slate-700 transition-all text-left relative overflow-hidden group">
+              <span class="text-lg font-bold block text-slate-200 group-hover:text-cyan-400 transition-colors">✈️ 飞机</span>
+              <span class="text-xs text-slate-500 font-mono">[0, 0, 0, 1]</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Connection Screen/Dashboard -->
+        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-5 flex flex-col justify-center items-center min-h-[180px] relative">
+          <!-- Screen Grid Background -->
+          <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none rounded-xl"></div>
+          
+          <div id="oh-detector-display" class="text-center z-10 w-full px-2">
+            <span class="text-xs text-cyan-500/80 uppercase font-mono tracking-widest block mb-2">⚡ 羁绊相似度测量仪 ⚡</span>
+            <p class="text-slate-400 text-sm mt-4">请在上方点击选择<span class="text-cyan-400 font-bold">两个不同的词汇</span><br>测试它们在稀疏正交空间中的宇宙默契度！</p>
+          </div>
+        </div>
+
+        <!-- Warning Info -->
+        <div class="text-xs text-slate-500 text-center mt-4">
+          💡 <b>知识便利贴</b>：正交意味着两个向量的点积为0。在计算机看来，苹果与香蕉的亲疏，跟苹果与火箭完全一样。这种编码无法体现任何语义联系！
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: Word2Vec Section (Training Camp) - Hidden by default -->
+    <section id="word2vec-section" class="flex flex-col gap-6 hidden">
+      <!-- Universe Control / Magic Canvas -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col relative overflow-hidden">
+        <!-- Glow Decor -->
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-4">
+          <div class="w-full">
+            <div class="flex justify-between items-center mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 text-xs font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-md">词向量时代</span>
+                <span class="text-xs text-slate-500">第二至四幕 · 觉醒特训营</span>
+              </div>
+              <span class="text-xs text-slate-500 font-mono">300维连续空间投影</span>
+            </div>
+            <h2 class="text-2xl font-black title-font text-amber-400 mt-1 flex items-center gap-2">
+              ⚡ 梯度雷电重塑：随机乱码的觉醒
+            </h2>
+          </div>
+        </div>
+
+        <!-- Slider Controller -->
+        <div class="bg-slate-950 border border-slate-800/80 rounded-xl p-5 mb-4">
+          <div class="flex justify-between items-center mb-3">
+            <label for="epoch-slider" class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+              <span>⚡ 雷电训练进度 (Epochs):</span>
+              <span id="epoch-percentage" class="font-mono text-sm bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20 text-amber-300">0%</span>
+            </label>
+            <span id="training-status" class="text-xs text-slate-400 font-mono animate-pulse">⚙️ 准备就绪，拖动下方滑块开始被雷劈特训</span>
+          </div>
+          <!-- Slider inputs with custom styling -->
+          <div class="relative flex items-center">
+            <input type="range" id="epoch-slider" min="0" max="100" value="0" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500" oninput="updateTraining(this.value)">
+          </div>
+          <div class="flex justify-between text-[11px] text-slate-500 mt-2.5 font-mono">
+            <span>随机乱码 (0%)</span>
+            <span>天劫淬炼 (50%)</span>
+            <span>完美觉醒 (100%)</span>
+          </div>
+        </div>
+
+        <!-- Main Canvas Space -->
+        <div class="relative bg-slate-950 border border-slate-800/80 rounded-xl overflow-hidden min-h-[400px] flex flex-col justify-between">
+          
+          <!-- Cyber Grid Overlay -->
+          <div class="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
+
+          <!-- The Canvas -->
+          <canvas id="universe-canvas" class="w-full h-full min-h-[400px] block cursor-pointer"></canvas>
+
+          <!-- Formula trigger overlay (visible when slider is 100) -->
+          <div id="formula-overlay" class="absolute bottom-3 left-3 right-3 bg-slate-900/95 border border-amber-500/30 backdrop-blur-md rounded-xl p-4 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-500 flex flex-col md:flex-row items-center justify-between gap-3 z-20">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">🧙‍♂️</span>
+              <div>
+                <h4 class="text-sm font-black text-amber-400">词向量终极魔法已解锁！</h4>
+                <p class="text-xs text-slate-300">空间平移术：国王 - 男人 + 女人 = 女王</p>
+              </div>
+            </div>
+            <button onclick="triggerVectorMagic()" class="w-full md:w-auto px-5 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-xs font-black text-slate-950 transition-all shadow-md active:scale-95 flex items-center justify-center gap-1">
+              <span>运行空间魔法</span> <span class="text-sm">🔥</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Live Battle Log -->
+        <div class="mt-4">
+          <span class="text-xs text-slate-400 block mb-1.5 font-bold flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block animate-ping"></span>
+            训练重塑日志：
+          </span>
+          <div id="log-container" class="bg-slate-950 border border-slate-800/80 rounded-xl p-3 h-24 overflow-y-auto text-slate-400 font-mono text-[11px] leading-relaxed">
+            <div class="text-amber-500/80">[SYSTEM]: 词向量维度已被压缩至300维稠密空间。当前所有坐标是由随机局外乱码生成的。拖动进度条即可开始反向传播，引入“周围词预言挑战”！</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Info Box -->
+  <footer class="max-w-4xl w-full mx-auto px-4 md:px-6 pb-6 text-center text-slate-500 text-xs flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-900 mt-6 pt-6">
+    <p>© 2026 词向量传说. 让所有数字都有灵魂。</p>
+    <div class="flex gap-4">
+      <span class="hover:text-slate-300 transition-colors">数学原理：极大似然估计、负采样优化、欧氏空间投影</span>
+    </div>
+  </footer>
+
+  <!-- Web Audio Synth Integration -->
+  <script>
+    // Simple Synth for Audio Feedback to capture attention
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function playSound(type) {
+      try {
+        if (!audioCtx) audioCtx = new AudioCtx();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        const now = audioCtx.currentTime;
+        
+        if (type === 'freeze') {
+          // Cold, breaking sound
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(300, now);
+          osc.frequency.exponentialRampToValueAtTime(100, now + 0.4);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+          osc.start(now);
+          osc.stop(now + 0.4);
+        } else if (type === 'thunder') {
+          // Electrical zap
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.setValueAtTime(400, now + 0.05);
+          gain.gain.setValueAtTime(0.04, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'magic') {
+          // Arpeggio rising sound
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(261.63, now); // C4
+          osc.frequency.setValueAtTime(329.63, now + 0.1); // E4
+          osc.frequency.setValueAtTime(392.00, now + 0.2); // G4
+          osc.frequency.setValueAtTime(523.25, now + 0.3); // C5
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.001, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.6);
+        }
+      } catch (e) {
+        // Fallback silently if audio fails or is blocked
+      }
+    }
+  </script>
+
+  <!-- Navigation Switcher -->
+  <script>
+    function switchTab(tabId) {
+      const ohBtn = document.getElementById('tab-onehot-btn');
+      const w2vBtn = document.getElementById('tab-word2vec-btn');
+      const ohSec = document.getElementById('onehot-section');
+      const w2vSec = document.getElementById('word2vec-section');
+
+      if (tabId === 'onehot') {
+        // Update Button States
+        ohBtn.className = "px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-cyan-500 text-cyan-400 bg-cyan-500/5 rounded-t-2xl flex items-center gap-2";
+        w2vBtn.className = "px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 rounded-t-2xl flex items-center gap-2";
+        
+        // Toggle Sections
+        ohSec.classList.remove('hidden');
+        w2vSec.classList.add('hidden');
+        playSound('freeze');
+      } else {
+        // Update Button States
+        ohBtn.className = "px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-900/50 rounded-t-2xl flex items-center gap-2";
+        w2vBtn.className = "px-6 py-3.5 text-sm font-black tracking-wider transition-all border-b-2 border-amber-500 text-amber-400 bg-amber-500/5 rounded-t-2xl flex items-center gap-2";
+        
+        // Toggle Sections
+        ohSec.classList.add('hidden');
+        w2vSec.classList.remove('hidden');
+        playSound('magic');
+        
+        // Instantly force canvas container resize calculations
+        setTimeout(resizeCanvas, 30);
+      }
+    }
+  </script>
+
+  <!-- Game Sandbox & Simulation Script -->
+  <script>
+    // --- ACT 1: One-Hot World Simulation ---
+    let selectedOneHot = [];
+
+    const oneHotData = {
+      apple: { label: '🍎 苹果', vec: [1, 0, 0, 0], color: 'text-rose-500' },
+      banana: { label: '🍌 香蕉', vec: [0, 1, 0, 0], color: 'text-amber-400' },
+      rocket: { label: '🚀 火箭', vec: [0, 0, 1, 0], color: 'text-cyan-400' },
+      plane: { label: '✈️ 飞机', vec: [0, 0, 0, 1], color: 'text-blue-400' }
+    };
+
+    function selectOneHotWord(id, element) {
+      if (selectedOneHot.includes(id)) {
+        // Toggle off
+        selectedOneHot = selectedOneHot.filter(item => item !== id);
+        element.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'glow-cyan');
+      } else {
+        if (selectedOneHot.length >= 2) {
+          // Remove first selected
+          const firstId = selectedOneHot.shift();
+          const firstBtn = document.getElementById(`btn-oh-${firstId}`);
+          if (firstBtn) {
+            firstBtn.classList.remove('border-cyan-500', 'bg-cyan-500/10', 'glow-cyan');
+          }
+        }
+        selectedOneHot.push(id);
+        element.classList.add('border-cyan-500', 'bg-cyan-500/10', 'glow-cyan');
+      }
+      playSound('freeze');
+      updateOneHotDetector();
+    }
+
+    function updateOneHotDetector() {
+      const display = document.getElementById('oh-detector-display');
+      
+      if (selectedOneHot.length === 0) {
+        display.innerHTML = `
+          <span class="text-xs text-cyan-500/80 uppercase font-mono tracking-widest block mb-2">⚡ 羁绊相似度测量仪 ⚡</span>
+          <p class="text-slate-400 text-sm mt-4">请在上方点击选择<span class="text-cyan-400 font-bold">两个不同的词汇</span><br>测试它们在稀疏正交空间中的宇宙默契度！</p>
+        `;
+        return;
+      }
+
+      if (selectedOneHot.length === 1) {
+        const word = oneHotData[selectedOneHot[0]];
+        display.innerHTML = `
+          <span class="text-xs text-cyan-500/80 uppercase font-mono tracking-widest block mb-1">⚡ 羁绊相似度测量仪 ⚡</span>
+          <p class="text-xs text-slate-500 mb-3">等待选择第二个能量源...</p>
+          <div class="flex items-center gap-2 justify-center text-lg font-black">
+            <span>${word.label}</span>
+            <span class="text-slate-500">=</span>
+            <span class="font-mono text-cyan-400 text-sm">[${word.vec.join(', ')}]</span>
+          </div>
+        `;
+        return;
+      }
+
+      // We have 2 words selected
+      const w1 = oneHotData[selectedOneHot[0]];
+      const w2 = oneHotData[selectedOneHot[1]];
+
+      // Math calculation (1-hot vectors dot product always 0 for different keys)
+      display.innerHTML = `
+        <span class="text-xs text-rose-500 uppercase font-mono tracking-widest block mb-1 font-black animate-pulse">❄️ 冰封正交绝境 ❄️</span>
+        <div class="flex flex-col items-center gap-1 mt-2">
+          <div class="flex items-center gap-3 text-xs md:text-sm font-bold">
+            <span class="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800">${w1.label} <span class="font-mono text-cyan-400 font-normal">(${w1.vec.join('')})</span></span>
+            <span class="text-rose-500 text-lg font-black">×</span>
+            <span class="bg-slate-900 px-2.5 py-1.5 rounded border border-slate-800">${w2.label} <span class="font-mono text-cyan-400 font-normal">(${w2.vec.join('')})</span></span>
+          </div>
+          <div class="mt-3 flex flex-col items-center">
+            <span class="text-[10px] text-slate-500 uppercase font-mono">内积 / 语义余弦相似度 =</span>
+            <span class="text-4xl font-black text-rose-500 font-mono tracking-wider animate-bounce mt-1">0.00</span>
+          </div>
+          <p class="text-xs text-rose-400/90 text-center mt-2.5 max-w-md font-semibold leading-relaxed">
+            🚨 警报！因为它们在不同维度上互为直角（正交），默契值永远为零！在稀疏空间中，它们是毫无羁绊、冷冰冰的陌生人！
+          </p>
+        </div>
+      `;
+    }
+
+
+    // --- ACT 2-4: Word2Vec Universe Simulation (HTML5 Canvas) ---
+    const canvas = document.getElementById('universe-canvas');
+    const ctx = canvas.getContext('2d');
+    let sliderVal = 0;
+
+    // Word configuration
+    // Category types: 'fruit', 'vehicle', 'royalty'
+    const wordNodes = [
+      // Fruit Cluster (Target center: x=180, y=210)
+      { id: 'apple', label: '🍎 苹果', type: 'fruit', targetX: 180, targetY: 150, color: '#f87171', glow: 'rgba(248,113,113,0.5)' },
+      { id: 'banana', label: '🍌 香蕉', type: 'fruit', targetX: 130, targetY: 200, color: '#fbbf24', glow: 'rgba(251,191,36,0.5)' },
+      { id: 'watermelon', label: '🍉 西瓜', type: 'fruit', targetX: 220, targetY: 220, color: '#34d399', glow: 'rgba(52,211,153,0.5)' },
+      { id: 'cherry', label: '🍒 樱桃', type: 'fruit', targetX: 240, targetY: 140, color: '#f43f5e', glow: 'rgba(244,63,94,0.5)' },
+
+      // Vehicle Cluster (Target center: x=620, y=210)
+      { id: 'rocket', label: '🚀 火箭', type: 'vehicle', targetX: 600, targetY: 150, color: '#22d3ee', glow: 'rgba(34,211,238,0.5)' },
+      { id: 'plane', label: '✈️ 飞机', type: 'vehicle', targetX: 680, targetY: 220, color: '#60a5fa', glow: 'rgba(96,165,250,0.5)' },
+      { id: 'train', label: '🚇 地铁', type: 'vehicle', targetX: 550, targetY: 230, color: '#a78bfa', glow: 'rgba(167,139,250,0.5)' },
+      { id: 'excavator', label: '🚜 挖土机', type: 'vehicle', targetX: 650, targetY: 120, color: '#f59e0b', glow: 'rgba(245,158,11,0.5)' },
+
+      // Royalty Cluster (Forming a perfect vector parallelogram for magic)
+      { id: 'king', label: '👑 国王', type: 'royalty', targetX: 470, targetY: 130, color: '#fbbf24', glow: 'rgba(251,191,36,0.5)' },
+      { id: 'man', label: '👨 男人', type: 'royalty', targetX: 370, targetY: 130, color: '#f472b6', glow: 'rgba(244,114,182,0.5)' },
+      { id: 'woman', label: '👩 女人', type: 'royalty', targetX: 370, targetY: 230, color: '#38bdf8', glow: 'rgba(56,189,248,0.5)' },
+      { id: 'queen', label: '👸 女王', type: 'royalty', targetX: 470, targetY: 230, color: '#a78bfa', glow: 'rgba(167,139,250,0.5)' }
+    ];
+
+    // Seeded random positions for 0% progress to look chaotic but deterministic
+    const randomPositions = {
+      'apple': { x: 380, y: 70 },
+      'banana': { x: 620, y: 310 },
+      'watermelon': { x: 120, y: 80 },
+      'cherry': { x: 550, y: 80 },
+      'rocket': { x: 180, y: 320 },
+      'plane': { x: 480, y: 290 },
+      'train': { x: 280, y: 250 },
+      'excavator': { x: 690, y: 150 },
+      'king': { x: 150, y: 160 },
+      'man': { x: 600, y: 230 },
+      'woman': { x: 420, y: 180 },
+      'queen': { x: 310, y: 100 }
+    };
+
+    // Particles for background aesthetic
+    let particles = [];
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          speed: 0.1 + Math.random() * 0.4,
+          size: 1 + Math.random() * 2,
+          opacity: 0.2 + Math.random() * 0.5
+        });
+      }
+    }
+
+    // Dynamic Lightning Effects
+    let lightnings = [];
+    function createLightning(x1, y1, x2, y2) {
+      lightnings.push({
+        x1, y1, x2, y2,
+        life: 5,
+        maxLife: 5
+      });
+    }
+
+    // Vector Magic Showcase State
+    let magicActive = false;
+    let magicProgress = 0; // 0 to 100
+
+    function triggerVectorMagic() {
+      if (sliderVal < 100) return;
+      magicActive = true;
+      magicProgress = 0;
+      playSound('magic');
+      logMessage("[⚡ MAGIC]: 天上落下金色的符文阵！‘国王向量’ 减去 ‘男人向量’ 加上 ‘女人向量’，正在空间中进行几何大挪移...");
+    }
+
+    // Log tracking
+    let previousLoggedMilestone = -1;
+
+    function logMessage(text) {
+      const container = document.getElementById('log-container');
+      const timeStr = new Date().toLocaleTimeString('zh-CN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      container.innerHTML += `<div class="mb-1"><span class="text-slate-600">[${timeStr}]</span> ${text}</div>`;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function updateTraining(value) {
+      sliderVal = parseInt(value);
+      document.getElementById('epoch-percentage').innerText = `${sliderVal}%`;
+      
+      const statusText = document.getElementById('training-status');
+      const formulaOverlay = document.getElementById('formula-overlay');
+
+      // Play audio cue occasionally during dragging to emulate lightning strike energy
+      if (sliderVal > 0 && sliderVal < 100 && Math.random() < 0.12) {
+        playSound('thunder');
+        // Random lightning sparks within active groups
+        const group = Math.random() > 0.5 ? 'fruit' : 'vehicle';
+        const nodesInGroup = wordNodes.filter(n => n.type === group);
+        if (nodesInGroup.length >= 2) {
+          const n1 = nodesInGroup[Math.floor(Math.random() * nodesInGroup.length)];
+          const n2 = nodesInGroup[Math.floor(Math.random() * nodesInGroup.length)];
+          if (n1.id !== n2.id) {
+            const pos1 = getInterpolatedPos(n1);
+            const pos2 = getInterpolatedPos(n2);
+            createLightning(pos1.x, pos1.y, pos2.x, pos2.y);
+          }
+        }
+      }
+
+      // Logging updates at milestones
+      const milestone = Math.floor(sliderVal / 10) * 10;
+      if (milestone !== previousLoggedMilestone) {
+        previousLoggedMilestone = milestone;
+        if (sliderVal === 0) {
+          logMessage("[SYSTEM]: 重置特训营！所有的词汇关系化为最初的无序状态。");
+        } else if (sliderVal === 10) {
+          logMessage("[特训]: 启动梯度雷电！文字开始被灌注大量语境。‘苹果’ 与 ‘香蕉’ 感到自己体内的随机数正疯狂重构！");
+        } else if (sliderVal === 30) {
+          logMessage("[特训]: 雷鸣怒吼！负采样（Negative Sampling）防御阵线开启！‘苹果’ 将无耻的 ‘挖掘机’ 轰出了它的语义地盘！");
+        } else if (sliderVal === 50) {
+          logMessage("[特训]: 特训过半，能量激增！水果家族和钢铁载具家族在 300 维投影面上逐渐呈现出各自集结的轮廓。");
+        } else if (sliderVal === 70) {
+          logMessage("[特训]: ‘国王’ 和 ‘女人’ 开始发现他们之间具有完美的向量差，冥冥中仿佛有什么命运将他们相连！");
+        } else if (sliderVal === 90) {
+          logMessage("[特训]: 天劫即将度尽！词向量相似度正在逼近临界极致，羁绊之力全开！");
+        } else if (sliderVal === 100) {
+          logMessage("[🏆 完满大成功]: 恭喜！特训全部完成！静态词向量完美凝聚。空间平移魔法（Vector Analogy）解锁！");
+        }
+      }
+
+      // Status visual text handler
+      if (sliderVal === 0) {
+        statusText.innerText = "⚙️ 准备就绪，拖动下方滑块开始被雷劈特训";
+        formulaOverlay.classList.add('opacity-0', 'translate-y-12', 'pointer-events-none');
+        magicActive = false;
+        magicProgress = 0;
+      } else if (sliderVal === 100) {
+        statusText.innerText = "🏆 完美觉醒！快点击下方运行‘平移向量魔法’";
+        formulaOverlay.classList.remove('opacity-0', 'translate-y-12', 'pointer-events-none');
+      } else {
+        statusText.innerText = `⚡ 特训中... 梯度重塑系数: ${sliderVal}%`;
+        formulaOverlay.classList.add('opacity-0', 'translate-y-12', 'pointer-events-none');
+        magicActive = false;
+        magicProgress = 0;
+      }
+    }
+
+    // Canvas size sync
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      if (!container) return;
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      initParticles();
+    }
+
+    // Word positioning based on slider percentage interpolation
+    function getInterpolatedPos(node) {
+      const rand = randomPositions[node.id];
+      const target = { x: node.targetX, y: node.targetY };
+      
+      // Dynamic scale factors depending on the parent container's actual size
+      const scaleX = canvas.width / 800;
+      const scaleY = canvas.height / 400;
+
+      const finalRandX = rand.x * scaleX;
+      const finalRandY = rand.y * scaleY;
+      const finalTargetX = target.x * scaleX;
+      const finalTargetY = target.y * scaleY;
+
+      const t = sliderVal / 100;
+      
+      // Floating effect
+      const floatX = Math.sin(Date.now() * 0.001 + node.targetX) * 3 * (1 - t + 0.1);
+      const floatY = Math.cos(Date.now() * 0.001 + node.targetY) * 3 * (1 - t + 0.1);
+
+      return {
+        x: finalRandX + (finalTargetX - finalRandX) * t + floatX,
+        y: finalRandY + (finalTargetY - finalRandY) * t + floatY
+      };
+    }
+
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. Draw Space Dust / Particles
+      particles.forEach(p => {
+        p.y -= p.speed;
+        if (p.y < 0) {
+          p.y = canvas.height;
+          p.x = Math.random() * canvas.width;
+        }
+        ctx.fillStyle = `rgba(245, 158, 11, ${p.opacity})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 2. Draw active Lightning bolts from training
+      lightnings.forEach((l, idx) => {
+        ctx.strokeStyle = `rgba(253, 224, 71, ${l.life / l.maxLife})`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(l.x1, l.y1);
+        
+        // Jagged line calculations
+        const midX = (l.x1 + l.x2) / 2;
+        const midY = (l.y1 + l.y2) / 2;
+        const offset = (Math.random() - 0.5) * 15;
+        
+        ctx.lineTo(midX + offset, midY + offset);
+        ctx.lineTo(l.x2, l.y2);
+        ctx.stroke();
+
+        l.life--;
+      });
+      lightnings = lightnings.filter(l => l.life > 0);
+
+      // 3. Draw Cluster Connection Bounds if sliderVal > 50
+      if (sliderVal > 50) {
+        const drawClusterBoundary = (type, color) => {
+          const nodesInType = wordNodes.filter(n => n.type === type).map(n => getInterpolatedPos(n));
+          if (nodesInType.length < 2) return;
+          
+          // Draw connecting web to show solidarity/羁绊
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 0.5;
+          ctx.beginPath();
+          for (let i = 0; i < nodesInType.length; i++) {
+            for (let j = i + 1; j < nodesInType.length; j++) {
+              ctx.moveTo(nodesInType[i].x, nodesInType[i].y);
+              ctx.lineTo(nodesInType[j].x, nodesInType[j].y);
+            }
+          }
+          ctx.stroke();
+        };
+
+        drawClusterBoundary('fruit', 'rgba(52, 211, 153, 0.15)');
+        drawClusterBoundary('vehicle', 'rgba(96, 165, 250, 0.15)');
+        drawClusterBoundary('royalty', 'rgba(167, 139, 250, 0.15)');
+      }
+
+      // 4. Vector Magic Visual Overlay Animation
+      if (magicActive) {
+        magicProgress += 1;
+        if (magicProgress > 100) {
+          magicProgress = 100;
+        }
+
+        const pKing = getInterpolatedPos(wordNodes.find(n => n.id === 'king'));
+        const pMan = getInterpolatedPos(wordNodes.find(n => n.id === 'man'));
+        const pWoman = getInterpolatedPos(wordNodes.find(n => n.id === 'woman'));
+        const pQueen = getInterpolatedPos(wordNodes.find(n => n.id === 'queen'));
+
+        // Step 1: Draw vector King -> Man subtraction link (King to Man represents the "gender shift" vector)
+        ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(pKing.x, pKing.y);
+        ctx.lineTo(pMan.x, pMan.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Show vector: King - Man (let's project this shift from Woman)
+        const shiftX = pKing.x - pMan.x;
+        const shiftY = pKing.y - pMan.y;
+
+        // Current magic beam end point based on animation progress
+        const t = magicProgress / 100;
+        const beamX = pWoman.x + shiftX * t;
+        const beamY = pWoman.y + shiftY * t;
+
+        // Draw magic laser beam pushing out of Woman node
+        ctx.strokeStyle = '#f59e0b';
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 15;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(pWoman.x, pWoman.y);
+        ctx.lineTo(beamX, beamY);
+        ctx.stroke();
+        ctx.shadowBlur = 0; // reset
+
+        // Show moving arrow or beam sparkle
+        ctx.fillStyle = '#f59e0b';
+        ctx.beginPath();
+        ctx.arc(beamX, beamY, 6, 0, Math.PI*2);
+        ctx.fill();
+
+        // If completed, draw highlight around Queen
+        if (magicProgress === 100) {
+          ctx.strokeStyle = '#a78bfa';
+          ctx.lineWidth = 3;
+          ctx.shadowBlur = 20;
+          ctx.shadowColor = '#a78bfa';
+          ctx.beginPath();
+          ctx.arc(pQueen.x, pQueen.y, 25, 0, Math.PI*2);
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+
+          // Draw floating label for vector proof
+          ctx.fillStyle = '#f59e0b';
+          ctx.font = 'bold 11px Noto Sans SC';
+          ctx.textAlign = 'center';
+          ctx.fillText('✨ 空间平移大挪移成功！', (pWoman.x + pQueen.x)/2, (pWoman.y + pQueen.y)/2 - 15);
+        }
+      }
+
+      // 5. Draw Word Nodes
+      wordNodes.forEach(node => {
+        const pos = getInterpolatedPos(node);
+
+        // Active node highlight glow
+        ctx.shadowBlur = sliderVal > 70 ? 12 : 3;
+        ctx.shadowColor = node.glow;
+
+        // Draw bubble circle
+        ctx.fillStyle = sliderVal > 30 ? 'rgba(15, 23, 42, 0.95)' : 'rgba(30, 41, 59, 0.85)';
+        ctx.strokeStyle = sliderVal > 50 ? node.color : '#475569';
+        ctx.lineWidth = sliderVal > 0 ? 2 : 1;
+        ctx.beginPath();
+        ctx.arc(pos.x, pos.y, 16, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Reset shadows
+        ctx.shadowBlur = 0;
+
+        // Draw Text Labels
+        ctx.fillStyle = sliderVal > 40 ? '#f8fafc' : '#94a3b8';
+        ctx.font = sliderVal > 80 ? 'bold 12px Noto Sans SC' : '11px Noto Sans SC';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.label, pos.x, pos.y - 24);
+
+        // Draw tiny vector indicator dots when training is advanced
+        if (sliderVal > 75) {
+          ctx.fillStyle = 'rgba(255,255,255,0.15)';
+          ctx.font = '9px monospace';
+          ctx.fillText(`[${node.id === 'apple' ? '0.9,0.1' : node.id==='banana' ? '0.8,0.2' : '...'}]`, pos.x, pos.y + 26);
+        }
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    // Init & Bindings
+    window.onload = function() {
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      
+      // Start loop
+      animate();
+    }
+  </script>
+</body>
+</html>
